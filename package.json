@@ -1,0 +1,15 @@
+{
+  "name": "mofish-plugin-proxy",
+  "version": "0.0.1",
+  "description": "A plugin for mofish tool to proxy requests.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-plugin-syntax-object-rest-spread": "^6.13.0",
+    "babel-preset-env": "^1.7.0"
+  }
+}
