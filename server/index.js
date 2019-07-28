@@ -9,5 +9,6 @@ export default {
   frontend: path.join(__dirname, '../dist'),
   frontendDev: 'http://localhost:8988',
   config: 'config.json',
+  projectSelector: false,
   main: Proxy
 }
