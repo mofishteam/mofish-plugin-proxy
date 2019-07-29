@@ -66,6 +66,7 @@ export default {
   created () {
     if (this.$route.query.add) {
       this.currentServer = defaultServerOption()
+      this.currentLocation = null
     }
   },
   methods: {
@@ -76,10 +77,12 @@ export default {
   watch: {
     getCurrentServer (val) {
       this.currentServer = clone(val)
+      this.currentLocation = null
     },
     $route (val) {
       if (val.query.add) {
         this.currentServer = defaultServerOption()
+        this.currentLocation = null
       }
     }
   },
