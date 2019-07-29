@@ -1,18 +1,46 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <el-container class="home-page">
+    <el-aside width="200px">
+      <el-menu default-active="homeServers" class="home-page-menu">
+        <el-menu-item :index="`homeServers-${server.id}`" :key="server.id" @click="setCurrentServer(server.id)" v-for="server in servers">{{ server.name }}</el-menu-item>
+      </el-menu>
+    </el-aside>
+    <el-main class="home-page-content">
+      <router-view></router-view>
+    </el-main>
+  </el-container>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
+import { mapGetters, mapActions } from 'vuex'
 export default {
-  name: 'home',
+  name: 'homePage',
   components: {
-    HelloWorld
+  },
+  methods: {
+    ...mapActions([
+      'refreshServers',
+      'setCurrentServer'
+    ])
+  },
+  created () {
+    this.refreshServers()
+  },
+  computed: {
+    ...mapGetters({
+      servers: 'getServers'
+    })
   }
 }
 </script>
+
+<style lang="scss">
+  .home-page {
+    &-content {
+      padding: 20px;
+    }
+    &-menu {
+      height: 100vh;
+    }
+  }
+</style>
