@@ -1,23 +1,5 @@
-import md5 from 'md5'
+import { defaultLocationOption, defaultServerOption } from '../commonUtils/options'
 import { merge } from 'lodash'
-let idCnt = 0
-const defaultServerOption = () => ({
-  id: md5('server' + new Date().valueOf() + idCnt++),
-  include: null,
-  name: md5('serverName' + new Date().valueOf() + idCnt++),
-  server: {
-    name: [],
-    listen: 8080,
-    locations: []
-  }
-})
-const defaultLocationOption = () => ({
-  id: md5('location' + new Date().valueOf() + idCnt++),
-  url: '/',
-  proxyPass: null,
-  root: null,
-  alias: null
-})
 
 export default class ProxyObj {
   constructor ({ libs, utils, eventBus, plugins, pluginObjects, name }) {

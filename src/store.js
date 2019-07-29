@@ -23,6 +23,9 @@ export default new Vuex.Store({
     },
     SET_CURRENT_SERVER_BY_OBJECT (state, server) {
       state.currentServer = server
+    },
+    CLEAR_CURRENT_SERVER (state) {
+      state.currentServer = {}
     }
   },
   actions: {
@@ -32,6 +35,9 @@ export default new Vuex.Store({
           commit('SET_SERVERS', res.data)
         }
       })
+    },
+    clearCurrentServer ({ commit }) {
+      commit('CLEAR_CURRENT_SERVER')
     },
     setCurrentServer ({ commit }, val) {
       if (typeof val === 'string') {
