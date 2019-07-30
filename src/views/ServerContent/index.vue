@@ -1,10 +1,12 @@
 <template>
   <section class="server-content-page">
-    <el-card shadow="hover" class="server-content-page__container" v-if="$route.query.add || currentServer.name">
+    <el-card shadow="hover" class="server-content-page__container" v-if="isAdd || currentServer.name">
       <div slot="header" class="clearfix">
-        <span>{{ currentServer.name }}</span>
-        <el-button type="text" icon="el-icon-edit-outline" style="margin-left: 5px;"></el-button>
-        <el-button style="float: right;" type="danger" icon="el-icon-delete" circle :disabled="$route.query.add"></el-button>
+        <span v-show="!isEdit">{{ currentServer.name }}</span>
+        <el-input v-show="isEdit" v-model="tempServerName" style="width: 100%; max-width: 300px;"></el-input>
+        <el-button type="text" :icon="!isEdit ? 'el-icon-edit-outline' : 'el-icon-check'" style="margin-left: 5px;" @click="switchEdit"></el-button>
+        <el-button v-show="isEdit" type="text" icon="el-icon-close" style="margin-left: 5px;" @click="isEdit = false"></el-button>
+        <el-button style="float: right;" type="danger" icon="el-icon-delete" circle :disabled="isAdd" @click="deleteServerConfirm"></el-button>
       </div>
       <el-form ref="form" :model="currentServer" label-width="100px">
         <el-form-item label="ServerName">
@@ -25,64 +27,123 @@
           <el-input v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;"></el-input>
         </el-form-item>
         <el-form-item label="Locations">
-          <el-row :gutter="20">
-            <el-col :span="10">
-              <location-card v-for="(location, $locationIndex) in currentServer.server.locations" :location="location" :key="$locationIndex"></location-card>
-            </el-col>
-            <el-col :span="10">
-              <location-card :is-add="true" :location="currentLocation" v-if="currentLocation"></location-card>
-            </el-col>
-            <el-col :span="24" class="tac" style="margin-top: 20px;">
-              <el-button icon="el-icon-plus" @click="addLocation">Add Location</el-button>
-            </el-col>
-          </el-row>
+          <el-collapse v-model="locationShowList" style="max-width: 800px;">
+            <location-card @delete="deleteLocation(location)" :name="`location-card-${$locationIndex}`" v-for="(location, $locationIndex) in currentServer.server.locations" :key="$locationIndex" :location="location"></location-card>
+            <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation"></location-card>
+          </el-collapse>
+        </el-form-item>
+        <el-form-item class="tac" style="max-width: 800px;">
+          <el-button v-show="!currentLocation" icon="el-icon-plus" @click="addLocation">Add Location</el-button>
+          <el-button v-show="currentLocation" type="primary" icon="el-icon-check" @click="saveLocation">Save Addition</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="saveServerConfig(currentServer)">Save</el-button>
+          <el-button @click="resetForm">Reset</el-button>
         </el-form-item>
       </el-form>
     </el-card>
-    <div class="server-content-page__empty text-placeholder" v-if="!$route.query.add && !currentServer.name">
+    <div class="server-content-page__empty text-placeholder" v-if="!isAdd && !currentServer.name">
       Click 'Add Server' button or chose a server
     </div>
   </section>
 </template>
 
 <script>
-import { defaultServerOption, defaultLocationOption } from '../../../commonUtils/options'
+import { defaultServerOption, defaultLocationOption, getId } from '../../../commonUtils/options'
 import LocationCard from './locationCard'
-import { mapGetters } from 'vuex'
-import { clone } from 'lodash'
+import { mapGetters, mapActions } from 'vuex'
+import { merge } from 'lodash'
 export default {
   name: 'ServerContentPage',
   data () {
     return {
+      tempServerName: '',
       currentServer: {},
-      currentLocation: null
+      currentLocation: null,
+      isEdit: false,
+      locationShowList: []
     }
   },
   computed: {
     ...mapGetters({
       getCurrentServer: 'getCurrentServer'
-    })
+    }),
+    isAdd () {
+      return this.$route.query.add
+    }
   },
   created () {
-    if (this.$route.query.add) {
+    if (this.isAdd) {
       this.currentServer = defaultServerOption()
       this.currentLocation = null
     }
   },
   methods: {
+    ...mapActions([
+      'saveServer', 'deleteServer'
+    ]),
     addLocation () {
       this.currentLocation = defaultLocationOption()
+      if (!this.locationShowList.includes('add')) {
+        this.locationShowList.push('add')
+      }
+    },
+    saveServerConfig (server) {
+      if (this.currentLocation) {
+        this.saveLocation()
+      }
+      this.saveServer(server)
+    },
+    deleteServerConfirm () {
+      this.$confirm('Are you sure to delete this server config?', 'Confirm').then(() => {
+        this.deleteServer(this.currentServer.id)
+      })
+    },
+    saveLocation () {
+      this.currentLocation.id = getId('location')
+      this.currentServer.server.locations.push(this.currentLocation)
+      this.currentLocation = null
+      if (this.locationShowList.includes('add')) {
+        this.locationShowList.splice(this.locationShowList.indexOf('add'), 1)
+      }
+    },
+    switchEdit () {
+      if (this.isEdit) {
+        this.isEdit = false
+        this.currentServer.name = this.tempServerName
+      } else {
+        this.isEdit = true
+        this.tempServerName = this.currentServer.name
+      }
+    },
+    deleteLocation (location) {
+      if (this.currentServer.server.locations.includes(location)) {
+        this.currentServer.server.locations.splice(
+          this.currentServer.server.locations.indexOf(location), 1
+        )
+      }
+    },
+    resetForm () {
+      this.$confirm('Are you sure to reset this server config?', 'Confirm').then(() => {
+        this.currentLocation = null
+        this.currentServer = this.cloneServer(this.getCurrentServer)
+      })
+    },
+    cloneServer (raw) {
+      return merge({}, raw)
     }
   },
   watch: {
     getCurrentServer (val) {
-      this.currentServer = clone(val)
+      this.currentServer = this.cloneServer(val)
       this.currentLocation = null
+      this.locationShowList = []
     },
     $route (val) {
       if (val.query.add) {
         this.currentServer = defaultServerOption()
         this.currentLocation = null
+        this.locationShowList = []
       }
     }
   },
@@ -97,7 +158,6 @@ export default {
     position: relative;
     width: 100%;
     height: 100%;
-    overflow: scroll;
     .server-content-page__empty {
       position: absolute;
       left: 0;

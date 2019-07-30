@@ -58,6 +58,11 @@ export default {
 
 <style lang="scss">
   .home-page {
+    .home-page-content {
+      width: 100%;
+      height: 100vh;
+      overflow: scroll;
+    }
     &-content {
       padding: 20px;
     }

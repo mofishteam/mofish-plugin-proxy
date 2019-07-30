@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getServers } from '@/api/service/servers'
+import { getServers, saveServer, addServer, deleteServer } from '@/api/service/servers'
+import { Message } from 'element-ui'
 
 Vue.use(Vuex)
 
@@ -45,6 +46,34 @@ export default new Vuex.Store({
       } else {
         commit('SET_CURRENT_SERVER_BY_OBJECT', val)
       }
+    },
+    async saveServer ({ commit, state, dispatch }, val) {
+      for (const server of state.servers) {
+        if (server.id === val.id) {
+          await saveServer(val).then(res => {
+            if (!res.result) {
+              Message.success('Save server successful.')
+            }
+          })
+          dispatch('refreshServers')
+          return
+        }
+      }
+      await addServer(val).then(res => {
+        if (!res.result) {
+          Message.success('Add server successful.')
+        }
+      })
+      dispatch('refreshServers')
+    },
+    async deleteServer ({ commit, dispatch }, id) {
+      await deleteServer(id).then(res => {
+        if (!res.result) {
+          Message.success('Delete server successful.')
+        }
+      })
+      dispatch('refreshServers')
+      commit('CLEAR_CURRENT_SERVER')
     }
   },
   getters: {

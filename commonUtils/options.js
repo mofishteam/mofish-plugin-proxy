@@ -1,10 +1,14 @@
 import md5 from 'md5'
 let idCnt = 0
 
+export const getId = (name) => {
+  return md5(name + new Date().valueOf() + idCnt++)
+}
+
 export const defaultServerOption = () => ({
   id: md5('server' + new Date().valueOf() + idCnt++),
   include: null,
-  name: md5('serverName' + new Date().valueOf() + idCnt++),
+  name: getId('serverName'),
   server: {
     name: [],
     listen: 8080,
@@ -13,10 +17,18 @@ export const defaultServerOption = () => ({
 })
 
 export const defaultLocationOption = () => ({
-  id: md5('location' + new Date().valueOf() + idCnt++),
+  id: getId('location'),
   url: '/',
   type: 'proxyPass',
   proxyPass: {},
   root: {},
   alias: {}
+})
+
+export const defaultLocationProxyPassOption = () => ({
+  target: '',
+  changeOrigin: true,
+  ws: true,
+  router: [],
+  pathRewrite: []
 })
