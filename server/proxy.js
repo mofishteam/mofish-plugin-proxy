@@ -1,5 +1,7 @@
 import { defaultLocationOption, defaultServerOption } from '../commonUtils/options'
 import { merge } from 'lodash'
+import { addChild } from './proxyServer'
+addChild({id: 1})
 
 export default class ProxyObj {
   constructor ({ libs, utils, eventBus, plugins, pluginObjects, name }) {
