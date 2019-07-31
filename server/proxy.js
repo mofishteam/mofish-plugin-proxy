@@ -1,13 +1,13 @@
 import { defaultLocationOption, defaultServerOption } from '../commonUtils/options'
 import { merge } from 'lodash'
-import { addChild } from './proxyServer'
-addChild({id: 1})
+import { addChild, closeChild, restartChild } from './proxyServer'
 
 export default class ProxyObj {
   constructor ({ libs, utils, eventBus, plugins, pluginObjects, name }) {
     this.name = name
     this.libs = libs
     this.utils = utils
+    global.utils = utils
     this.eventBus = eventBus
     this.plugins = plugins
     this.pluginObjects = pluginObjects
@@ -15,10 +15,21 @@ export default class ProxyObj {
     this.settings = this.config.settings
     this.projects = this.config.projects
     this.setEvents()
+    this.startServers()
+    // addChild({id: 1, listen: 8908})
   }
   setEvents () {
     // this.eventBus.$on('projectChange', this.onProjectChange)
     // this.eventBus.$on(`plugin-request-${this.name}`, this.request)
+  }
+  startServers () {
+    console.log(this.config)
+    if (this.config.allProject && this.config.allProject.length) {
+      for (const server of this.config.allProject) {
+        console.log('server: ', server)
+        addChild(server)
+      }
+    }
   }
   async request (ctx, next) {
     console.log('request')
@@ -60,6 +71,7 @@ export default class ProxyObj {
         }
         config.allProject = config.allProject || []
         config.allProject.push(result)
+        addChild(result)
         this.utils.response(ctx, 200, result)
         return config
       })
@@ -76,6 +88,7 @@ export default class ProxyObj {
         for (const proxyIndex in config.allProject || []) {
           if (config.allProject[proxyIndex].id === body.id) {
             config.allProject[proxyIndex] = body
+            restartChild(body)
             this.utils.response(ctx, 200, body)
             return config
           }
@@ -98,6 +111,7 @@ export default class ProxyObj {
         for (const proxyIndex in config.allProject || []) {
           if (config.allProject[proxyIndex].id === query.id) {
             config.allProject.splice(proxyIndex, 1)
+            closeChild(query.id)
             this.utils.response(ctx, 200, query)
             return config
           }

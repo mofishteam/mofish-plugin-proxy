@@ -1,3 +1,8 @@
-import Koa from 'koa'
+const Koa = require('koa')
+const process = require('process')
 
-console.log(Koa)
+process.on('message', (options) => {
+  const app = new Koa()
+
+  app.listen(options.server.listen)
+})

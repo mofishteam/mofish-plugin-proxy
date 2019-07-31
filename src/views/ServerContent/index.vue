@@ -27,14 +27,14 @@
           <el-input v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;"></el-input>
         </el-form-item>
         <el-form-item label="Locations">
-          <el-collapse v-model="locationShowList" style="max-width: 800px;">
+          <el-collapse v-model="locationShowList" style="max-width: 800px; margin-bottom: 10px;" v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation">
             <location-card @delete="deleteLocation(location)" :name="`location-card-${$locationIndex}`" v-for="(location, $locationIndex) in currentServer.server.locations" :key="$locationIndex" :location="location"></location-card>
             <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation"></location-card>
           </el-collapse>
-        </el-form-item>
-        <el-form-item class="tac" style="max-width: 800px;">
-          <el-button v-show="!currentLocation" icon="el-icon-plus" @click="addLocation">Add Location</el-button>
-          <el-button v-show="currentLocation" type="primary" icon="el-icon-check" @click="saveLocation">Save Addition</el-button>
+          <div class="tac" style="max-width: 800px;">
+            <el-button v-show="!currentLocation" icon="el-icon-plus" @click="addLocation">Add Location</el-button>
+            <el-button v-show="currentLocation" type="primary" icon="el-icon-check" @click="saveLocation">Save Addition</el-button>
+          </div>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="saveServerConfig(currentServer)">Save</el-button>
