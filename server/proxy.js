@@ -23,18 +23,14 @@ export default class ProxyObj {
     // this.eventBus.$on(`plugin-request-${this.name}`, this.request)
   }
   startServers () {
-    console.log(this.config)
     if (this.config.allProject && this.config.allProject.length) {
       for (const server of this.config.allProject) {
-        console.log('server: ', server)
         addChild(server)
       }
     }
   }
   async request (ctx, next) {
-    console.log('request')
     const method = ctx.request.method
-    console.log(method)
     switch (method) {
       case 'GET': switch (ctx.request.pluginUrlObj.pathname) {
         case '/list': await this.getProxyList(ctx)

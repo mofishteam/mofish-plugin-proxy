@@ -12,23 +12,40 @@
       <el-form-item label="Type">
         <el-radio-group v-model="location.type" size="small">
           <el-radio-button label="proxyPass"></el-radio-button>
-          <!--                      <el-radio-button label="root"></el-radio-button>-->
+          <el-radio-button label="static"></el-radio-button>
+          <el-radio-button label="mock"></el-radio-button>
           <!--                      <el-radio-button label="alias"></el-radio-button>-->
         </el-radio-group>
       </el-form-item>
-      <template v-if="location.type === 'proxyPass'">
+      <template v-if="location.type === 'mock'">
+        {{ location.mock }}
+        <el-form-item label="MockType">
+          <el-radio-group v-model="location.mock.type" size="small">
+            <el-radio-button label="json"></el-radio-button>
+            <el-radio-button label="jsonFile"></el-radio-button>
+            <el-radio-button label="function"></el-radio-button>
+            <el-radio-button label="proxyPass"></el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <template v-if="location.mock.type === 'json'">
+          <el-form-item label="Actions">
+            <el-input type="textarea" v-model="location.mock.json"></el-input>
+          </el-form-item>
+        </template>
+      </template>
+      <template v-if="location.type === 'proxyPass' || (location.type === 'mock' && location.mock.type === 'proxyPass')">
         <el-form-item label="Target">
-          <el-input v-model="location.proxyPass.target" placeholder="Please input the target of proxyPass."></el-input>
+          <el-input v-model="proxyPassScope.target" placeholder="Please input the target of proxyPass."></el-input>
         </el-form-item>
         <el-form-item label="ChangeOrigin">
-          <el-switch v-model="location.proxyPass.changeOrigin"></el-switch>
+          <el-switch v-model="proxyPassScope.changeOrigin"></el-switch>
         </el-form-item>
         <el-form-item label="WebSocket">
-          <el-switch v-model="location.proxyPass.ws"></el-switch>
+          <el-switch v-model="proxyPassScope.ws"></el-switch>
         </el-form-item>
         <el-form-item label="PathRewrite">
-          <el-button icon="el-icon-plus" circle plain v-show="!location.proxyPass.pathRewrite.length" @click="addPathRewrite(location.proxyPass.pathRewrite)"></el-button>
-          <el-row type="flex" :gutter="10" v-for="(pathRewriteRow, pathRewriteIndex) in location.proxyPass.pathRewrite" :key="pathRewriteIndex" style="margin-bottom: 5px;">
+          <el-button icon="el-icon-plus" circle plain v-show="!proxyPassScope.pathRewrite.length" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
+          <el-row type="flex" :gutter="10" v-for="(pathRewriteRow, pathRewriteIndex) in proxyPassScope.pathRewrite" :key="pathRewriteIndex" style="margin-bottom: 5px;">
             <el-col :span="9">
               <el-input v-model="pathRewriteRow[0]"></el-input>
             </el-col>
@@ -39,14 +56,14 @@
               <el-input v-model="pathRewriteRow[1]"></el-input>
             </el-col>
             <el-col :span="3">
-              <el-button size="small" type="danger" icon="el-icon-delete" circle @click="deletePathRewrite(location.proxyPass.pathRewrite, pathRewriteIndex)"></el-button>
-              <el-button size="small" icon="el-icon-plus" circle plain v-show="pathRewriteIndex === location.proxyPass.pathRewrite.length - 1" @click="addPathRewrite(location.proxyPass.pathRewrite)"></el-button>
+              <el-button size="small" type="danger" icon="el-icon-delete" circle @click="deletePathRewrite(proxyPassScope.pathRewrite, pathRewriteIndex)"></el-button>
+              <el-button size="small" icon="el-icon-plus" circle plain v-show="pathRewriteIndex === proxyPassScope.pathRewrite.length - 1" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
             </el-col>
           </el-row>
         </el-form-item>
         <el-form-item label="Router">
-          <el-button icon="el-icon-plus" circle plain v-show="!location.proxyPass.router.length" @click="addRouter(location.proxyPass.router)"></el-button>
-          <el-row type="flex" :gutter="10" v-for="(routerRow, routerIndex) in location.proxyPass.router" :key="routerIndex" style="margin-bottom: 5px;">
+          <el-button icon="el-icon-plus" circle plain v-show="!proxyPassScope.router.length" @click="addRouter(proxyPassScope.router)"></el-button>
+          <el-row type="flex" :gutter="10" v-for="(routerRow, routerIndex) in proxyPassScope.router" :key="routerIndex" style="margin-bottom: 5px;">
             <el-col :span="9">
               <el-input v-model="routerRow[0]"></el-input>
             </el-col>
@@ -57,21 +74,36 @@
               <el-input v-model="routerRow[1]"></el-input>
             </el-col>
             <el-col :span="3">
-              <el-button size="small" type="danger" icon="el-icon-delete" circle @click="deleteRouter(location.proxyPass.router, routerIndex)"></el-button>
-              <el-button size="small" icon="el-icon-plus" circle plain v-show="routerIndex === location.proxyPass.router.length - 1" @click="addRouter(location.proxyPass.router)"></el-button>
+              <el-button size="small" type="danger" icon="el-icon-delete" circle @click="deleteRouter(proxyPassScope.router, routerIndex)"></el-button>
+              <el-button size="small" icon="el-icon-plus" circle plain v-show="routerIndex === proxyPassScope.router.length - 1" @click="addRouter(proxyPassScope.router)"></el-button>
             </el-col>
           </el-row>
+        </el-form-item>
+      </template>
+      <template v-if="location.type === 'static'">
+        <el-form-item label="Path">
+          <el-input v-model="location.static.path"></el-input>
         </el-form-item>
       </template>
       <el-form-item label="Actions">
         <el-button type="danger" @click="deleteSelf" size="small">Delete</el-button>
       </el-form-item>
+      <el-form-item label="ShowAdvanced">
+        <el-switch v-model="showAdvanced"></el-switch>
+      </el-form-item>
+      <template v-if="showAdvanced">
+        <template v-if="location.type === 'proxyPass'">
+          <el-form-item label="Secure">
+            <el-switch v-model="proxyPassScope.secure"></el-switch>
+          </el-form-item>
+        </template>
+      </template>
     </el-form>
   </el-collapse-item>
 </template>
 
 <script>
-import { defaultLocationProxyPassOption } from '../../../commonUtils/options'
+import { defaultLocationProxyPassOption, defaultLocationStaticOption, defaultLocationMockOption } from '../../../commonUtils/options'
 export default {
   name: 'LocationCard',
   props: {
@@ -90,7 +122,8 @@ export default {
   },
   data () {
     return {
-      isEdit: false
+      isEdit: false,
+      showAdvanced: false
     }
   },
   created () {
@@ -106,14 +139,15 @@ export default {
     },
     clearOptions () {
       this.location.proxyPass = {}
-      this.location.root = {}
-      this.location.alias = {}
+      this.location.mock = {}
+      this.location.static = {}
     },
     onTypeChange (val, isInit) {
-      console.log('onTypeChange')
       this.clearOptions()
       switch (val) {
-        case 'proxyPass': this.location.proxyPass = defaultLocationProxyPassOption()
+        case 'proxyPass': this.location.proxyPass = defaultLocationProxyPassOption(); break
+        case 'static': this.location.static = defaultLocationStaticOption(); break
+        case 'mock': this.location.mock = defaultLocationMockOption(); break
       }
     },
     addPathRewrite (pathRewrite) {
@@ -127,6 +161,15 @@ export default {
     },
     deleteRouter (router, index) {
       router.splice(index, 1)
+    }
+  },
+  computed: {
+    proxyPassScope () {
+      if (this.location.type === 'mock' && this.location.mock.type === 'proxyPass') {
+        return this.location.mock.proxyPass
+      } else {
+        return this.location.proxyPass
+      }
     }
   },
   watch: {

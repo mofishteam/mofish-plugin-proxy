@@ -10,29 +10,19 @@
       </div>
       <el-form ref="form" :model="currentServer" label-width="100px">
         <el-form-item label="ServerName">
-          <el-select
-            v-model="currentServer.server.name"
-            multiple
-            filterable
-            allow-create
-            default-first-option
-            placeholder="Input server name and press enter to add."
-            style="width: 100%; max-width: 500px;">
-            <el-option label="localhost" value="localhost"></el-option>
-            <el-option label="127.0.0.1" value="127.0.0.1"></el-option>
-            <el-option label="0.0.0.0" value="0.0.0.0"></el-option>
-          </el-select>
+          <el-input v-model="currentServer.server.name[0]" placeholder="Input server name and press enter to add."></el-input>
         </el-form-item>
         <el-form-item label="Listen">
           <el-input v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;"></el-input>
         </el-form-item>
         <el-form-item label="Locations">
           <el-collapse v-model="locationShowList" style="max-width: 800px; margin-bottom: 10px;" v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation">
-            <location-card @delete="deleteLocation(location)" :name="`location-card-${$locationIndex}`" v-for="(location, $locationIndex) in currentServer.server.locations" :key="$locationIndex" :location="location"></location-card>
-            <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation"></location-card>
+            <location-card @delete="deleteLocation(location)" :name="`location-card-${$locationIndex}`" v-for="(location, $locationIndex) in currentServer.server.locations" :key="location.id" :location="location"></location-card>
+            <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>
           </el-collapse>
           <div class="tac" style="max-width: 800px;">
             <el-button v-show="!currentLocation" icon="el-icon-plus" @click="addLocation">Add Location</el-button>
+            <el-button v-show="!currentLocation" icon="el-icon-sort" @click="sortLocation">Sort</el-button>
             <el-button v-show="currentLocation" type="primary" icon="el-icon-check" @click="saveLocation">Save Addition</el-button>
           </div>
         </el-form-item>
@@ -45,6 +35,12 @@
     <div class="server-content-page__empty text-placeholder" v-if="!isAdd && !currentServer.name">
       Click 'Add Server' button or chose a server
     </div>
+    <el-dialog
+      title="Sort Location"
+      :visible.sync="showSortLocation"
+      width="500px">
+      <el-tree v-if="currentServer && currentServer.server" :data="currentServer.server.locations" node-key="id" empty-text="No Locations." :props="{label: (data, node) => `${data.url} | ${data.type}`}" draggable :allow-drop="locationAllowDrop"></el-tree>
+    </el-dialog>
   </section>
 </template>
 
@@ -60,6 +56,7 @@ export default {
       tempServerName: '',
       currentServer: {},
       currentLocation: null,
+      showSortLocation: false,
       isEdit: false,
       locationShowList: []
     }
@@ -131,6 +128,12 @@ export default {
     },
     cloneServer (raw) {
       return merge({}, raw)
+    },
+    sortLocation () {
+      this.showSortLocation = true
+    },
+    locationAllowDrop (draggingNode, dropNode, type) {
+      return type !== 'inner'
     }
   },
   watch: {

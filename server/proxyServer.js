@@ -4,15 +4,15 @@ const childPath = path.join(__dirname, 'child.js')
 const childList = {}
 
 export const addChild = async (options) => {
+  console.log(await global.utils.portIsOccupied(options.server.listen), options.server.listen)
   if (options.id) {
     if (!childList[options.id]) {
-      console.log(await global.utils.portIsOccupied(options.listen))
-      if (await global.utils.portIsOccupied(options.listen)) {
+      if (await global.utils.portIsOccupied(options.server.listen)) {
         childList[options.id] = childProcess.fork(childPath, {
           // execPath: 'babel-node',
           // silent: true
         })
-        childList[options.id].send(options)
+        childList[options.id].send(options.server)
         console.log(`Child is started, pid "${childList[options.id].pid}"`)
         // setTimeout(() => {
         //   console.log(child)
@@ -24,10 +24,10 @@ export const addChild = async (options) => {
         //   console.log(`stderr: ${data}`)
         // })
         childList[options.id].on('close', (data) => {
-          console.log(`close: ${data}`)
+          console.log(`close:  ${data}`)
         })
       } else {
-        console.log(`Port ${options.listen} is already in use.`)
+        console.log(`Port ${options.server.listen} is already in use.`)
       }
     }
   }
