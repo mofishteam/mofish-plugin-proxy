@@ -109,5 +109,6 @@ export const defaultLocationMockOption = () => ({
   body: null,
   header: {},
   status: 200,
+  handler: null,
   interceptor: null
 })

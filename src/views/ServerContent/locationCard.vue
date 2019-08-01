@@ -11,25 +11,34 @@
       </el-form-item>
       <el-form-item label="Type">
         <el-radio-group v-model="location.type" size="small">
-          <el-radio-button label="proxyPass"></el-radio-button>
-          <el-radio-button label="static"></el-radio-button>
-          <el-radio-button label="mock"></el-radio-button>
+          <el-radio-button label="proxyPass">ProxyPass</el-radio-button>
+          <el-radio-button label="static">Static</el-radio-button>
+          <el-radio-button label="mock">Mock</el-radio-button>
           <!--                      <el-radio-button label="alias"></el-radio-button>-->
         </el-radio-group>
       </el-form-item>
       <template v-if="location.type === 'mock'">
-        {{ location.mock }}
         <el-form-item label="MockType">
           <el-radio-group v-model="location.mock.type" size="small">
-            <el-radio-button label="json"></el-radio-button>
-            <el-radio-button label="jsonFile"></el-radio-button>
-            <el-radio-button label="function"></el-radio-button>
-            <el-radio-button label="proxyPass"></el-radio-button>
+            <el-radio-button label="json">JSON</el-radio-button>
+            <el-radio-button label="jsonFile">JSONFile</el-radio-button>
+            <el-radio-button label="function">Function</el-radio-button>
+            <el-radio-button label="proxyPass">ProxyPass</el-radio-button>
           </el-radio-group>
         </el-form-item>
         <template v-if="location.mock.type === 'json'">
-          <el-form-item label="Actions">
+          <el-form-item label="MockData">
             <el-input type="textarea" v-model="location.mock.json"></el-input>
+          </el-form-item>
+        </template>
+        <template v-if="location.mock.type === 'jsonFile'">
+          <el-form-item label="MockData">
+            <el-input v-model="location.mock.jsonPath"></el-input>
+          </el-form-item>
+        </template>
+        <template v-if="location.mock.type === 'Function'">
+          <el-form-item label="MockData">
+            <el-input type="textarea" v-model="location.mock.handler"></el-input>
           </el-form-item>
         </template>
       </template>
@@ -138,16 +147,16 @@ export default {
       })
     },
     clearOptions () {
-      this.location.proxyPass = {}
-      this.location.mock = {}
-      this.location.static = {}
+      this.$set(this.location, 'proxyPass', defaultLocationProxyPassOption())
+      this.$set(this.location, 'mock', defaultLocationMockOption())
+      this.$set(this.location, 'static', defaultLocationStaticOption())
     },
     onTypeChange (val, isInit) {
       this.clearOptions()
       switch (val) {
-        case 'proxyPass': this.location.proxyPass = defaultLocationProxyPassOption(); break
-        case 'static': this.location.static = defaultLocationStaticOption(); break
-        case 'mock': this.location.mock = defaultLocationMockOption(); break
+        case 'proxyPass': this.$set(this.location, 'proxyPass', defaultLocationProxyPassOption()); break
+        case 'static': this.$set(this.location, 'static', defaultLocationStaticOption()); break
+        case 'mock': this.$set(this.location, 'mock', defaultLocationMockOption()); break
       }
     },
     addPathRewrite (pathRewrite) {
