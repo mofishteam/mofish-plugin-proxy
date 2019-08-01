@@ -18,12 +18,21 @@
         </el-radio-group>
       </el-form-item>
       <template v-if="location.type === 'mock'">
+        <el-form-item label="Method">
+          <el-radio-group v-model="location.mock.method" size="small">
+            <el-radio-button label="all">ALL</el-radio-button>
+            <el-radio-button label="get">GET</el-radio-button>
+            <el-radio-button label="post">POST</el-radio-button>
+            <el-radio-button label="put">PUT</el-radio-button>
+            <el-radio-button label="delete">DELETE</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="MockType">
           <el-radio-group v-model="location.mock.type" size="small">
             <el-radio-button label="json">JSON</el-radio-button>
-            <el-radio-button label="jsonFile">JSONFile</el-radio-button>
-            <el-radio-button label="function">Function</el-radio-button>
-            <el-radio-button label="proxyPass">ProxyPass</el-radio-button>
+<!--            <el-radio-button label="jsonFile">JSONFile</el-radio-button>-->
+<!--            <el-radio-button label="function">Function</el-radio-button>-->
+<!--            <el-radio-button label="proxyPass">ProxyPass</el-radio-button>-->
           </el-radio-group>
         </el-form-item>
         <template v-if="location.mock.type === 'json'">
