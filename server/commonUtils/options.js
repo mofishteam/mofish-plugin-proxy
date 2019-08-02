@@ -58,9 +58,9 @@ export const defaultLocationProxyPassOption = () => ({
   // true/false, if you want to verify the SSL Certs
   secure: true,
   // url string to be parsed with the url module
-  forward: '',
+  forward: false,
   // object to be passed to http(s).request (see Node's https agent and http agent objects)
-  agent: {},
+  agent: false,
   // object to be passed to https.createServer()
   ssl: {},
   // true/false, adds x-forward headers
@@ -78,11 +78,11 @@ export const defaultLocationProxyPassOption = () => ({
   // Basic authentication i.e. 'user:password' to compute an Authorization header
   auth: '',
   // rewrites the location hostname on (301/302/307/308) redirects
-  hostRewrite: null,
+  hostRewrite: false,
   // rewrites the location host/port on (301/302/307/308) redirects based on requested host/port. Default: false
   autoRewrite: false,
   // rewrites the location protocol on (301/302/307/308) redirects to 'http' or 'https'. Default: null
-  protocoRewrite: null,
+  protocoRewrite: false,
   // see https://www.npmjs.com/package/http-proxy-middleware
   cookieDomainRewrite: false,
   // see https://www.npmjs.com/package/http-proxy-middleware
@@ -90,7 +90,7 @@ export const defaultLocationProxyPassOption = () => ({
   // object, adds request headers. (Example: {host:'www.example.org'})
   headers: {},
   // timeout (in millis) when proxy receives no response from target
-  proxyTimeout: null,
+  proxyTimeout: false,
   // timeout (in millis) for incoming requests
   timeout: 0,
   // true/false, Default: false - specify whether you want to follow redirects
@@ -98,7 +98,7 @@ export const defaultLocationProxyPassOption = () => ({
   // true/false, if set to true, none of the webOutgoing passes are called and it's your responsibility to appropriately return the response by listening and acting on the proxyRes event
   selfHandleResponse: false,
   // see https://www.npmjs.com/package/http-proxy-middleware
-  buffer: null
+  buffer: false
 })
 
 export const defaultLocationMockOption = () => ({
