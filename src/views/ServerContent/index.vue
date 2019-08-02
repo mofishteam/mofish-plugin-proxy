@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { defaultServerOption, defaultLocationOption, getId } from '../../../commonUtils/options'
+import { defaultServerOption, defaultLocationOption, getId } from '../../../server/commonUtils/options'
 import LocationCard from './locationCard'
 import { mapGetters, mapActions } from 'vuex'
 import { merge } from 'lodash'

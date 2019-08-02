@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import { defaultLocationProxyPassOption, defaultLocationStaticOption, defaultLocationMockOption } from '../../../commonUtils/options'
+import { defaultLocationProxyPassOption, defaultLocationStaticOption, defaultLocationMockOption } from '../../../server/commonUtils/options'
 export default {
   name: 'LocationCard',
   props: {

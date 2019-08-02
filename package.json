@@ -2,12 +2,13 @@
   "name": "mofish-plugin-proxy",
   "version": "0.1.0",
   "description": "A plugin for mofish tool to proxy requests.",
-  "main": "server/index.js",
-  "private": true,
+  "main": "index.js",
+  "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "build:server": "babel server --presets env --plugins babel-plugin-syntax-object-rest-spread --out-dir server-dist",
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
@@ -25,19 +26,24 @@
     "vuex": "^3.0.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.5.5",
     "@vue/cli-plugin-babel": "^3.9.0",
     "@vue/cli-plugin-eslint": "^3.9.0",
     "@vue/cli-plugin-unit-mocha": "^3.9.0",
     "@vue/cli-service": "^3.9.0",
     "@vue/eslint-config-standard": "^4.0.0",
     "@vue/test-utils": "1.0.0-beta.29",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-eslint": "^10.0.1",
     "babel-plugin-syntax-object-rest-spread": "^6.13.0",
     "babel-preset-env": "^1.7.0",
     "chai": "^4.1.2",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "fs-readdir-recursive": "^1.1.0",
     "node-sass": "^4.9.0",
+    "output-file-sync": "^2.0.1",
     "sass-loader": "^7.1.0",
     "vue-template-compiler": "^2.6.10"
   }

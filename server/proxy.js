@@ -1,4 +1,4 @@
-import { defaultLocationOption, defaultServerOption } from '../commonUtils/options'
+import { defaultLocationOption, defaultServerOption } from './commonUtils/options'
 import { merge } from 'lodash'
 import { addChild, closeChild, restartChild } from './proxyServer'
 
