@@ -33,16 +33,24 @@ export const addChild = async (options) => {
   }
 }
 
-export const restartChild = (options) => {
+export const restartChild = async (options) => {
   if (options.id && childList[options.id]) {
-    closeChild(options.id)
+    await closeChild(options.id)
     addChild(options)
   }
 }
 
 export const closeChild = (id) => {
-  if (id && childList[id]) {
-    childList[id].kill()
-    delete childList[id]
-  }
+  return new Promise((resolve, reject) => {
+    if (id && childList[id]) {
+      childList[id].on('close', () => {
+        resolve(true)
+      })
+      setTimeout(() => {
+        reject()
+      }, 1000)
+      childList[id].kill()
+      delete childList[id]
+    }
+  })
 }
