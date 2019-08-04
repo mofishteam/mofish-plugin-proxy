@@ -92,16 +92,47 @@ var addChild = exports.addChild = function () {
   };
 }();
 
-var restartChild = exports.restartChild = function restartChild(options) {
-  if (options.id && childList[options.id]) {
-    closeChild(options.id);
-    addChild(options);
-  }
-};
+var restartChild = exports.restartChild = function () {
+  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(options) {
+    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            if (!(options.id && childList[options.id])) {
+              _context2.next = 4;
+              break;
+            }
+
+            _context2.next = 3;
+            return closeChild(options.id);
+
+          case 3:
+            addChild(options);
+
+          case 4:
+          case 'end':
+            return _context2.stop();
+        }
+      }
+    }, _callee2, undefined);
+  }));
+
+  return function restartChild(_x2) {
+    return _ref2.apply(this, arguments);
+  };
+}();
 
 var closeChild = exports.closeChild = function closeChild(id) {
-  if (id && childList[id]) {
-    childList[id].kill();
-    delete childList[id];
-  }
+  return new Promise(function (resolve, reject) {
+    if (id && childList[id]) {
+      childList[id].on('close', function () {
+        resolve(true);
+      });
+      setTimeout(function () {
+        reject();
+      }, 1000);
+      childList[id].kill();
+      delete childList[id];
+    }
+  });
 };
