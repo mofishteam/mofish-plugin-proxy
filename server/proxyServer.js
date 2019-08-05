@@ -4,7 +4,7 @@ const childPath = path.join(__dirname, 'child.js')
 const childList = {}
 
 export const addChild = async (options) => {
-  console.log(await global.utils.portIsOccupied(options.server.listen), options.server.listen)
+  // console.log(await global.utils.portIsOccupied(options.server.listen), options.server.listen)
   if (options.id) {
     if (!childList[options.id]) {
       if (await global.utils.portIsOccupied(options.server.listen)) {

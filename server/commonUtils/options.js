@@ -11,6 +11,11 @@ export const defaultServerOption = () => ({
   name: getId('serverName'),
   server: {
     name: [],
+    ssl: false,
+    sslOptions: {
+      key: '',
+      cert: ''
+    },
     listen: 8080,
     locations: []
   }
@@ -20,9 +25,9 @@ export const defaultLocationOption = () => ({
   id: getId('location'),
   url: '/',
   type: 'proxyPass',
-  proxyPass: {},
-  static: {},
-  interceptor: null
+  proxyPass: defaultLocationProxyPassOption(),
+  static: defaultLocationStaticOption(),
+  mock: defaultLocationMockOption()
 })
 
 export const defaultLocationStaticOption = () => ({
@@ -45,6 +50,13 @@ export const defaultLocationStaticOption = () => ({
   extensioins: null
 })
 
+export const defaultInterceptorOption = () => ({
+  id: getId('interceptor'),
+  type: 'response',
+  name: '',
+  handler: ''
+})
+
 export const defaultLocationProxyPassOption = () => ({
   // url string to be parsed with the url module
   target: '',
@@ -54,6 +66,10 @@ export const defaultLocationProxyPassOption = () => ({
   ws: true,
   router: [],
   pathRewrite: [],
+  interceptors: {
+    response: [],
+    request: []
+  },
   // 高级设置：
   // true/false, if you want to verify the SSL Certs
   secure: true,
@@ -82,7 +98,7 @@ export const defaultLocationProxyPassOption = () => ({
   // rewrites the location host/port on (301/302/307/308) redirects based on requested host/port. Default: false
   autoRewrite: false,
   // rewrites the location protocol on (301/302/307/308) redirects to 'http' or 'https'. Default: null
-  protocoRewrite: false,
+  protocolRewrite: false,
   // see https://www.npmjs.com/package/http-proxy-middleware
   cookieDomainRewrite: false,
   // see https://www.npmjs.com/package/http-proxy-middleware

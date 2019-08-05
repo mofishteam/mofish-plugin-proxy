@@ -24,6 +24,11 @@ var defaultServerOption = exports.defaultServerOption = function defaultServerOp
     name: getId('serverName'),
     server: {
       name: [],
+      ssl: false,
+      sslOptions: {
+        key: '',
+        cert: ''
+      },
       listen: 8080,
       locations: []
     }
@@ -101,7 +106,7 @@ var defaultLocationProxyPassOption = exports.defaultLocationProxyPassOption = fu
     // rewrites the location host/port on (301/302/307/308) redirects based on requested host/port. Default: false
     autoRewrite: false,
     // rewrites the location protocol on (301/302/307/308) redirects to 'http' or 'https'. Default: null
-    protocoRewrite: false,
+    protocolRewrite: false,
     // see https://www.npmjs.com/package/http-proxy-middleware
     cookieDomainRewrite: false,
     // see https://www.npmjs.com/package/http-proxy-middleware

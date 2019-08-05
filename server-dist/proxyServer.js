@@ -26,32 +26,22 @@ var addChild = exports.addChild = function () {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _context.t0 = console;
-            _context.next = 3;
-            return global.utils.portIsOccupied(options.server.listen);
-
-          case 3:
-            _context.t1 = _context.sent;
-            _context.t2 = options.server.listen;
-
-            _context.t0.log.call(_context.t0, _context.t1, _context.t2);
-
             if (!options.id) {
-              _context.next = 18;
+              _context.next = 12;
               break;
             }
 
             if (childList[options.id]) {
-              _context.next = 18;
+              _context.next = 12;
               break;
             }
 
-            _context.next = 10;
+            _context.next = 4;
             return global.utils.portIsOccupied(options.server.listen);
 
-          case 10:
+          case 4:
             if (!_context.sent) {
-              _context.next = 17;
+              _context.next = 11;
               break;
             }
 
@@ -73,13 +63,13 @@ var addChild = exports.addChild = function () {
             childList[options.id].on('close', function (data) {
               console.log('close:  ' + data);
             });
-            _context.next = 18;
+            _context.next = 12;
             break;
 
-          case 17:
+          case 11:
             console.log('Port ' + options.server.listen + ' is already in use.');
 
-          case 18:
+          case 12:
           case 'end':
             return _context.stop();
         }

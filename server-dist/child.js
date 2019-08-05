@@ -9,6 +9,10 @@ var _ = require('lodash');
 var Mount = require('koa-mount');
 var Static = require('koa-static');
 var Router = require('koa-router');
+var http = require('http');
+var https = require('https');
+// const KoaSSL = require('koa-sslify').default
+var fs = require('fs');
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
@@ -47,7 +51,6 @@ process.on('message', function (options) {
 
   var _loop = function _loop(locationOpt) {
     var mergedOption = _.merge({}, locationOpt);
-    console.log(mergedOption.url);
     switch (mergedOption.type) {
       case 'proxyPass':
         mergedOption.proxyPass.router = arrayToObject(mergedOption.proxyPass.router);
@@ -127,6 +130,25 @@ process.on('message', function (options) {
     }
   }
 
-  console.log('serverName: ', options.name);
-  app.listen(options.listen, options.name || []);
+  if (options.ssl && options.sslOptions) {
+    var key = '';
+    var cert = '';
+    try {
+      key = fs.readFileSync(options.sslOptions.key).toString();
+      cert = fs.readFileSync(options.sslOptions.cert).toString();
+    } catch (err) {
+      console.log('Error when reading cert files, Error: \n' + err + '\n=====================');
+    }
+    // app.use(KoaSSL())
+    if (key && cert) {
+      https.createServer({
+        key: key, cert: cert
+      }, app.callback()).listen(options.listen, options.name[0]);
+    } else {
+      console.error('Cert Error, please check your cert and key path.');
+    }
+  } else {
+    http.createServer(app.callback()).listen(options.listen, options.name[0]);
+  }
+  // app.listen(options.listen, options.name[0])
 });

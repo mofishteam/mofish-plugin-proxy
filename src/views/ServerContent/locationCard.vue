@@ -97,6 +97,20 @@
             </el-col>
           </el-row>
         </el-form-item>
+        <el-form-item label="Interceptor">
+          <div v-for="interceptor in proxyPassScope.interceptors.response.concat(proxyPassScope.interceptors.request).sort(interceptorSort)" :key="interceptor.id">
+            <el-popover trigger="hover" width="600" placement="right">
+              <div slot="reference" class="dib">
+                <span>{{ interceptor.name }}</span>
+                <el-tag :type="interceptor.type === 'request' ? 'success' : 'primary'" size="mini" style="margin-left: 10px;">{{ interceptor.type === 'request' ? 'REQ' : 'RES' }}</el-tag>
+                <el-button type="text" icon="el-icon-edit-outline" style="margin-left: 10px;" @click="editInterceptor(interceptor.id, interceptor.type)"></el-button>
+                <el-button type="text" icon="el-icon-delete" @click="deleteInterceptor(interceptor.id, interceptor.type)"></el-button>
+              </div>
+              <pre>async function (ctx) {<br>  {{ interceptor.handler }}<br>}</pre>
+            </el-popover>
+          </div>
+          <el-button icon="el-icon-plus" circle plain @click="addInterceptor(proxyPassScope.interceptors)"></el-button>
+        </el-form-item>
       </template>
       <template v-if="location.type === 'static'">
         <el-form-item label="Path">
@@ -117,11 +131,13 @@
         </template>
       </template>
     </el-form>
+    <interceptor-dialog v-model="showInterceptorDialog" :interceptors="proxyPassScope.interceptors" :is-add="isAddInterceptor" @change="updateInterceptors" :interceptor-id="currentEditInterceptorId" @edit="editInterceptorInfo"></interceptor-dialog>
   </el-collapse-item>
 </template>
 
 <script>
 import { defaultLocationProxyPassOption, defaultLocationStaticOption, defaultLocationMockOption } from '../../../server/commonUtils/options'
+import InterceptorDialog from './interceptorDialog'
 export default {
   name: 'LocationCard',
   props: {
@@ -141,7 +157,10 @@ export default {
   data () {
     return {
       isEdit: false,
-      showAdvanced: false
+      showAdvanced: false,
+      showInterceptorDialog: false,
+      isAddInterceptor: true,
+      currentEditInterceptorId: ''
     }
   },
   created () {
@@ -177,8 +196,39 @@ export default {
     addRouter (router) {
       (router || []).push(['', ''])
     },
+    addInterceptor () {
+      this.isAddInterceptor = true
+      this.showInterceptorDialog = true
+    },
     deleteRouter (router, index) {
       router.splice(index, 1)
+    },
+    updateInterceptors (interceptors) {
+      this.$set(this.proxyPassScope, 'interceptors', interceptors)
+      console.log(this.location.proxyPass)
+    },
+    interceptorSort (item1, item2) {
+      return item1.type === 'request' && item2.type === 'response'
+    },
+    deleteInterceptor (id, type) {
+      const interceptorItem = this.proxyPassScope.interceptors[type].find(item => item.id === id)
+      this.$confirm(`Are you sure to delete interceptor "${interceptorItem.name}" ?`, 'Are you sure').then(res => {
+        this.proxyPassScope.interceptors[type].splice(
+          this.proxyPassScope.interceptors[type].indexOf(interceptorItem),
+          1
+        )
+        this.$message.success(`Interceptor "${interceptorItem.name}" deleted success.`)
+      })
+    },
+    editInterceptor (id, type) {
+      const interceptorItem = this.proxyPassScope.interceptors[type].find(item => item.id === id)
+      this.isAddInterceptor = false
+      this.showInterceptorDialog = true
+      this.currentEditInterceptorId = interceptorItem.id
+    },
+    editInterceptorInfo (interceptor) {
+      const interceptorIndex = this.proxyPassScope.interceptors[interceptor.type].findIndex(item => item.id === interceptor.id)
+      this.$set(this.proxyPassScope.interceptors[interceptor.type], interceptorIndex, interceptor)
     }
   },
   computed: {
@@ -194,6 +244,9 @@ export default {
     'location.type' (val) {
       this.onTypeChange(val)
     }
+  },
+  components: {
+    InterceptorDialog
   }
 }
 </script>

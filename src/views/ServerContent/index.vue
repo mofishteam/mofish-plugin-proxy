@@ -12,6 +12,17 @@
         <el-form-item label="ServerName">
           <el-input v-model="currentServer.server.name[0]" placeholder="Input server name and press enter to add."></el-input>
         </el-form-item>
+        <el-form-item label="SSL">
+          <el-switch v-model="currentServer.server.ssl"></el-switch>
+        </el-form-item>
+        <template v-if="currentServer.server.ssl && currentServer.server.sslOptions">
+          <el-form-item label="Key">
+            <el-input v-model="currentServer.server.sslOptions.key"></el-input>
+          </el-form-item>
+          <el-form-item label="Cert">
+            <el-input v-model="currentServer.server.sslOptions.cert"></el-input>
+          </el-form-item>
+        </template>
         <el-form-item label="Listen">
           <el-input v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;"></el-input>
         </el-form-item>
@@ -127,7 +138,14 @@ export default {
       })
     },
     cloneServer (raw) {
-      return merge({}, raw)
+      const server = merge({}, raw)
+      if (server.locations && server.locations.length) {
+        for (const locationIndex in server.locations) {
+          const location = server.locations[locationIndex]
+          server.locations[locationIndex] = merge(defaultLocationOption, location)
+        }
+      }
+      return server
     },
     sortLocation () {
       this.showSortLocation = true
