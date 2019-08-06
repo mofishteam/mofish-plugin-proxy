@@ -1,12 +1,13 @@
 const Koa = require('koa')
 const process = require('process')
-const Proxy = require('koa-server-http-proxy')
+const Proxy = require('http-proxy-middleware')
 const _ = require('lodash')
 const Mount = require('koa-mount')
 const Static = require('koa-static')
 const Router = require('koa-router')
 const http = require('http')
 const https = require('https')
+const Connect = require('koa2-connect')
 // const KoaSSL = require('koa-sslify').default
 const fs = require('fs')
 
@@ -33,28 +34,35 @@ process.on('message', (options) => {
         mergedOption.proxyPass.pathRewrite = arrayToObject(mergedOption.proxyPass.pathRewrite)
         mergedOption.proxyPass.secure = false
         // mergedOption.proxyPass.selfHandleResponse = true
-        const proxy = Proxy('/', mergedOption.proxyPass)
-        const proxyApp = new Koa()
-        proxyApp.use(proxy)
-        proxyApp.use(async (ctx, next) => {
-          await next()
-          ctx.body = []
-        })
         // app.use(async (ctx, next) => {
         //   if (mergedOption.proxyPass.interceptors && mergedOption.proxyPass.interceptors.request) {
         //     for (const req of mergedOption.proxyPass.interceptors.request || []) {
         //       await (new AsyncFunction('ctx', req.handler))(ctx)
         //     }
         //   }
-        //   // await proxy(ctx)
-        //   await next()
+        //
         //   if (mergedOption.proxyPass.interceptors && mergedOption.proxyPass.interceptors.response) {
         //     for (const res of mergedOption.proxyPass.interceptors.response || []) {
         //       await (new AsyncFunction('ctx', res.handler))(ctx)
         //     }
         //   }
+        //   // cawait next()tx.body = []
         // })
-        // app.use(Proxy(mergedOption.url, mergedOption.proxyPass))
+        const proxyOptions = _.merge({}, mergedOption.proxyPass)
+        proxyOptions.onProxyRes = (proxyRes, req, res) => {
+          console.log(proxyRes.headers, res.writeHead.toString())
+          res.writeHead(200, proxyRes.headers)
+          res.write('11122')
+          // res.statusMessage = proxyRes.statusMessage
+          const cache = []
+          // res.write()
+          res.end('123')
+        }
+        const proxy = Proxy(mergedOption.url, proxyOptions)
+        // proxy.on('proxyRes', (proxyRes, req, res) => {
+        //   console.log(proxyRes, req, res)
+        // })
+        app.use(Connect(proxy))
         // app.use(async (ctx, next) => {
         //   await Proxy(mergedOption.url, mergedOption.proxyPass)(ctx, next)
         // })
@@ -62,11 +70,6 @@ process.on('message', (options) => {
         //   console.log(ctx.body)
         //   next()
         // })
-        app.use(async (ctx, next) => {
-          console.log('before mount')
-          await Mount(mergedOption.url, proxyApp)(ctx, next)
-          console.log('after mount')
-        })
         break
       case 'static':
         const staticApp = new Koa()
