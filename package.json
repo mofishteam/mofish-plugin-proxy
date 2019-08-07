@@ -1,6 +1,6 @@
 {
   "name": "mofish-plugin-proxy",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "A plugin for mofish tool to proxy requests.",
   "main": "index.js",
   "private": false,
@@ -32,6 +32,7 @@
     "koa2-connect": "^1.0.2",
     "lodash": "^4.17.15",
     "md5": "^2.2.1",
+    "node-gzip": "^1.1.2",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",
     "vuex": "^3.0.1"

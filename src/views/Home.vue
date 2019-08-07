@@ -3,7 +3,10 @@
     <el-aside width="200px">
       <el-menu default-active="homeServers" class="home-page-menu">
         <el-menu-item @click="addServer">Add Server</el-menu-item>
-        <el-menu-item :index="`homeServers-${server.id}`" :key="server.id" @click="setServer(server.id)" v-for="server in servers">{{ server.name }}</el-menu-item>
+        <el-menu-item :index="`homeServers-${server.id}`" :key="server.id" @click="setServer(server.id)" v-for="server in servers">
+          <el-button circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
+          <span>{{ server.name }}</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
     <el-main class="home-page-content">
@@ -22,7 +25,8 @@ export default {
     ...mapActions([
       'refreshServers',
       'setCurrentServer',
-      'clearCurrentServer'
+      'clearCurrentServer',
+      'refreshCloseList'
     ]),
     addServer () {
       this.clearCurrentServer()
@@ -46,11 +50,13 @@ export default {
     }
   },
   created () {
+    this.refreshCloseList()
     this.refreshServers()
   },
   computed: {
     ...mapGetters({
-      servers: 'getServers'
+      servers: 'getServers',
+      closeList: 'getCloseList'
     })
   }
 }

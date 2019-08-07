@@ -1,6 +1,7 @@
 import { defaultLocationOption, defaultServerOption } from './commonUtils/options'
 import { merge } from 'lodash'
-import { addChild, closeChild, restartChild } from './proxyServer'
+import { addChild, closeChild, restartChild, pauseChild, resumeChild } from './proxyServer'
+import { portTest } from './port'
 
 export default class ProxyObj {
   constructor ({ libs, utils, eventBus, plugins, pluginObjects, name }) {
@@ -22,10 +23,14 @@ export default class ProxyObj {
     // this.eventBus.$on('projectChange', this.onProjectChange)
     // this.eventBus.$on(`plugin-request-${this.name}`, this.request)
   }
-  startServers () {
+  async startServers () {
     if (this.config.allProject && this.config.allProject.length) {
       for (const server of this.config.allProject) {
-        addChild(server)
+        if (this.config.closeList && this.config.closeList.includes(server.id)) {
+          await addChild(server, true)
+        } else {
+          await addChild(server)
+        }
       }
     }
   }
@@ -33,13 +38,16 @@ export default class ProxyObj {
     const method = ctx.request.method
     switch (method) {
       case 'GET': switch (ctx.request.pluginUrlObj.pathname) {
-        case '/list': await this.getProxyList(ctx)
+        case '/list': await this.getProxyList(ctx); break
+        case '/port-test': await portTest(ctx); break
+        case '/server/close-list': await this.getCloseList(ctx)
       } break
       case 'POST': switch (ctx.request.pluginUrlObj.pathname) {
         case '/add': await this.addProxy(ctx)
       } break
       case 'PUT': switch (ctx.request.pluginUrlObj.pathname) {
-        case '/save': await this.saveProxy(ctx)
+        case '/save': await this.saveProxy(ctx); break
+        case '/server/status': await this.setServerStatus(ctx)
       } break
       case 'DELETE': switch (ctx.request.pluginUrlObj.pathname) {
         case '/delete': await this.deleteProxy(ctx)
@@ -51,6 +59,11 @@ export default class ProxyObj {
     const config = this.utils.getConfig()
     // allProject: 所有项目中都显示的项
     this.utils.response(ctx, 200, config.allProject || [])
+  }
+  async getCloseList (ctx) {
+    const config = this.utils.getConfig()
+    // allProject: 所有项目中都显示的项
+    this.utils.response(ctx, 200, config.closeList || [])
   }
   async addProxy (ctx) {
     const body = ctx.request.body
@@ -115,6 +128,29 @@ export default class ProxyObj {
         this.utils.response(ctx, 404, null, {
           message: `Cannot find Server id "${query.id}"`
         })
+        return config
+      })
+    }
+  }
+  async setServerStatus (ctx) {
+    const body = ctx.request.body
+    console.log(body)
+    if (!this.utils.check(body, [['id', 'string'], ['close', 'boolean']])) {
+      this.utils.response(ctx, 400, null, {
+        message: 'Param error, check it and retry.'
+      })
+    } else {
+      await this.utils.setConfig(this.name, async (config) => {
+        const closeList = new Set(config.closeList)
+        if (body.close) {
+          closeList.add(body.id)
+          await pauseChild(body.id)
+        } else {
+          await resumeChild(body.id)
+          closeList.delete(body.id)
+        }
+        config.closeList = closeList
+        this.utils.response(ctx, 200, null)
         return config
       })
     }

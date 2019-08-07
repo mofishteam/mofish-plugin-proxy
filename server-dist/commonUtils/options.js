@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.defaultLocationMockOption = exports.defaultLocationProxyPassOption = exports.defaultLocationStaticOption = exports.defaultLocationOption = exports.defaultServerOption = exports.getId = undefined;
+exports.defaultLocationMockOption = exports.defaultLocationProxyPassOption = exports.defaultInterceptorOption = exports.defaultLocationStaticOption = exports.defaultLocationOption = exports.defaultServerOption = exports.getId = undefined;
 
 var _md = require('md5');
 
@@ -38,11 +38,12 @@ var defaultServerOption = exports.defaultServerOption = function defaultServerOp
 var defaultLocationOption = exports.defaultLocationOption = function defaultLocationOption() {
   return {
     id: getId('location'),
+    isClose: false,
     url: '/',
     type: 'proxyPass',
-    proxyPass: {},
-    static: {},
-    interceptor: null
+    proxyPass: defaultLocationProxyPassOption(),
+    static: defaultLocationStaticOption(),
+    mock: defaultLocationMockOption()
   };
 };
 
@@ -68,6 +69,15 @@ var defaultLocationStaticOption = exports.defaultLocationStaticOption = function
   };
 };
 
+var defaultInterceptorOption = exports.defaultInterceptorOption = function defaultInterceptorOption() {
+  return {
+    id: getId('interceptor'),
+    type: 'response',
+    name: '',
+    handler: ''
+  };
+};
+
 var defaultLocationProxyPassOption = exports.defaultLocationProxyPassOption = function defaultLocationProxyPassOption() {
   return {
     // url string to be parsed with the url module
@@ -78,6 +88,10 @@ var defaultLocationProxyPassOption = exports.defaultLocationProxyPassOption = fu
     ws: true,
     router: [],
     pathRewrite: [],
+    interceptors: {
+      response: [],
+      request: []
+    },
     // 高级设置：
     // true/false, if you want to verify the SSL Certs
     secure: true,

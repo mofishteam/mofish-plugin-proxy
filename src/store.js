@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { getServers, saveServer, addServer, deleteServer } from '@/api/service/servers'
+import { setServerStatus, getCloseList } from '@/api/service/closeStatus'
 import { Message } from 'element-ui'
 
 Vue.use(Vuex)
@@ -8,11 +9,15 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     servers: [],
+    closeList: [],
     currentServer: {}
   },
   mutations: {
     SET_SERVERS (state, val) {
       state.servers = val
+    },
+    SET_CLOSE_LIST (state, val) {
+      state.closeList = val
     },
     SET_CURRENT_SERVER_BY_ID (state, id) {
       for (const server of state.servers) {
@@ -37,6 +42,13 @@ export default new Vuex.Store({
         }
       })
     },
+    refreshCloseList ({ commit }) {
+      getCloseList().then(res => {
+        if (!res.result) {
+          commit('SET_CLOSE_LIST', res.data)
+        }
+      })
+    },
     clearCurrentServer ({ commit }) {
       commit('CLEAR_CURRENT_SERVER')
     },
@@ -46,6 +58,13 @@ export default new Vuex.Store({
       } else {
         commit('SET_CURRENT_SERVER_BY_OBJECT', val)
       }
+    },
+    setServerStatus ({ dispatch, state }, id) {
+      setServerStatus({ id, close: !state.closeList.includes(id) }).then(res => {
+        if (!res.result) {
+          dispatch('refreshCloseList')
+        }
+      })
     },
     async saveServer ({ commit, state, dispatch }, val) {
       for (const server of state.servers) {
@@ -82,6 +101,9 @@ export default new Vuex.Store({
     },
     getCurrentServer (state) {
       return state.currentServer
+    },
+    getCloseList (state) {
+      return state.closeList
     }
   }
 })

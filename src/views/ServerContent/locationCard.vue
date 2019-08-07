@@ -3,11 +3,16 @@
     <div slot="title">
       <span>Location：{{ location.url }}</span>
       <el-tag size="mini" style="margin-left: 20px;">{{ location.type }}</el-tag>
+      <el-tag size="mini" type="danger" style="margin-left: 20px;" v-show="location.isClose">CLOSED</el-tag>
       <el-tag size="mini" type="info" style="margin-left: 20px;" v-show="isAdd">new</el-tag>
     </div>
     <el-form :ref="`location-${location.id}`" :model="location" label-width="100px">
       <el-form-item label="Location">
         <el-input v-model="location.url" placeholder="Please input location url."></el-input>
+      </el-form-item>
+      <el-form-item>
+        <span slot="label" class="text-danger">Close</span>
+        <el-switch active-color="#ff4949" v-model="location.isClose"></el-switch>
       </el-form-item>
       <el-form-item label="Type">
         <el-radio-group v-model="location.type" size="small">
@@ -106,7 +111,7 @@
                 <el-button type="text" icon="el-icon-edit-outline" style="margin-left: 10px;" @click="editInterceptor(interceptor.id, interceptor.type)"></el-button>
                 <el-button type="text" icon="el-icon-delete" @click="deleteInterceptor(interceptor.id, interceptor.type)"></el-button>
               </div>
-              <pre>async function (ctx) {<br>  {{ interceptor.handler }}<br>}</pre>
+              <pre>async function (body) {<br>  {{ interceptor.handler }}<br>}</pre>
             </el-popover>
           </div>
           <el-button icon="el-icon-plus" circle plain @click="addInterceptor(proxyPassScope.interceptors)"></el-button>

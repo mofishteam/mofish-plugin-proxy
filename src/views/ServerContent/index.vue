@@ -7,6 +7,7 @@
         <el-button type="text" :icon="!isEdit ? 'el-icon-edit-outline' : 'el-icon-check'" style="margin-left: 5px;" @click="switchEdit"></el-button>
         <el-button v-show="isEdit" type="text" icon="el-icon-close" style="margin-left: 5px;" @click="isEdit = false"></el-button>
         <el-button style="float: right;" type="danger" icon="el-icon-delete" circle :disabled="isAdd" @click="deleteServerConfirm"></el-button>
+        <el-button style="float: right;" :type="closeList.includes(currentServer.id) ? 'danger' : 'success'" icon="el-icon-switch-button" circle :disabled="isAdd" @click="switchServerStatus"></el-button>
       </div>
       <el-form ref="form" :model="currentServer" label-width="100px">
         <el-form-item label="ServerName">
@@ -24,7 +25,9 @@
           </el-form-item>
         </template>
         <el-form-item label="Listen">
-          <el-input v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;"></el-input>
+          <el-input v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;">
+            <port-test :current-id="currentServer.id" v-if="currentServer.server.listen" slot="append" :port="currentServer.server.listen"></port-test>
+          </el-input>
         </el-form-item>
         <el-form-item label="Locations">
           <el-collapse v-model="locationShowList" style="max-width: 800px; margin-bottom: 10px;" v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation">
@@ -38,7 +41,7 @@
           </div>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="saveServerConfig(currentServer)">Save</el-button>
+          <el-button type="primary" @click="saveServerConfig(currentServer)">Save And Restart</el-button>
           <el-button @click="resetForm">Reset</el-button>
         </el-form-item>
       </el-form>
@@ -60,6 +63,7 @@ import { defaultServerOption, defaultLocationOption, getId } from '../../../serv
 import LocationCard from './locationCard'
 import { mapGetters, mapActions } from 'vuex'
 import { merge } from 'lodash'
+import PortTest from './portTest'
 export default {
   name: 'ServerContentPage',
   data () {
@@ -74,7 +78,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      getCurrentServer: 'getCurrentServer'
+      getCurrentServer: 'getCurrentServer',
+      closeList: 'getCloseList'
     }),
     isAdd () {
       return this.$route.query.add
@@ -88,7 +93,7 @@ export default {
   },
   methods: {
     ...mapActions([
-      'saveServer', 'deleteServer'
+      'saveServer', 'deleteServer', 'setServerStatus'
     ]),
     addLocation () {
       this.currentLocation = defaultLocationOption()
@@ -152,6 +157,11 @@ export default {
     },
     locationAllowDrop (draggingNode, dropNode, type) {
       return type !== 'inner'
+    },
+    switchServerStatus () {
+      this.$confirm(`Are you sure to ${this.closeList.includes(this.currentServer.id) ? 'RESUME' : 'CLOSE'} this Server?`, 'Confirm for switch server status').then(() => {
+        this.setServerStatus(this.currentServer.id)
+      })
     }
   },
   watch: {
@@ -169,7 +179,8 @@ export default {
     }
   },
   components: {
-    LocationCard
+    LocationCard,
+    PortTest
   }
 }
 </script>
