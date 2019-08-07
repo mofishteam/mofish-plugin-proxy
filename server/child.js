@@ -13,8 +13,7 @@ const fs = require('fs')
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
-
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
 const arrayToObject = (arr) => {
   const result = {}
   for (const item of arr) {
@@ -49,14 +48,47 @@ process.on('message', (options) => {
         //   // cawait next()tx.body = []
         // })
         const proxyOptions = _.merge({}, mergedOption.proxyPass)
+        const fn = (body) => {
+          return new Buffer('<html><body><div>123</div></body></html>')
+          // return body
+        }
         proxyOptions.onProxyRes = (proxyRes, req, res) => {
-          console.log(proxyRes.headers, res.writeHead.toString())
-          res.writeHead(200, proxyRes.headers)
-          res.write('11122')
-          // res.statusMessage = proxyRes.statusMessage
-          const cache = []
-          // res.write()
-          res.end('123')
+          // let body = new Buffer('')
+          // proxyRes.on('data', function (data) {
+          //   body = Buffer.concat([body, data])
+          // })
+          // proxyRes.on('end', function () {
+          //   // body = body.toString()
+          //   // console.log("res from proxied server:", body)
+          //   res.end('body')
+          // })
+          const oriWriteHead = res.writeHead
+          const oriWrite = res.write
+          const oriEnd = res.end
+          let jsonString = new Buffer('')
+          Object.assign(res, {
+            writeHead: () => {
+            },
+            write: (chunk) => {
+              jsonString = Buffer.concat([jsonString, chunk])
+            },
+            end: () => {
+              const handledRes = fn(jsonString)
+              console.log('handledRes: ', handledRes)
+              // const buffer = new Buffer(handledRes) // 一定要转成buffer，buffer长度和string长度不一样
+              const headers = Object.keys(proxyRes.headers)
+                .reduce((prev, key) => {
+                  const value = key === 'content-length' ? handledRes.length : proxyRes.headers[key]
+                  return Object.assign({}, prev, {[key]: value})
+                }, {});
+              delete headers['content-encoding']
+              console.log(headers)
+              console.log(proxyRes.statusCode)
+              oriWriteHead.apply(res, [proxyRes.statusCode, headers])
+              oriWrite.call(res, handledRes)
+              oriEnd.call(res)
+            }
+          })
         }
         const proxy = Proxy(mergedOption.url, proxyOptions)
         // proxy.on('proxyRes', (proxyRes, req, res) => {
