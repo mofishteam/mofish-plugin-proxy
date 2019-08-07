@@ -1,6 +1,6 @@
 {
   "name": "mofish-plugin-proxy",
-  "version": "0.2.0",
+  "version": "0.2.4",
   "description": "A plugin for mofish tool to proxy requests.",
   "main": "index.js",
   "private": false,
@@ -15,11 +15,13 @@
     "build": "vue-cli-service build",
     "build:all": "npm run build && npm run build:server",
     "lint": "vue-cli-service lint",
-    "build:server": "babel server --presets env --plugins babel-plugin-syntax-object-rest-spread --out-dir server-dist",
+    "build:server": "babel server --presets env --plugins=babel-plugin-syntax-object-rest-spread,transform-runtime --out-dir server-dist",
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.4.4",
     "axios": "^0.19.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "core-js": "^2.6.5",
     "element-ui": "^2.11.1",
     "http-proxy-middleware": "^0.19.1",

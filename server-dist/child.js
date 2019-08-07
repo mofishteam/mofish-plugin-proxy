@@ -1,6 +1,26 @@
 'use strict';
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+var _assign = require('babel-runtime/core-js/object/assign');
+
+var _assign2 = _interopRequireDefault(_assign);
+
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _regenerator = require('babel-runtime/regenerator');
+
+var _regenerator2 = _interopRequireDefault(_regenerator);
+
+var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
+
+var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
+
+var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Koa = require('koa');
 var process = require('process');
@@ -21,8 +41,8 @@ var _require = require('node-gzip'),
 
 var fs = require('fs');
 
-var AsyncFunction = Object.getPrototypeOf(_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-  return regeneratorRuntime.wrap(function _callee$(_context) {
+var AsyncFunction = (0, _getPrototypeOf2.default)((0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
+  return _regenerator2.default.wrap(function _callee$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
@@ -41,7 +61,7 @@ var arrayToObject = function arrayToObject(arr) {
   var _iteratorError = undefined;
 
   try {
-    for (var _iterator = arr[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+    for (var _iterator = (0, _getIterator3.default)(arr), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var item = _step.value;
 
       result[item[0]] = item[1];
@@ -92,10 +112,10 @@ process.on('message', function (options) {
           // })
           var proxyOptions = _.merge({}, mergedOption.proxyPass);
           var fn = function () {
-            var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(body) {
+            var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(body) {
               var _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, res;
 
-              return regeneratorRuntime.wrap(function _callee2$(_context2) {
+              return _regenerator2.default.wrap(function _callee2$(_context2) {
                 while (1) {
                   switch (_context2.prev = _context2.next) {
                     case 0:
@@ -108,7 +128,7 @@ process.on('message', function (options) {
                       _didIteratorError3 = false;
                       _iteratorError3 = undefined;
                       _context2.prev = 4;
-                      _iterator3 = (mergedOption.proxyPass.interceptors.response || [])[Symbol.iterator]();
+                      _iterator3 = (0, _getIterator3.default)(mergedOption.proxyPass.interceptors.response || []);
 
                     case 6:
                       if (_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done) {
@@ -182,15 +202,15 @@ process.on('message', function (options) {
             var oriWrite = res.write;
             var oriEnd = res.end;
             var jsonString = new Buffer('');
-            Object.assign(res, {
+            (0, _assign2.default)(res, {
               writeHead: function writeHead() {},
               write: function write(chunk) {
                 jsonString = Buffer.concat([jsonString, chunk]);
               },
               end: function () {
-                var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+                var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3() {
                   var headers, handledRes;
-                  return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                  return _regenerator2.default.wrap(function _callee3$(_context3) {
                     while (1) {
                       switch (_context3.prev = _context3.next) {
                         case 0:
@@ -267,8 +287,8 @@ process.on('message', function (options) {
           // })
           var mockRouter = new Router();
           mockRouter[mergedOption.mock.method](mergedOption.url, function () {
-            var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(ctx, next) {
-              return regeneratorRuntime.wrap(function _callee4$(_context4) {
+            var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(ctx, next) {
+              return _regenerator2.default.wrap(function _callee4$(_context4) {
                 while (1) {
                   switch (_context4.prev = _context4.next) {
                     case 0:
@@ -308,7 +328,7 @@ process.on('message', function (options) {
   var _iteratorError2 = undefined;
 
   try {
-    for (var _iterator2 = options.locations.reverse()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+    for (var _iterator2 = (0, _getIterator3.default)(options.locations.reverse()), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
       var locationOpt = _step2.value;
 
       _loop(locationOpt);

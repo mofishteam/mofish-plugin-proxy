@@ -5,6 +5,18 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.closeChild = exports.restartChild = exports.addChild = exports.resumeChild = exports.pauseChild = exports.getChild = undefined;
 
+var _promise = require('babel-runtime/core-js/promise');
+
+var _promise2 = _interopRequireDefault(_promise);
+
+var _regenerator = require('babel-runtime/regenerator');
+
+var _regenerator2 = _interopRequireDefault(_regenerator);
+
+var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
+
+var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
+
 var _child_process = require('child_process');
 
 var _child_process2 = _interopRequireDefault(_child_process);
@@ -14,8 +26,6 @@ var _path = require('path');
 var _path2 = _interopRequireDefault(_path);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 var childPath = _path2.default.join(__dirname, 'child.js');
 var childList = {};
@@ -27,8 +37,8 @@ var getChild = exports.getChild = function getChild(id) {
 };
 
 var pauseChild = exports.pauseChild = function () {
-  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(id) {
-    return regeneratorRuntime.wrap(function _callee$(_context) {
+  var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(id) {
+    return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
@@ -50,8 +60,8 @@ var pauseChild = exports.pauseChild = function () {
 }();
 
 var resumeChild = exports.resumeChild = function () {
-  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(id) {
-    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+  var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(id) {
+    return _regenerator2.default.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
@@ -75,9 +85,9 @@ var resumeChild = exports.resumeChild = function () {
 }();
 
 var addChild = exports.addChild = function () {
-  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(options) {
+  var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(options) {
     var pauseImmediately = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+    return _regenerator2.default.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
@@ -153,8 +163,8 @@ var addChild = exports.addChild = function () {
 }();
 
 var restartChild = exports.restartChild = function () {
-  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(options) {
-    return regeneratorRuntime.wrap(function _callee4$(_context4) {
+  var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(options) {
+    return _regenerator2.default.wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
@@ -183,7 +193,7 @@ var restartChild = exports.restartChild = function () {
 }();
 
 var closeChild = exports.closeChild = function closeChild(id) {
-  return new Promise(function (resolve, reject) {
+  return new _promise2.default(function (resolve, reject) {
     if (id && childList[id]) {
       childList[id].on('close', function () {
         resolve(true);

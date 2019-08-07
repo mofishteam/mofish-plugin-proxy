@@ -4,7 +4,31 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _set = require('babel-runtime/core-js/set');
+
+var _set2 = _interopRequireDefault(_set);
+
+var _regenerator = require('babel-runtime/regenerator');
+
+var _regenerator2 = _interopRequireDefault(_regenerator);
+
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
+
+var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
+
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+require('@babel/polyfill');
 
 var _options = require('./commonUtils/options');
 
@@ -14,9 +38,7 @@ var _proxyServer = require('./proxyServer');
 
 var _port = require('./port');
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var ProxyObj = function () {
   function ProxyObj(_ref) {
@@ -26,8 +48,7 @@ var ProxyObj = function () {
         plugins = _ref.plugins,
         pluginObjects = _ref.pluginObjects,
         name = _ref.name;
-
-    _classCallCheck(this, ProxyObj);
+    (0, _classCallCheck3.default)(this, ProxyObj);
 
     this.name = name;
     this.libs = libs;
@@ -44,7 +65,7 @@ var ProxyObj = function () {
     // addChild({id: 1, listen: 8908})
   }
 
-  _createClass(ProxyObj, [{
+  (0, _createClass3.default)(ProxyObj, [{
     key: 'setEvents',
     value: function setEvents() {
       // this.eventBus.$on('projectChange', this.onProjectChange)
@@ -53,10 +74,10 @@ var ProxyObj = function () {
   }, {
     key: 'startServers',
     value: function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+      var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
         var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, server;
 
-        return regeneratorRuntime.wrap(function _callee$(_context) {
+        return _regenerator2.default.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
@@ -69,7 +90,7 @@ var ProxyObj = function () {
                 _didIteratorError = false;
                 _iteratorError = undefined;
                 _context.prev = 4;
-                _iterator = this.config.allProject[Symbol.iterator]();
+                _iterator = (0, _getIterator3.default)(this.config.allProject);
 
               case 6:
                 if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
@@ -151,9 +172,9 @@ var ProxyObj = function () {
   }, {
     key: 'request',
     value: function () {
-      var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(ctx, next) {
+      var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(ctx, next) {
         var method;
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        return _regenerator2.default.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
@@ -252,9 +273,9 @@ var ProxyObj = function () {
   }, {
     key: 'getProxyList',
     value: function () {
-      var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(ctx) {
+      var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(ctx) {
         var config;
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        return _regenerator2.default.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
@@ -280,9 +301,9 @@ var ProxyObj = function () {
   }, {
     key: 'getCloseList',
     value: function () {
-      var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(ctx) {
+      var _ref5 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(ctx) {
         var config;
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        return _regenerator2.default.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
@@ -308,11 +329,11 @@ var ProxyObj = function () {
   }, {
     key: 'addProxy',
     value: function () {
-      var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(ctx) {
+      var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(ctx) {
         var _this = this;
 
         var body;
-        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        return _regenerator2.default.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
@@ -354,11 +375,11 @@ var ProxyObj = function () {
   }, {
     key: 'saveProxy',
     value: function () {
-      var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(ctx) {
+      var _ref7 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee6(ctx) {
         var _this2 = this;
 
         var body;
-        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+        return _regenerator2.default.wrap(function _callee6$(_context6) {
           while (1) {
             switch (_context6.prev = _context6.next) {
               case 0:
@@ -402,11 +423,11 @@ var ProxyObj = function () {
   }, {
     key: 'deleteProxy',
     value: function () {
-      var _ref8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(ctx) {
+      var _ref8 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee7(ctx) {
         var _this3 = this;
 
         var query;
-        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+        return _regenerator2.default.wrap(function _callee7$(_context7) {
           while (1) {
             switch (_context7.prev = _context7.next) {
               case 0:
@@ -450,11 +471,11 @@ var ProxyObj = function () {
   }, {
     key: 'setServerStatus',
     value: function () {
-      var _ref9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(ctx) {
+      var _ref9 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee9(ctx) {
         var _this4 = this;
 
         var body;
-        return regeneratorRuntime.wrap(function _callee9$(_context9) {
+        return _regenerator2.default.wrap(function _callee9$(_context9) {
           while (1) {
             switch (_context9.prev = _context9.next) {
               case 0:
@@ -476,13 +497,13 @@ var ProxyObj = function () {
               case 6:
                 _context9.next = 8;
                 return this.utils.setConfig(this.name, function () {
-                  var _ref10 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(config) {
+                  var _ref10 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee8(config) {
                     var closeList;
-                    return regeneratorRuntime.wrap(function _callee8$(_context8) {
+                    return _regenerator2.default.wrap(function _callee8$(_context8) {
                       while (1) {
                         switch (_context8.prev = _context8.next) {
                           case 0:
-                            closeList = new Set(config.closeList);
+                            closeList = new _set2.default(config.closeList);
 
                             if (!body.close) {
                               _context8.next = 7;
@@ -542,7 +563,6 @@ var ProxyObj = function () {
       // this.eventBus.$off(`plugin-request-${this.name}`, this.request)
     }
   }]);
-
   return ProxyObj;
 }();
 

@@ -172,8 +172,14 @@ export default {
     if (this.isAdd) {
       this.onTypeChange(this.location.type)
     }
+    this.mergeLocation()
   },
   methods: {
+    mergeLocation () {
+      if (!this.location.proxyPass.interceptors) {
+
+      }
+    },
     deleteSelf () {
       this.$confirm('Are you sure to delete this Location?', 'Confirm').then(() => {
         this.$emit('delete')
@@ -210,7 +216,6 @@ export default {
     },
     updateInterceptors (interceptors) {
       this.$set(this.proxyPassScope, 'interceptors', interceptors)
-      console.log(this.location.proxyPass)
     },
     interceptorSort (item1, item2) {
       return item1.type === 'request' && item2.type === 'response'
@@ -248,6 +253,12 @@ export default {
   watch: {
     'location.type' (val) {
       this.onTypeChange(val)
+    },
+    proxyPassScope: {
+      deep: true,
+      handler () {
+        this.mergeLocation()
+      }
     }
   },
   components: {

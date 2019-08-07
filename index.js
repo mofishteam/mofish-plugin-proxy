@@ -9,5 +9,5 @@ module.exports.default = isDev => ({
   frontend: isDev ? 'http://localhost:8988' : path.join(__dirname, './dist'),
   config: 'config.json',
   projectSelector: false,
-  main: isDev ? require('./server/proxy').default : require('./server-dist/proxy').default
+  main: isDev ? require(path.join(__dirname, './server/proxy.js')).default : require('./server-dist/proxy.js').default
 })
