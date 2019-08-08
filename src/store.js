@@ -35,10 +35,13 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    refreshServers ({ commit }) {
+    refreshServers ({ commit, state }) {
       getServers().then(res => {
         if (!res.result) {
           commit('SET_SERVERS', res.data)
+          if (state.currentServer && state.currentServer.id) {
+            commit('SET_CURRENT_SERVER_BY_ID', state.currentServer.id)
+          }
         }
       })
     },

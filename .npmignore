@@ -1,7 +1,6 @@
 src
 tests
 public
-server
 .idea
 .git
 babel.config.js

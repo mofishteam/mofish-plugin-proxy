@@ -1,6 +1,6 @@
 <template>
   <section class="server-content-page">
-    <el-card shadow="hover" class="server-content-page__container" v-if="isAdd || currentServer.name">
+    <el-card shadow="hover" class="server-content-page__container" v-if="isAdd || currentServer.name" :key="'server-' + currentServer.id">
       <div slot="header" class="clearfix">
         <span v-show="!isEdit">{{ currentServer.name }}</span>
         <el-input v-show="isEdit" v-model="tempServerName" style="width: 100%; max-width: 300px;"></el-input>
@@ -8,40 +8,56 @@
         <el-button v-show="isEdit" type="text" icon="el-icon-close" style="margin-left: 5px;" @click="isEdit = false"></el-button>
         <el-button style="float: right;" type="danger" icon="el-icon-delete" circle :disabled="isAdd" @click="deleteServerConfirm"></el-button>
         <el-button style="float: right;" :type="closeList.includes(currentServer.id) ? 'danger' : 'success'" icon="el-icon-switch-button" circle :disabled="isAdd" @click="switchServerStatus"></el-button>
+        <el-radio-group style="float: right; vertical-align: middle;" v-model="displayMode">
+          <el-radio-button label="visual">
+            <i class="el-icon-turn-off"></i>
+          </el-radio-button>
+          <el-radio-button label="code">
+            <i class="el-icon-tickets"></i>
+          </el-radio-button>
+        </el-radio-group>
       </div>
-      <el-form ref="form" :model="currentServer" label-width="100px">
-        <el-form-item label="ServerName">
-          <el-input v-model="currentServer.server.name[0]" placeholder="Input server name and press enter to add."></el-input>
-        </el-form-item>
-        <el-form-item label="SSL">
-          <el-switch v-model="currentServer.server.ssl"></el-switch>
-        </el-form-item>
-        <template v-if="currentServer.server.ssl && currentServer.server.sslOptions">
-          <el-form-item label="Key">
-            <el-input v-model="currentServer.server.sslOptions.key"></el-input>
+      <el-form ref="form" :model="currentServer" :label-width="displayMode === 'visual' ? '100px' : '0px'">
+        <template v-if="displayMode === 'visual'">
+          <el-form-item label="ServerName">
+            <el-input v-model="currentServer.server.name[0]" placeholder="Input server name and press enter to add."></el-input>
           </el-form-item>
-          <el-form-item label="Cert">
-            <el-input v-model="currentServer.server.sslOptions.cert"></el-input>
+          <el-form-item label="SSL">
+            <el-switch v-model="currentServer.server.ssl"></el-switch>
+          </el-form-item>
+          <template v-if="currentServer.server.ssl && currentServer.server.sslOptions">
+            <el-form-item label="Key">
+              <el-input v-model="currentServer.server.sslOptions.key"></el-input>
+            </el-form-item>
+            <el-form-item label="Cert">
+              <el-input v-model="currentServer.server.sslOptions.cert"></el-input>
+            </el-form-item>
+          </template>
+          <el-form-item label="Listen">
+            <el-input v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;">
+              <port-test :current-id="currentServer.id" v-if="currentServer.server.listen" slot="append" :port="currentServer.server.listen"></port-test>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="Locations">
+            <el-collapse v-model="locationShowList" style="max-width: 800px; margin-bottom: 10px;" v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation">
+              <location-card @delete="deleteLocation(location)" :name="`location-card-${$locationIndex}`" v-for="(location, $locationIndex) in currentServer.server.locations" :key="location.id" :location="location"></location-card>
+              <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>
+            </el-collapse>
+            <div class="tac" style="max-width: 800px;">
+              <el-button v-show="!currentLocation" icon="el-icon-plus" @click="addLocation">Add Location</el-button>
+              <el-button v-show="!currentLocation" icon="el-icon-sort" @click="sortLocation">Sort</el-button>
+              <el-button v-show="currentLocation" type="primary" icon="el-icon-check" @click="saveLocation">Save Addition</el-button>
+            </div>
           </el-form-item>
         </template>
-        <el-form-item label="Listen">
-          <el-input v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;">
-            <port-test :current-id="currentServer.id" v-if="currentServer.server.listen" slot="append" :port="currentServer.server.listen"></port-test>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="Locations">
-          <el-collapse v-model="locationShowList" style="max-width: 800px; margin-bottom: 10px;" v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation">
-            <location-card @delete="deleteLocation(location)" :name="`location-card-${$locationIndex}`" v-for="(location, $locationIndex) in currentServer.server.locations" :key="location.id" :location="location"></location-card>
-            <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>
-          </el-collapse>
-          <div class="tac" style="max-width: 800px;">
-            <el-button v-show="!currentLocation" icon="el-icon-plus" @click="addLocation">Add Location</el-button>
-            <el-button v-show="!currentLocation" icon="el-icon-sort" @click="sortLocation">Sort</el-button>
-            <el-button v-show="currentLocation" type="primary" icon="el-icon-check" @click="saveLocation">Save Addition</el-button>
-          </div>
-        </el-form-item>
+        <template v-if="displayMode !== 'visual'">
+          <el-form-item label="">
+            <el-input @keyup.enter.stop type="textarea" v-model="currentServerString"
+                      :autosize="{ minRows: 10, maxRows: 20}"></el-input>
+          </el-form-item>
+        </template>
         <el-form-item>
-          <el-button type="primary" @click="saveServerConfig(currentServer)">Save And Restart</el-button>
+          <el-button type="primary" @click="saveServerConfig()">Save And Restart</el-button>
           <el-button @click="resetForm">Reset</el-button>
         </el-form-item>
       </el-form>
@@ -73,7 +89,9 @@ export default {
       currentLocation: null,
       showSortLocation: false,
       isEdit: false,
-      locationShowList: []
+      locationShowList: [],
+      displayMode: 'visual',
+      currentServerString: '{}'
     }
   },
   computed: {
@@ -101,11 +119,11 @@ export default {
         this.locationShowList.push('add')
       }
     },
-    saveServerConfig (server) {
+    saveServerConfig () {
       if (this.currentLocation) {
         this.saveLocation()
       }
-      this.saveServer(server)
+      this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
     },
     deleteServerConfirm () {
       this.$confirm('Are you sure to delete this server config?', 'Confirm').then(() => {
@@ -171,10 +189,21 @@ export default {
       this.locationShowList = []
     },
     $route (val) {
+      this.displayMode = 'visual'
       if (val.query.add) {
         this.currentServer = defaultServerOption()
         this.currentLocation = null
         this.locationShowList = []
+      }
+    },
+    currentServer (val) {
+      this.currentServerString = JSON.stringify(val, undefined, 4)
+    },
+    displayMode (val) {
+      if (val === 'visual') {
+        this.$set(this, 'currentServer', JSON.parse(this.currentServerString))
+      } else {
+        this.currentServerString = JSON.stringify(this.currentServer, undefined, 4)
       }
     }
   },

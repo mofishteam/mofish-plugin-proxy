@@ -3,24 +3,20 @@ import path from 'path'
 const childPath = path.join(__dirname, 'child.js')
 const childList = {}
 const childOptionList = {}
-const childPauseList = {}
 
 export const getChild = (id) => {
   return childList[id]
 }
 
 export const pauseChild = async (id) => {
-  childPauseList[id] = childOptionList[id]
   await closeChild(id)
 }
 
 export const resumeChild = async (id) => {
-  await addChild(childPauseList[id])
-  delete childPauseList[id]
+  await addChild(childOptionList[id])
 }
 
 export const addChild = async (options, pauseImmediately = false) => {
-  // console.log(await global.utils.portIsOccupied(options.server.listen), options.server.listen)
   if (options.id) {
     if (!childList[options.id]) {
       if (await global.utils.portIsOccupied(options.server.listen)) {
@@ -30,8 +26,11 @@ export const addChild = async (options, pauseImmediately = false) => {
             // execPath: 'babel-node',
             // silent: true
           })
-          childList[options.id].send(options.server)
-          console.log(`Child is started, pid "${childList[options.id].pid}"`)
+          childList[options.id].on('message', async () => {
+            childList[options.id].send({ ...options.server, startType: 'listen' })
+            console.log(`Child is started, pid "${childList[options.id].pid}", port: ${options.server.listen}`)
+          })
+          childList[options.id].send({ ...options.server, startType: 'init' })
           // setTimeout(() => {
           //   console.log(child)
           // }, 1000)
@@ -72,6 +71,8 @@ export const closeChild = (id) => {
       }, 1000)
       childList[id].kill()
       delete childList[id]
+    } else {
+      resolve()
     }
   })
 }

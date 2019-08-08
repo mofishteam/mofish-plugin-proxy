@@ -1,4 +1,4 @@
-import { defaultLocationOption, defaultServerOption } from './commonUtils/options'
+import { defaultLocationOption, defaultLocationProxyPassOption, defaultServerOption, defaultLocationStaticOption, defaultLocationMockOption } from './commonUtils/options'
 import { merge } from 'lodash'
 import { addChild, closeChild, restartChild, pauseChild, resumeChild } from './proxyServer'
 import { portTest } from './port'
@@ -57,8 +57,46 @@ export default class ProxyObj {
   }
   async getProxyList (ctx) {
     const config = this.utils.getConfig()
+    const result = config.allProject.map(server => {
+      server = merge(defaultServerOption(), server)
+      if (server.server.locations && server.server.locations.length) {
+        server.server.locations.map(location => {
+          location.proxyPass = location.proxyPass || defaultLocationProxyPassOption()
+          location.static = location.static || defaultLocationStaticOption()
+          location.mock = location.mock || defaultLocationMockOption()
+          const defaultProxyPass = defaultLocationProxyPassOption()
+          for (const key in defaultProxyPass) {
+            if (defaultProxyPass[key] && !location.proxyPass[key]) {
+              location.proxyPass[key] = defaultProxyPass[key]
+            }
+          }
+          const defaultStatic = defaultLocationStaticOption()
+          for (const key in defaultStatic) {
+            if (defaultStatic[key] && !location.static[key]) {
+              location.static[key] = defaultStatic[key]
+            }
+          }
+          const defaultMock = defaultLocationMockOption()
+          for (const key in defaultMock) {
+            if (defaultMock[key] && !location.mock[key]) {
+              location.mock[key] = defaultMock[key]
+            }
+            if (key === 'proxyPass') {
+              const defaultMockProxyPass = defaultLocationProxyPassOption()
+              for (const mockProxyPassKey in defaultMockProxyPass) {
+                if (defaultMockProxyPass[mockProxyPassKey] && !location.mock.proxyPass[mockProxyPassKey]) {
+                  location.mock.proxyPass[mockProxyPassKey] = defaultMockProxyPass[mockProxyPassKey]
+                }
+              }
+            }
+          }
+          return location
+        })
+      }
+      return server
+    })
     // allProject: 所有项目中都显示的项
-    this.utils.response(ctx, 200, config.allProject || [])
+    this.utils.response(ctx, 200, result || [])
   }
   async getCloseList (ctx) {
     const config = this.utils.getConfig()
@@ -134,7 +172,6 @@ export default class ProxyObj {
   }
   async setServerStatus (ctx) {
     const body = ctx.request.body
-    console.log(body)
     if (!this.utils.check(body, [['id', 'string'], ['close', 'boolean']])) {
       this.utils.response(ctx, 400, null, {
         message: 'Param error, check it and retry.'
@@ -149,7 +186,7 @@ export default class ProxyObj {
           await resumeChild(body.id)
           closeList.delete(body.id)
         }
-        config.closeList = closeList
+        config.closeList = [...closeList]
         this.utils.response(ctx, 200, null)
         return config
       })

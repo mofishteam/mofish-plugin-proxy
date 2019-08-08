@@ -4,6 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
 var _set = require('babel-runtime/core-js/set');
 
 var _set2 = _interopRequireDefault(_set);
@@ -27,8 +31,6 @@ var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 var _createClass2 = require('babel-runtime/helpers/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
-
-require('@babel/polyfill');
 
 var _options = require('./commonUtils/options');
 
@@ -274,17 +276,55 @@ var ProxyObj = function () {
     key: 'getProxyList',
     value: function () {
       var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(ctx) {
-        var config;
+        var config, result;
         return _regenerator2.default.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
                 config = this.utils.getConfig();
+                result = config.allProject.map(function (server) {
+                  server = (0, _lodash.merge)((0, _options.defaultServerOption)(), server);
+                  if (server.server.locations && server.server.locations.length) {
+                    server.server.locations.map(function (location) {
+                      location.proxyPass = location.proxyPass || (0, _options.defaultLocationProxyPassOption)();
+                      location.static = location.static || (0, _options.defaultLocationStaticOption)();
+                      location.mock = location.mock || (0, _options.defaultLocationMockOption)();
+                      var defaultProxyPass = (0, _options.defaultLocationProxyPassOption)();
+                      for (var key in defaultProxyPass) {
+                        if (defaultProxyPass[key] && !location.proxyPass[key]) {
+                          location.proxyPass[key] = defaultProxyPass[key];
+                        }
+                      }
+                      var defaultStatic = (0, _options.defaultLocationStaticOption)();
+                      for (var _key in defaultStatic) {
+                        if (defaultStatic[_key] && !location.static[_key]) {
+                          location.static[_key] = defaultStatic[_key];
+                        }
+                      }
+                      var defaultMock = (0, _options.defaultLocationMockOption)();
+                      for (var _key2 in defaultMock) {
+                        if (defaultMock[_key2] && !location.mock[_key2]) {
+                          location.mock[_key2] = defaultMock[_key2];
+                        }
+                        if (_key2 === 'proxyPass') {
+                          var defaultMockProxyPass = (0, _options.defaultLocationProxyPassOption)();
+                          for (var mockProxyPassKey in defaultMockProxyPass) {
+                            if (defaultMockProxyPass[mockProxyPassKey] && !location.mock.proxyPass[mockProxyPassKey]) {
+                              location.mock.proxyPass[mockProxyPassKey] = defaultMockProxyPass[mockProxyPassKey];
+                            }
+                          }
+                        }
+                      }
+                      return location;
+                    });
+                  }
+                  return server;
+                });
                 // allProject: 所有项目中都显示的项
 
-                this.utils.response(ctx, 200, config.allProject || []);
+                this.utils.response(ctx, 200, result || []);
 
-              case 2:
+              case 3:
               case 'end':
                 return _context3.stop();
             }
@@ -481,21 +521,19 @@ var ProxyObj = function () {
               case 0:
                 body = ctx.request.body;
 
-                console.log(body);
-
                 if (this.utils.check(body, [['id', 'string'], ['close', 'boolean']])) {
-                  _context9.next = 6;
+                  _context9.next = 5;
                   break;
                 }
 
                 this.utils.response(ctx, 400, null, {
                   message: 'Param error, check it and retry.'
                 });
-                _context9.next = 8;
+                _context9.next = 7;
                 break;
 
-              case 6:
-                _context9.next = 8;
+              case 5:
+                _context9.next = 7;
                 return this.utils.setConfig(this.name, function () {
                   var _ref10 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee8(config) {
                     var closeList;
@@ -526,7 +564,7 @@ var ProxyObj = function () {
                             closeList.delete(body.id);
 
                           case 10:
-                            config.closeList = closeList;
+                            config.closeList = [].concat((0, _toConsumableArray3.default)(closeList));
                             _this4.utils.response(ctx, 200, null);
                             return _context8.abrupt('return', config);
 
@@ -543,7 +581,7 @@ var ProxyObj = function () {
                   };
                 }());
 
-              case 8:
+              case 7:
               case 'end':
                 return _context9.stop();
             }

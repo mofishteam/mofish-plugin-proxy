@@ -1,6 +1,6 @@
 {
   "name": "mofish-plugin-proxy",
-  "version": "0.2.4",
+  "version": "0.4.0",
   "description": "A plugin for mofish tool to proxy requests.",
   "main": "index.js",
   "private": false,
@@ -8,6 +8,7 @@
     "dist",
     "bin",
     "server-dist",
+    "server",
     "LICENSE"
   ],
   "scripts": {
