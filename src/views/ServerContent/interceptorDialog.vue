@@ -11,7 +11,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="Handler">
-        <p>async function (body) {</p>
+        <p>async function (body, headers) {</p>
       </el-form-item>
       <el-form-item label="">
         <el-input v-model="interceptorScope.handler" type="textarea" :rows="10"></el-input>

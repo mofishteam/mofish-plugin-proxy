@@ -123,15 +123,15 @@ process.on('message', function () {
                     // })
                     var proxyOptions = _.merge({}, mergedOption.proxyPass);
                     var fn = function () {
-                      var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(body) {
-                        var _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, res;
+                      var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(body, headers) {
+                        var _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, res, result;
 
                         return _regenerator2.default.wrap(function _callee2$(_context2) {
                           while (1) {
                             switch (_context2.prev = _context2.next) {
                               case 0:
                                 if (!(mergedOption.proxyPass.interceptors && mergedOption.proxyPass.interceptors.response && mergedOption.proxyPass.interceptors.response.length)) {
-                                  _context2.next = 28;
+                                  _context2.next = 30;
                                   break;
                                 }
 
@@ -143,68 +143,71 @@ process.on('message', function () {
 
                               case 6:
                                 if (_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done) {
-                                  _context2.next = 14;
+                                  _context2.next = 16;
                                   break;
                                 }
 
                                 res = _step3.value;
                                 _context2.next = 10;
-                                return new AsyncFunction('body', res.handler)(body);
+                                return new AsyncFunction('body', 'headers', res.handler)(body, headers);
 
                               case 10:
-                                body = _context2.sent;
+                                result = _context2.sent;
 
-                              case 11:
+                                body = result.body;
+                                headers = result.headers;
+
+                              case 13:
                                 _iteratorNormalCompletion3 = true;
                                 _context2.next = 6;
                                 break;
 
-                              case 14:
-                                _context2.next = 20;
+                              case 16:
+                                _context2.next = 22;
                                 break;
 
-                              case 16:
-                                _context2.prev = 16;
+                              case 18:
+                                _context2.prev = 18;
                                 _context2.t0 = _context2['catch'](4);
                                 _didIteratorError3 = true;
                                 _iteratorError3 = _context2.t0;
 
-                              case 20:
-                                _context2.prev = 20;
-                                _context2.prev = 21;
+                              case 22:
+                                _context2.prev = 22;
+                                _context2.prev = 23;
 
                                 if (!_iteratorNormalCompletion3 && _iterator3.return) {
                                   _iterator3.return();
                                 }
 
-                              case 23:
-                                _context2.prev = 23;
+                              case 25:
+                                _context2.prev = 25;
 
                                 if (!_didIteratorError3) {
-                                  _context2.next = 26;
+                                  _context2.next = 28;
                                   break;
                                 }
 
                                 throw _iteratorError3;
 
-                              case 26:
-                                return _context2.finish(23);
-
-                              case 27:
-                                return _context2.finish(20);
-
                               case 28:
-                                return _context2.abrupt('return', body);
+                                return _context2.finish(25);
 
                               case 29:
+                                return _context2.finish(22);
+
+                              case 30:
+                                return _context2.abrupt('return', body);
+
+                              case 31:
                               case 'end':
                                 return _context2.stop();
                             }
                           }
-                        }, _callee2, undefined, [[4, 16, 20, 28], [21,, 23, 27]]);
+                        }, _callee2, undefined, [[4, 18, 22, 30], [23,, 25, 29]]);
                       }));
 
-                      return function fn(_x2) {
+                      return function fn(_x2, _x3) {
                         return _ref3.apply(this, arguments);
                       };
                     }();
@@ -230,7 +233,7 @@ process.on('message', function () {
                                     handledRes = null;
 
                                     if (!(headers['content-encoding'] === 'gzip')) {
-                                      _context3.next = 17;
+                                      _context3.next = 18;
                                       break;
                                     }
 
@@ -241,53 +244,54 @@ process.on('message', function () {
 
                                   case 8:
                                     _context3.t2 = _context3.sent;
-                                    _context3.next = 11;
-                                    return (0, _context3.t1)(_context3.t2);
+                                    _context3.t3 = headers;
+                                    _context3.next = 12;
+                                    return (0, _context3.t1)(_context3.t2, _context3.t3);
 
-                                  case 11:
-                                    _context3.t3 = _context3.sent;
-                                    _context3.next = 14;
-                                    return (0, _context3.t0)(_context3.t3);
+                                  case 12:
+                                    _context3.t4 = _context3.sent;
+                                    _context3.next = 15;
+                                    return (0, _context3.t0)(_context3.t4);
 
-                                  case 14:
+                                  case 15:
                                     handledRes = _context3.sent;
-                                    _context3.next = 20;
+                                    _context3.next = 21;
                                     break;
 
-                                  case 17:
-                                    _context3.next = 19;
-                                    return fn(jsonString);
-
-                                  case 19:
-                                    handledRes = _context3.sent;
+                                  case 18:
+                                    _context3.next = 20;
+                                    return fn(jsonString, headers);
 
                                   case 20:
+                                    handledRes = _context3.sent;
+
+                                  case 21:
                                     // const buffer = new Buffer(handledRes) // 一定要转成buffer，buffer长度和string长度不一样
                                     // 解决HPE_UNEXPECTED_CONTENT_LENGTH的报错
                                     hasContentLength = false;
-                                    _context3.t4 = _regenerator2.default.keys(rawHeaders);
+                                    _context3.t5 = _regenerator2.default.keys(rawHeaders);
 
-                                  case 22:
-                                    if ((_context3.t5 = _context3.t4()).done) {
-                                      _context3.next = 29;
+                                  case 23:
+                                    if ((_context3.t6 = _context3.t5()).done) {
+                                      _context3.next = 30;
                                       break;
                                     }
 
-                                    headerKey = _context3.t5.value;
+                                    headerKey = _context3.t6.value;
 
                                     if (!(headerKey.toLowerCase() === 'content-length')) {
-                                      _context3.next = 27;
+                                      _context3.next = 28;
                                       break;
                                     }
 
                                     hasContentLength = true;
-                                    return _context3.abrupt('break', 29);
+                                    return _context3.abrupt('break', 30);
 
-                                  case 27:
-                                    _context3.next = 22;
+                                  case 28:
+                                    _context3.next = 23;
                                     break;
 
-                                  case 29:
+                                  case 30:
                                     // 原请求头里没有content-length，我们也就不瞎加content-length了
                                     if (hasContentLength) {
                                       headers['content-length'] = handledRes.length;
@@ -296,7 +300,7 @@ process.on('message', function () {
                                     oriWrite.call(res, handledRes);
                                     oriEnd.call(res);
 
-                                  case 33:
+                                  case 34:
                                   case 'end':
                                     return _context3.stop();
                                 }
@@ -346,7 +350,7 @@ process.on('message', function () {
                         }, _callee4, undefined);
                       }));
 
-                      return function (_x3, _x4) {
+                      return function (_x4, _x5) {
                         return _ref5.apply(this, arguments);
                       };
                     }());
@@ -386,7 +390,7 @@ process.on('message', function () {
                         }, _callee5, undefined);
                       }));
 
-                      return function (_x5, _x6) {
+                      return function (_x6, _x7) {
                         return _ref6.apply(this, arguments);
                       };
                     }());
@@ -433,7 +437,7 @@ process.on('message', function () {
                         }, _callee6, undefined);
                       }));
 
-                      return function (_x7, _x8) {
+                      return function (_x8, _x9) {
                         return _ref7.apply(this, arguments);
                       };
                     }());

@@ -111,7 +111,7 @@
                 <el-button type="text" icon="el-icon-edit-outline" style="margin-left: 10px;" @click="editInterceptor(interceptor.id, interceptor.type)"></el-button>
                 <el-button type="text" icon="el-icon-delete" @click="deleteInterceptor(interceptor.id, interceptor.type)"></el-button>
               </div>
-              <pre>async function (body) {<br>  {{ interceptor.handler }}<br>}</pre>
+              <pre>async function (body, headers) {<br>  {{ interceptor.handler }}<br>}</pre>
             </el-popover>
           </div>
           <el-button icon="el-icon-plus" circle plain @click="addInterceptor(proxyPassScope.interceptors)"></el-button>

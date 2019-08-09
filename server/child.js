@@ -50,10 +50,12 @@ process.on('message', async (options) => {
             //   // cawait next()tx.body = []
             // })
             const proxyOptions = _.merge({}, mergedOption.proxyPass)
-            const fn = async (body) => {
+            const fn = async (body, headers) => {
               if (mergedOption.proxyPass.interceptors && mergedOption.proxyPass.interceptors.response && mergedOption.proxyPass.interceptors.response.length) {
                 for (const res of mergedOption.proxyPass.interceptors.response || []) {
-                  body = await (new AsyncFunction('body', res.handler))(body)
+                  const result = await (new AsyncFunction('body', 'headers', res.handler))(body, headers)
+                  body = result.body
+                  headers = result.headers
                 }
               }
               return body
@@ -74,9 +76,9 @@ process.on('message', async (options) => {
                   const headers = _.merge({}, proxyRes.headers)
                   let handledRes = null
                   if (headers['content-encoding'] === 'gzip') {
-                    handledRes = await gzip(await fn(await ungzip(jsonString)))
+                    handledRes = await gzip(await fn(await ungzip(jsonString), headers))
                   } else {
-                    handledRes = await fn(jsonString)
+                    handledRes = await fn(jsonString, headers)
                   }
                   // const buffer = new Buffer(handledRes) // 一定要转成buffer，buffer长度和string长度不一样
                   // 解决HPE_UNEXPECTED_CONTENT_LENGTH的报错
