@@ -17,7 +17,7 @@
           </el-radio-button>
         </el-radio-group>
       </div>
-      <el-form ref="form" :model="currentServer" :label-width="displayMode === 'visual' ? '100px' : '0px'">
+      <el-form ref="form" :model="currentServer" :label-width="displayMode === 'visual' ? '100px' : '0px'" style="max-width: 800px;">
         <template v-if="displayMode === 'visual'">
           <el-form-item label="ServerName">
             <el-input v-model="currentServer.server.name[0]" placeholder="Input server name and press enter to add."></el-input>
