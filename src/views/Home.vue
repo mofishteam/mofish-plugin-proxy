@@ -2,11 +2,19 @@
   <el-container class="home-page">
     <el-aside width="200px">
       <el-menu default-active="homeServers" class="home-page-menu">
-        <el-menu-item @click="addServer">Add Server</el-menu-item>
-        <el-menu-item :index="`homeServers-${server.id}`" :key="server.id" @click="setServer(server.id)" v-for="server in servers">
-          <el-button circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
-          <span>{{ server.name }}</span>
-        </el-menu-item>
+        <el-menu-item @click="isSort ? '' : addServer">Add Server</el-menu-item>
+        <grid-layout @layout-updated="onLayoutUpdated" v-if="serverSortGridList && serverSortGridList.length" :margin="[0, 0]" :layout="serverSortGridList" :row-height="50" :col-num="1" :is-draggable="isSort" :is-resizable="false">
+          <grid-item :key="server.id" v-for="server in servers" :x="serverSortGrid[server.id].x" :y="serverSortGrid[server.id].y" :w="serverSortGrid[server.id].w" :h="serverSortGrid[server.id].h" :i="serverSortGrid[server.id].i">
+            <el-menu-item :index="`homeServers-${server.id}`" @click="setServer(server.id)" :class="{'is-sort': isSort}">
+              <el-button v-show="!isSort" circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
+              <el-button type="text" icon="el-icon-rank" v-show="isSort"></el-button>
+              <span>{{ server.name }}</span>
+            </el-menu-item>
+          </grid-item>
+        </grid-layout>
+        <div class="sort-btn-wrap">
+          <el-button type="primary" icon="el-icon-sort" @click="isSort = !isSort">{{isSort ? 'Stop Sort' : 'Sort'}}</el-button>
+        </div>
       </el-menu>
     </el-aside>
     <el-main class="home-page-content">
@@ -17,16 +25,28 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import { saveServerSortList } from '@/api/service/servers'
+import VueGridLayout from 'vue-grid-layout'
 export default {
   name: 'homePage',
+  data () {
+    return {
+      isSort: false,
+      serverSortGrid: [],
+      serverSortGridList: []
+    }
+  },
   components: {
+    GridLayout: VueGridLayout.GridLayout,
+    GridItem: VueGridLayout.GridItem
   },
   methods: {
     ...mapActions([
       'refreshServers',
       'setCurrentServer',
       'clearCurrentServer',
-      'refreshCloseList'
+      'refreshCloseList',
+      'refreshServerSortList'
     ]),
     addServer () {
       this.clearCurrentServer()
@@ -47,16 +67,73 @@ export default {
         }
       })
       this.setCurrentServer(id)
+    },
+    resetSortGrid () {
+      const result = {}
+      let tempY = 0
+      const serverIdList = this.servers.reduce((sum, cur, idx) => {
+        if (cur && cur.id) {
+          sum.push(cur.id)
+        }
+        return sum
+      }, [])
+      for (const id of this.serverSortList.concat(serverIdList)) {
+        if (!result[id]) {
+          result[id] = {
+            x: 0,
+            y: tempY++,
+            h: 1,
+            w: 1,
+            i: id
+          }
+        }
+      }
+      this.$set(this, 'serverSortGrid', result)
+    },
+    resetSortList () {
+      const result = []
+      console.log(Object.entries(this.serverSortGrid))
+      for (const item of Object.entries(this.serverSortGrid)) {
+        result.push(item[1])
+      }
+      this.$set(this, 'serverSortGridList', result)
+    },
+    onLayoutUpdated (newLayout) {
+      const sortList = []
+      if (newLayout && newLayout.length) {
+        for (const item of newLayout) {
+          if (item.i) {
+            sortList[item.y] = item.i
+          }
+        }
+      }
+      saveServerSortList({
+        list: sortList
+      }).then(res => {
+        console.log(res)
+        this.refreshServerSortList()
+      })
+    }
+  },
+  watch: {
+    serverSortList: {
+      deep: true,
+      handler (val) {
+        this.resetSortGrid()
+        this.resetSortList()
+      }
     }
   },
   created () {
     this.refreshCloseList()
     this.refreshServers()
+    this.refreshServerSortList()
   },
   computed: {
     ...mapGetters({
       servers: 'getServers',
-      closeList: 'getCloseList'
+      closeList: 'getCloseList',
+      serverSortList: 'getServerSortList'
     })
   }
 }
@@ -73,7 +150,24 @@ export default {
       padding: 20px;
     }
     &-menu {
-      height: 100vh;
+      height: calc(100vh - 60px);
+      position: relative;
+      padding-bottom: 60px;
+      .is-sort {
+        cursor: move;
+        user-select: none;
+        pointer-events: none;
+      }
+      .sort-btn-wrap {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        .el-button {
+          border-radius: 0;
+          width: 100%;
+        }
+      }
     }
   }
 </style>

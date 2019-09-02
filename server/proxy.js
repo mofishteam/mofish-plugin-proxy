@@ -40,14 +40,16 @@ export default class ProxyObj {
       case 'GET': switch (ctx.request.pluginUrlObj.pathname) {
         case '/list': await this.getProxyList(ctx); break
         case '/port-test': await portTest(ctx); break
-        case '/server/close-list': await this.getCloseList(ctx)
+        case '/server/close-list': await this.getCloseList(ctx); break
+        case '/server/sort-list': await this.getSortList(ctx)
       } break
       case 'POST': switch (ctx.request.pluginUrlObj.pathname) {
         case '/add': await this.addProxy(ctx)
       } break
       case 'PUT': switch (ctx.request.pluginUrlObj.pathname) {
         case '/save': await this.saveProxy(ctx); break
-        case '/server/status': await this.setServerStatus(ctx)
+        case '/server/status': await this.setServerStatus(ctx); break
+        case '/save/sort-list': await this.saveSortList(ctx)
       } break
       case 'DELETE': switch (ctx.request.pluginUrlObj.pathname) {
         case '/delete': await this.deleteProxy(ctx)
@@ -103,6 +105,11 @@ export default class ProxyObj {
     // allProject: 所有项目中都显示的项
     this.utils.response(ctx, 200, config.closeList || [])
   }
+  async getSortList (ctx) {
+    const config = this.utils.getConfig()
+    // allProject: 所有项目中都显示的项
+    this.utils.response(ctx, 200, config.sortList || [])
+  }
   async addProxy (ctx) {
     const body = ctx.request.body
     if (!this.utils.check(body, [['name', 'string']])) {
@@ -143,6 +150,22 @@ export default class ProxyObj {
         this.utils.response(ctx, 404, null, {
           message: `Cannot find Server id "${body.id}"`
         })
+        return config
+      })
+    }
+  }
+  async saveSortList (ctx) {
+    const body = ctx.request.body
+    if (!this.utils.check(body, [['list', 'object']])) {
+      this.utils.response(ctx, 400, null, {
+        message: 'Param error, check it and retry.'
+      })
+    } else {
+      this.utils.setConfig(this.name, (config) => {
+        if (body.list && body.list.length) {
+          config.sortList = body.list
+        }
+        this.utils.response(ctx, 200, {})
         return config
       })
     }

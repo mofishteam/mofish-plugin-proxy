@@ -16,6 +16,14 @@ export const deleteServer = (id) => {
   return axios.delete(`/plugin/Proxy/delete?id=${id}`)
 }
 
+export const getServerSortList = () => {
+  return axios.get('/plugin/Proxy/server/sort-list')
+}
+
+export const saveServerSortList = (params) => {
+  return axios.put('/plugin/Proxy/save/sort-list', params)
+}
+
 // export const deletePlugin = (params) => {
 //   return axios.delete(`/api/plugins/delete?name=${params.name}`)
 // }

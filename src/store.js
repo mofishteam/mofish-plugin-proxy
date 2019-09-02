@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getServers, saveServer, addServer, deleteServer } from '@/api/service/servers'
+import { getServers, saveServer, addServer, deleteServer, getServerSortList } from '@/api/service/servers'
 import { setServerStatus, getCloseList } from '@/api/service/closeStatus'
 import { Message } from 'element-ui'
 
@@ -10,7 +10,8 @@ export default new Vuex.Store({
   state: {
     servers: [],
     closeList: [],
-    currentServer: {}
+    currentServer: {},
+    serverSortList: []
   },
   mutations: {
     SET_SERVERS (state, val) {
@@ -18,6 +19,9 @@ export default new Vuex.Store({
     },
     SET_CLOSE_LIST (state, val) {
       state.closeList = val
+    },
+    SET_SERVER_SORT_LIST (state, val) {
+      state.serverSortList = val
     },
     SET_CURRENT_SERVER_BY_ID (state, id) {
       for (const server of state.servers) {
@@ -49,6 +53,13 @@ export default new Vuex.Store({
       getCloseList().then(res => {
         if (!res.result) {
           commit('SET_CLOSE_LIST', res.data)
+        }
+      })
+    },
+    refreshServerSortList ({ commit }) {
+      return getServerSortList().then(res => {
+        if (!res.result) {
+          commit('SET_SERVER_SORT_LIST', res.data)
         }
       })
     },
@@ -86,6 +97,7 @@ export default new Vuex.Store({
           Message.success('Add server successful.')
         }
       })
+      await dispatch('refreshServerSortList')
       dispatch('refreshServers')
     },
     async deleteServer ({ commit, dispatch }, id) {
@@ -107,6 +119,9 @@ export default new Vuex.Store({
     },
     getCloseList (state) {
       return state.closeList
+    },
+    getServerSortList (state) {
+      return state.serverSortList
     }
   }
 })
