@@ -2,7 +2,29 @@
   <el-container class="home-page">
     <el-aside width="240px">
       <el-menu default-active="homeServers" class="home-page-menu">
-        <el-menu-item @click="isSort ? '' : addServer">Add Server</el-menu-item>
+        <el-row>
+          <el-col :span="12">
+            <el-button class="rect-button" type="text" icon="el-icon-plus" @click="addServer" style="width: 100%;">Server</el-button>
+          </el-col>
+          <el-col :span="12">
+            <el-button class="rect-button" type="text" icon="el-icon-folder-add" @click="addFolder" style="width: 100%;">Folder</el-button>
+          </el-col>
+        </el-row>
+        <el-tree :data="computedServerSortList" node-key="id" :draggable="isSort">
+          <div slot-scope="{ node, data }" class="tree-menu-wrap">
+            <span v-if="data.isDir">
+              <i class="el-icon-folder"></i>
+              <span>{{node.label}}</span>
+            </span>
+            <template v-if="!data.isDir">
+              <el-menu-item :index="`homeServers-${server.id}`" @click="setServer(server.id)" :key="server.id" v-for="server in getServerItem(data.id)">
+                <el-button v-show="!isSort" circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
+                <el-button type="text" icon="el-icon-rank" v-show="isSort" style="margin-left: -9px;"></el-button>
+                <span>{{ server.name }}</span>
+              </el-menu-item>
+            </template>
+          </div>
+        </el-tree>
         <grid-layout @layout-updated="onLayoutUpdated" v-if="serverSortGridList && serverSortGridList.length" :margin="[0, 0]" :layout="serverSortGridList" :row-height="50" :col-num="1" :is-draggable="isSort" :is-resizable="false">
           <grid-item :key="server.id" v-for="server in servers" :x="serverSortGrid[server.id].x" :y="serverSortGrid[server.id].y" :w="serverSortGrid[server.id].w" :h="serverSortGrid[server.id].h" :i="serverSortGrid[server.id].i">
             <el-menu-item :index="`homeServers-${server.id}`" @click="setServer(server.id)" :class="{'is-sort': isSort}">
@@ -14,7 +36,7 @@
         </grid-layout>
       </el-menu>
       <div class="sort-btn-wrap">
-        <el-button type="primary" icon="el-icon-sort" @click="isSort = !isSort">{{isSort ? 'Stop Sort' : 'Sort'}}</el-button>
+        <el-button class="rect-button" type="primary" icon="el-icon-sort" @click="isSort = !isSort">{{isSort ? 'Stop Sort' : 'Sort'}}</el-button>
       </div>
     </el-aside>
     <el-main class="home-page-content">
@@ -58,6 +80,14 @@ export default {
         }
       })
     },
+    addFolder () {},
+    getServerItem (id) {
+      return [
+        this.servers.find(item => {
+          return item.id === id
+        })
+      ]
+    },
     setServer (id) {
       this.$router.push({
         ...this.$route,
@@ -67,37 +97,6 @@ export default {
         }
       })
       this.setCurrentServer(id)
-    },
-    resetSortGrid () {
-      const result = {}
-      let tempY = 0
-      const serverIdList = this.servers.reduce((sum, cur, idx) => {
-        if (cur && cur.id) {
-          sum.push(cur.id)
-        }
-        return sum
-      }, [])
-      for (const id of this.serverSortList.concat(serverIdList)) {
-        if (!result[id]) {
-          result[id] = {
-            x: 0,
-            y: tempY++,
-            h: 1,
-            w: 1,
-            i: id
-          }
-        }
-      }
-      this.$set(this, 'serverSortGrid', result)
-    },
-    resetSortList () {
-      const result = []
-      console.log(Object.entries(this.serverSortGrid))
-      for (const item of Object.entries(this.serverSortGrid)) {
-        result.push(item[1])
-      }
-      console.log('result', result)
-      this.$set(this, 'serverSortGridList', result)
     },
     onLayoutUpdated (newLayout) {
     }
@@ -120,13 +119,6 @@ export default {
           this.refreshServerSortList()
         })
       }
-    },
-    serverSortList: {
-      deep: true,
-      handler (val) {
-        this.resetSortGrid()
-        this.resetSortList()
-      }
     }
   },
   async created () {
@@ -139,13 +131,51 @@ export default {
       servers: 'getServers',
       closeList: 'getCloseList',
       serverSortList: 'getServerSortList'
-    })
+    }),
+    computedServerSortList () {
+      const rawList = this.serverSortList.concat(this.servers)
+      const idList = new Set()
+      const sortList = []
+      rawList.forEach(item => {
+        if (typeof item === 'object') {
+          if (item.id && !idList.has(item.id)) {
+            idList.add(item.id)
+            sortList.push({
+              id: item.id,
+              label: '123',
+              isDir: item.isDir
+            })
+          }
+        } else if (!idList.has(item)) {
+          idList.add(item)
+          sortList.push({
+            id: item,
+            label: '345',
+            isDir: false
+          })
+        }
+      })
+      console.log(sortList)
+      return sortList
+    }
   }
 }
 </script>
 
 <style lang="scss">
   .home-page {
+    .el-tree-node__content {
+      height: 50px;
+      .tree-menu-wrap {
+        width: 100%;
+        .el-menu-item {
+          width: 100%;
+          &:hover, &:active, &.is-active {
+            background-color: transparent;
+          }
+        }
+      }
+    }
     .el-aside {
       position: relative;
       .sort-btn-wrap {
@@ -154,7 +184,6 @@ export default {
         left: 0;
         width: 100%;
         .el-button {
-          border-radius: 0;
           width: 100%;
         }
       }
