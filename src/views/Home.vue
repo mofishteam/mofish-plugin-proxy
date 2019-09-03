@@ -2,7 +2,7 @@
   <el-container class="home-page">
     <el-aside width="240px">
       <el-menu default-active="homeServers" class="home-page-menu">
-        <el-menu-item @click="isSort ? '' : addServer">Add Server</el-menu-item>
+        <el-menu-item @click="addServer" :class="{'is-sort': isSort}">Add Server</el-menu-item>
         <grid-layout @layout-updated="onLayoutUpdated" v-if="serverSortGridList && serverSortGridList.length" :margin="[0, 0]" :layout="serverSortGridList" :row-height="50" :col-num="1" :is-draggable="isSort" :is-resizable="false">
           <grid-item :key="server.id" v-for="server in servers" :x="serverSortGrid[server.id].x" :y="serverSortGrid[server.id].y" :w="serverSortGrid[server.id].w" :h="serverSortGrid[server.id].h" :i="serverSortGrid[server.id].i">
             <el-menu-item :index="`homeServers-${server.id}`" @click="setServer(server.id)" :class="{'is-sort': isSort}">
@@ -17,7 +17,7 @@
         <el-button type="primary" icon="el-icon-sort" @click="isSort = !isSort">{{isSort ? 'Stop Sort' : 'Sort'}}</el-button>
       </div>
     </el-aside>
-    <el-main class="home-page-content">
+    <el-main class="home-page-content" ref="mainContent">
       <router-view></router-view>
     </el-main>
   </el-container>
@@ -33,7 +33,8 @@ export default {
     return {
       isSort: false,
       serverSortGrid: [],
-      serverSortGridList: []
+      serverSortGridList: [],
+      mainContentLoadingObj: null
     }
   },
   components: {
@@ -104,7 +105,16 @@ export default {
   },
   watch: {
     isSort (val) {
-      if (!val) {
+      if (val) {
+        this.mainContentLoadingObj = this.$loading.service({
+          target: this.$refs.mainContent.$el,
+          text: 'Menu sort is NOT saved, please save sort first.',
+          spinner: 'el-icon-lock'
+        })
+      } else {
+        if (this.mainContentLoadingObj) {
+          this.mainContentLoadingObj.close()
+        }
         const sortList = []
         if (this.serverSortGridList && this.serverSortGridList.length) {
           for (const item of this.serverSortGridList) {
