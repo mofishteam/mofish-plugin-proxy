@@ -2,7 +2,7 @@
   <el-container class="home-page">
     <el-aside width="240px">
       <el-menu default-active="homeServers" class="home-page-menu">
-        <el-menu-item @click="isSort ? '' : addServer">Add Server</el-menu-item>
+        <el-menu-item @click="addServer">Add Server</el-menu-item>
         <grid-layout @layout-updated="onLayoutUpdated" v-if="serverSortGridList && serverSortGridList.length" :margin="[0, 0]" :layout="serverSortGridList" :row-height="50" :col-num="1" :is-draggable="isSort" :is-resizable="false">
           <grid-item :key="server.id" v-for="server in servers" :x="serverSortGrid[server.id].x" :y="serverSortGrid[server.id].y" :w="serverSortGrid[server.id].w" :h="serverSortGrid[server.id].h" :i="serverSortGrid[server.id].i">
             <el-menu-item :index="`homeServers-${server.id}`" @click="setServer(server.id)" :class="{'is-sort': isSort}">
@@ -51,6 +51,13 @@ export default {
     addServer () {
       this.clearCurrentServer()
       this.$router.push({
+        ...this.$route,
+        query: {
+          ...this.$route.query,
+          add: true
+        }
+      })
+      console.log({
         ...this.$route,
         query: {
           ...this.$route.query,
