@@ -50,21 +50,16 @@ export default {
       'refreshServerSortList'
     ]),
     addServer () {
-      this.clearCurrentServer()
-      this.$router.push({
-        ...this.$route,
-        query: {
-          ...this.$route.query,
-          add: true
-        }
-      })
-      console.log({
-        ...this.$route,
-        query: {
-          ...this.$route.query,
-          add: true
-        }
-      })
+      if (!(this.isSort || this.$route.query.add)) {
+        this.clearCurrentServer()
+        this.$router.push({
+          ...this.$route,
+          query: {
+            ...this.$route.query,
+            add: true
+          }
+        })
+      }
     },
     setServer (id) {
       this.$router.push({
@@ -100,11 +95,9 @@ export default {
     },
     resetSortList () {
       const result = []
-      console.log(Object.entries(this.serverSortGrid))
       for (const item of Object.entries(this.serverSortGrid)) {
         result.push(item[1])
       }
-      console.log('result', result)
       this.$set(this, 'serverSortGridList', result)
     },
     onLayoutUpdated (newLayout) {
@@ -133,7 +126,6 @@ export default {
         saveServerSortList({
           list: sortList
         }).then(res => {
-          console.log(res)
           this.refreshServerSortList()
         })
       }
