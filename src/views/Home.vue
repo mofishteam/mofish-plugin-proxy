@@ -1,21 +1,21 @@
 <template>
   <el-container class="home-page">
-    <el-aside width="200px">
+    <el-aside width="240px">
       <el-menu default-active="homeServers" class="home-page-menu">
         <el-menu-item @click="isSort ? '' : addServer">Add Server</el-menu-item>
         <grid-layout @layout-updated="onLayoutUpdated" v-if="serverSortGridList && serverSortGridList.length" :margin="[0, 0]" :layout="serverSortGridList" :row-height="50" :col-num="1" :is-draggable="isSort" :is-resizable="false">
           <grid-item :key="server.id" v-for="server in servers" :x="serverSortGrid[server.id].x" :y="serverSortGrid[server.id].y" :w="serverSortGrid[server.id].w" :h="serverSortGrid[server.id].h" :i="serverSortGrid[server.id].i">
             <el-menu-item :index="`homeServers-${server.id}`" @click="setServer(server.id)" :class="{'is-sort': isSort}">
               <el-button v-show="!isSort" circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
-              <el-button type="text" icon="el-icon-rank" v-show="isSort"></el-button>
+              <el-button type="text" icon="el-icon-rank" v-show="isSort" style="margin-left: -9px;"></el-button>
               <span>{{ server.name }}</span>
             </el-menu-item>
           </grid-item>
         </grid-layout>
-        <div class="sort-btn-wrap">
-          <el-button type="primary" icon="el-icon-sort" @click="isSort = !isSort">{{isSort ? 'Stop Sort' : 'Sort'}}</el-button>
-        </div>
       </el-menu>
+      <div class="sort-btn-wrap">
+        <el-button type="primary" icon="el-icon-sort" @click="isSort = !isSort">{{isSort ? 'Stop Sort' : 'Sort'}}</el-button>
+      </div>
     </el-aside>
     <el-main class="home-page-content">
       <router-view></router-view>
@@ -96,26 +96,31 @@ export default {
       for (const item of Object.entries(this.serverSortGrid)) {
         result.push(item[1])
       }
+      console.log('result', result)
       this.$set(this, 'serverSortGridList', result)
     },
     onLayoutUpdated (newLayout) {
-      const sortList = []
-      if (newLayout && newLayout.length) {
-        for (const item of newLayout) {
-          if (item.i) {
-            sortList[item.y] = item.i
-          }
-        }
-      }
-      saveServerSortList({
-        list: sortList
-      }).then(res => {
-        console.log(res)
-        this.refreshServerSortList()
-      })
     }
   },
   watch: {
+    isSort (val) {
+      if (!val) {
+        const sortList = []
+        if (this.serverSortGridList && this.serverSortGridList.length) {
+          for (const item of this.serverSortGridList) {
+            if (item.i) {
+              sortList[item.y] = item.i
+            }
+          }
+        }
+        saveServerSortList({
+          list: sortList
+        }).then(res => {
+          console.log(res)
+          this.refreshServerSortList()
+        })
+      }
+    },
     serverSortList: {
       deep: true,
       handler (val) {
@@ -124,9 +129,9 @@ export default {
       }
     }
   },
-  created () {
+  async created () {
     this.refreshCloseList()
-    this.refreshServers()
+    await this.refreshServers()
     this.refreshServerSortList()
   },
   computed: {
@@ -141,23 +146,8 @@ export default {
 
 <style lang="scss">
   .home-page {
-    .home-page-content {
-      width: 100%;
-      height: 100vh;
-      overflow: scroll;
-    }
-    &-content {
-      padding: 20px;
-    }
-    &-menu {
-      height: calc(100vh - 60px);
+    .el-aside {
       position: relative;
-      padding-bottom: 60px;
-      .is-sort {
-        cursor: move;
-        user-select: none;
-        pointer-events: none;
-      }
       .sort-btn-wrap {
         position: absolute;
         bottom: 0;
@@ -167,6 +157,26 @@ export default {
           border-radius: 0;
           width: 100%;
         }
+      }
+    }
+    .home-page-content {
+      width: 100%;
+      height: 100vh;
+      overflow: scroll;
+    }
+    &-content {
+      padding: 20px;
+    }
+    &-menu {
+      height: calc(100vh - 40px);
+      padding-bottom: 40px;
+      overflow: scroll;
+      .vue-grid-layout {
+      }
+      .is-sort {
+        cursor: move;
+        user-select: none;
+        pointer-events: none;
       }
     }
   }

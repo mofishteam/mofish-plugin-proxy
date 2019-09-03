@@ -17,7 +17,9 @@
     "build:all": "npm run build && npm run build:server",
     "lint": "vue-cli-service lint",
     "build:server": "babel server --presets env --plugins=babel-plugin-syntax-object-rest-spread,transform-runtime --out-dir server-dist",
-    "test:unit": "vue-cli-service test:unit"
+    "test:unit": "vue-cli-service test:unit",
+    "publish": "npm run build:all && npm publish",
+    "publish:beta": "npm run build:all && npm publish --tag=beta"
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",

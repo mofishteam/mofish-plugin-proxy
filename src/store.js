@@ -40,7 +40,7 @@ export default new Vuex.Store({
   },
   actions: {
     refreshServers ({ commit, state }) {
-      getServers().then(res => {
+      return getServers().then(res => {
         if (!res.result) {
           commit('SET_SERVERS', res.data)
           if (state.currentServer && state.currentServer.id) {
@@ -50,7 +50,7 @@ export default new Vuex.Store({
       })
     },
     refreshCloseList ({ commit }) {
-      getCloseList().then(res => {
+      return getCloseList().then(res => {
         if (!res.result) {
           commit('SET_CLOSE_LIST', res.data)
         }
