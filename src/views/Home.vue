@@ -17,7 +17,7 @@
         <el-button type="primary" icon="el-icon-sort" @click="isSort = !isSort">{{isSort ? 'Stop Sort' : 'Sort'}}</el-button>
       </div>
     </el-aside>
-    <el-main class="home-page-content">
+    <el-main class="home-page-content" ref="mainContent">
       <router-view></router-view>
     </el-main>
   </el-container>
@@ -33,7 +33,8 @@ export default {
     return {
       isSort: false,
       serverSortGrid: [],
-      serverSortGridList: []
+      serverSortGridList: [],
+      mainContentLoadingObj: null
     }
   },
   components: {
@@ -111,7 +112,16 @@ export default {
   },
   watch: {
     isSort (val) {
-      if (!val) {
+      if (val) {
+        this.mainContentLoadingObj = this.$loading.service({
+          target: this.$refs.mainContent.$el,
+          text: 'Menu sort is NOT saved, please save sort first.',
+          spinner: 'el-icon-lock'
+        })
+      } else {
+        if (this.mainContentLoadingObj) {
+          this.mainContentLoadingObj.close()
+        }
         const sortList = []
         if (this.serverSortGridList && this.serverSortGridList.length) {
           for (const item of this.serverSortGridList) {
