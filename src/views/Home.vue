@@ -25,21 +25,12 @@
             </template>
           </div>
         </el-tree>
-        <grid-layout @layout-updated="onLayoutUpdated" v-if="serverSortGridList && serverSortGridList.length" :margin="[0, 0]" :layout="serverSortGridList" :row-height="50" :col-num="1" :is-draggable="isSort" :is-resizable="false">
-          <grid-item :key="server.id" v-for="server in servers" :x="serverSortGrid[server.id].x" :y="serverSortGrid[server.id].y" :w="serverSortGrid[server.id].w" :h="serverSortGrid[server.id].h" :i="serverSortGrid[server.id].i">
-            <el-menu-item :index="`homeServers-${server.id}`" @click="setServer(server.id)" :class="{'is-sort': isSort}">
-              <el-button v-show="!isSort" circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
-              <el-button type="text" icon="el-icon-rank" v-show="isSort" style="margin-left: -9px;"></el-button>
-              <span>{{ server.name }}</span>
-            </el-menu-item>
-          </grid-item>
-        </grid-layout>
       </el-menu>
       <div class="sort-btn-wrap">
         <el-button class="rect-button" type="primary" icon="el-icon-sort" @click="isSort = !isSort">{{isSort ? 'Stop Sort' : 'Sort'}}</el-button>
       </div>
     </el-aside>
-    <el-main class="home-page-content">
+    <el-main class="home-page-content" ref="mainContent">
       <router-view></router-view>
     </el-main>
   </el-container>
@@ -48,19 +39,17 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import { saveServerSortList } from '@/api/service/servers'
-import VueGridLayout from 'vue-grid-layout'
 export default {
   name: 'homePage',
   data () {
     return {
       isSort: false,
       serverSortGrid: [],
-      serverSortGridList: []
+      serverSortGridList: [],
+      mainContentLoadingObj: null
     }
   },
   components: {
-    GridLayout: VueGridLayout.GridLayout,
-    GridItem: VueGridLayout.GridItem
   },
   methods: {
     ...mapActions([
@@ -71,14 +60,16 @@ export default {
       'refreshServerSortList'
     ]),
     addServer () {
-      this.clearCurrentServer()
-      this.$router.push({
-        ...this.$route,
-        query: {
-          ...this.$route.query,
-          add: true
-        }
-      })
+      if (!(this.isSort || this.$route.query.add)) {
+        this.clearCurrentServer()
+        this.$router.push({
+          ...this.$route,
+          query: {
+            ...this.$route.query,
+            add: true
+          }
+        })
+      }
     },
     addFolder () {},
     getServerItem (id) {
@@ -98,12 +89,19 @@ export default {
       })
       this.setCurrentServer(id)
     },
-    onLayoutUpdated (newLayout) {
-    }
   },
   watch: {
     isSort (val) {
-      if (!val) {
+      if (val) {
+        this.mainContentLoadingObj = this.$loading.service({
+          target: this.$refs.mainContent.$el,
+          text: 'Menu sort is NOT saved, please save sort first.',
+          spinner: 'el-icon-lock'
+        })
+      } else {
+        if (this.mainContentLoadingObj) {
+          this.mainContentLoadingObj.close()
+        }
         const sortList = []
         if (this.serverSortGridList && this.serverSortGridList.length) {
           for (const item of this.serverSortGridList) {
@@ -115,7 +113,6 @@ export default {
         saveServerSortList({
           list: sortList
         }).then(res => {
-          console.log(res)
           this.refreshServerSortList()
         })
       }
