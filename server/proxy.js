@@ -49,10 +49,11 @@ export default class ProxyObj {
       case 'PUT': switch (ctx.request.pluginUrlObj.pathname) {
         case '/save': await this.saveProxy(ctx); break
         case '/server/status': await this.setServerStatus(ctx); break
-        case '/save/sort-list': await this.saveSortList(ctx)
+        case '/server/sort-list': await this.saveSortList(ctx)
       } break
       case 'DELETE': switch (ctx.request.pluginUrlObj.pathname) {
-        case '/delete': await this.deleteProxy(ctx)
+        case '/delete': await this.deleteProxy(ctx); break
+        case '/server/sort': await this.deleteSortItem(ctx)
       } break
     }
     await next()
@@ -189,6 +190,44 @@ export default class ProxyObj {
         this.utils.response(ctx, 404, null, {
           message: `Cannot find Server id "${query.id}"`
         })
+        return config
+      })
+    }
+  }
+  async deleteSortItem (ctx) {
+    const query = ctx.request.query
+    if (!this.utils.check(query, [['id', 'string']])) {
+      this.utils.response(ctx, 400, null, {
+        message: 'Param error, check it and retry.'
+      })
+    } else {
+      this.utils.setConfig(this.name, (config) => {
+        let found = false
+        const traverse = (item, id) => {
+          console.log(item)
+          if (item && item.children && item.children.length) {
+            console.log(item.children)
+            for (const childIndex in item.children) {
+              if (item.children[childIndex].id === id) {
+                delete item.children[childIndex]
+                found = true
+              } else if (item.children[childIndex].children) {
+                traverse(item.children[childIndex], id)
+              }
+            }
+          }
+        }
+        traverse({
+          children: config.sortList || []
+        })
+        console.log('found', found)
+        if (!found) {
+          this.utils.response(ctx, 404, null, {
+            message: `Cannot find Server Sort id "${query.id}"`
+          })
+        } else {
+          this.utils.response(ctx, 200, null)
+        }
         return config
       })
     }

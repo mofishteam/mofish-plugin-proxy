@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getServers, saveServer, addServer, deleteServer, getServerSortList } from '@/api/service/servers'
+import { getServers, saveServer, addServer, deleteServer, getServerSortList, deleteServerSortItem } from '@/api/service/servers'
 import { setServerStatus, getCloseList } from '@/api/service/closeStatus'
-import { Message } from 'element-ui'
+import { Message, MessageBox } from 'element-ui'
 
 Vue.use(Vuex)
 
@@ -88,7 +88,8 @@ export default new Vuex.Store({
               Message.success('Save server successful.')
             }
           })
-          dispatch('refreshServers')
+          await dispatch('refreshServers')
+          dispatch('refreshServerSortList')
           return
         }
       }
@@ -97,17 +98,27 @@ export default new Vuex.Store({
           Message.success('Add server successful.')
         }
       })
-      await dispatch('refreshServerSortList')
-      dispatch('refreshServers')
+      await dispatch('refreshServers')
+      dispatch('refreshServerSortList')
     },
-    async deleteServer ({ commit, dispatch }, id) {
+    async deleteServerSortItem ({ dispatch }, id) {
+      await deleteServerSortItem(id)
+      await dispatch('refreshServerSortList')
+    },
+    async deleteServer ({ commit, dispatch, state }, id) {
       await deleteServer(id).then(res => {
         if (!res.result) {
           Message.success('Delete server successful.')
         }
       })
+      await dispatch('deleteServerSortItem', id)
       dispatch('refreshServers')
       commit('CLEAR_CURRENT_SERVER')
+    },
+    deleteServerConfirm ({ commit, dispatch }, id) {
+      MessageBox.confirm('Are you sure to delete this server config?', 'Confirm').then(() => {
+        dispatch('deleteServer', id)
+      })
     }
   },
   getters: {

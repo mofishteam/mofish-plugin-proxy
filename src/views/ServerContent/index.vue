@@ -6,7 +6,7 @@
         <el-input v-show="isEdit" v-model="tempServerName" style="width: 100%; max-width: 300px;"></el-input>
         <el-button type="text" :icon="!isEdit ? 'el-icon-edit-outline' : 'el-icon-check'" style="margin-left: 5px;" @click="switchEdit"></el-button>
         <el-button v-show="isEdit" type="text" icon="el-icon-close" style="margin-left: 5px;" @click="isEdit = false"></el-button>
-        <el-button style="float: right;" type="danger" icon="el-icon-delete" circle :disabled="isAdd" @click="deleteServerConfirm"></el-button>
+        <el-button style="float: right;" type="danger" icon="el-icon-delete" circle :disabled="isAdd" @click="deleteServerConfirm(currentServer.id)"></el-button>
         <el-button style="float: right;" :type="closeList.includes(currentServer.id) ? 'danger' : 'success'" icon="el-icon-switch-button" circle :disabled="isAdd" @click="switchServerStatus"></el-button>
         <el-radio-group style="float: right; vertical-align: middle;" v-model="displayMode">
           <el-radio-button label="visual">
@@ -111,7 +111,7 @@ export default {
   },
   methods: {
     ...mapActions([
-      'saveServer', 'deleteServer', 'setServerStatus'
+      'saveServer', 'deleteServer', 'setServerStatus', 'deleteServerConfirm'
     ]),
     addLocation () {
       this.currentLocation = defaultLocationOption()
@@ -124,11 +124,6 @@ export default {
         this.saveLocation()
       }
       this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
-    },
-    deleteServerConfirm () {
-      this.$confirm('Are you sure to delete this server config?', 'Confirm').then(() => {
-        this.deleteServer(this.currentServer.id)
-      })
     },
     saveLocation () {
       this.currentLocation.id = getId('location')

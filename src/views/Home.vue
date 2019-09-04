@@ -10,25 +10,44 @@
             <el-button class="rect-button" type="text" icon="el-icon-folder-add" @click="addFolder" style="width: 100%;">Folder</el-button>
           </el-col>
         </el-row>
-        <el-tree :data="computedServerSortList" node-key="id" :draggable="isSort">
-          <div slot-scope="{ node, data }" class="tree-menu-wrap">
+        <div class="add-folder-wrap">
+          <el-menu-item index="addFolder" class="add-folder-item" v-if="showAddFolder">
+            <i class="el-icon-folder"></i>
+            <el-input ref="addFolderInput" size="mini" @keyup.enter="addFolderConfirm" @blur="addFolderConfirm" v-model="addFolderLabel"></el-input>
+          </el-menu-item>
+        </div>
+        <el-tree :default-expanded-keys="expandedList" @node-expand="nodeExpand" @node-collapse="nodeCollapse" empty-text="No Servers." :indent="8" :data="computedServerSortList" node-key="id" :draggable="true" @node-drop="menuDropEnd" :allow-drop="allowDrop">
+          <div slot-scope="{ node, data }" class="menu-wrap">
             <span v-if="data.isDir">
-              <i class="el-icon-folder"></i>
+              <i v-if="!(data.children && data.children.length)" class="el-icon-folder-remove"></i>
+              <template v-else>
+                <i v-if="node.expanded" class="el-icon-folder-opened"></i>
+                <i v-if="!node.expanded" class="el-icon-folder"></i>
+              </template>
               <span>{{node.label}}</span>
             </span>
             <template v-if="!data.isDir">
-              <el-menu-item :index="`homeServers-${server.id}`" @click="setServer(server.id)" :key="server.id" v-for="server in getServerItem(data.id)">
-                <el-button v-show="!isSort" circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
-                <el-button type="text" icon="el-icon-rank" v-show="isSort" style="margin-left: -9px;"></el-button>
-                <span>{{ server.name }}</span>
+              <el-menu-item :class="[{hover: node.showMenu}]" :index="`homeServers-${server.id}`" @click="setServer(server.id)" :key="server.id" v-for="server in getServerItem(data.id)">
+                <el-button circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
+                <span class="menu-label">{{ server.name }}</span>
+                <el-dropdown
+                  placement="bottom-end"
+                  @visible-change="menuVisibleChange(node, $event)"
+                  trigger="click"
+                  class="more-button"
+                  :ref="`menu-popover-${data.id}`">
+                  <el-button icon="el-icon-more" type="text" @click.stop style="padding: 0;"></el-button>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item icon="el-icon-delete" class="text-danger" @click="deleteServer(server.id)">
+                      Delete
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
               </el-menu-item>
             </template>
           </div>
         </el-tree>
       </el-menu>
-      <div class="sort-btn-wrap">
-        <el-button class="rect-button" type="primary" icon="el-icon-sort" @click="isSort = !isSort">{{isSort ? 'Stop Sort' : 'Sort'}}</el-button>
-      </div>
     </el-aside>
     <el-main class="home-page-content" ref="mainContent">
       <router-view></router-view>
@@ -39,14 +58,19 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import { saveServerSortList } from '@/api/service/servers'
+import md5 from 'md5'
+let folderIdCnt = 0
 export default {
   name: 'homePage',
   data () {
     return {
-      isSort: false,
       serverSortGrid: [],
       serverSortGridList: [],
-      mainContentLoadingObj: null
+      mainContentLoadingObj: null,
+      addFolderLabel: '',
+      computedServerSortList: [],
+      showAddFolder: false,
+      expandedList: []
     }
   },
   components: {
@@ -59,8 +83,22 @@ export default {
       'refreshCloseList',
       'refreshServerSortList'
     ]),
+    getFolderId () {
+      return md5(`folder-${folderIdCnt++}-${new Date().valueOf()}`)
+    },
+    menuDropEnd () {
+      console.log(this.computedServerSortList)
+      saveServerSortList({
+        list: this.computedServerSortList
+      }).then(async res => {
+        await this.refreshServerSortList()
+      })
+    },
+    allowDrop (draggingNode, dropNode, type) {
+      return !(type === 'inner' && !dropNode.data.isDir)
+    },
     addServer () {
-      if (!(this.isSort || this.$route.query.add)) {
+      if (!this.$route.query.add) {
         this.clearCurrentServer()
         this.$router.push({
           ...this.$route,
@@ -71,13 +109,37 @@ export default {
         })
       }
     },
-    addFolder () {},
+    addFolder () {
+      this.addFolderLabel = ''
+      this.showAddFolder = true
+      this.$nextTick(() => {
+        this.$refs.addFolderInput.focus()
+      })
+    },
+    addFolderConfirm () {
+      if (this.addFolderLabel) {
+        saveServerSortList({
+          list: [{
+            id: this.getFolderId(),
+            isDir: true,
+            children: [],
+            label: this.addFolderLabel
+          }, ...this.computedServerSortList]
+        }).then(res => {
+          this.refreshServerSortList()
+          this.showAddFolder = false
+          this.addFolderLabel = ''
+        })
+      } else {
+        this.showAddFolder = false
+      }
+    },
     getServerItem (id) {
       return [
         this.servers.find(item => {
           return item.id === id
         })
-      ]
+      ].filter(item => item)
     },
     setServer (id) {
       this.$router.push({
@@ -89,88 +151,128 @@ export default {
       })
       this.setCurrentServer(id)
     },
-  },
-  watch: {
-    isSort (val) {
-      if (val) {
-        this.mainContentLoadingObj = this.$loading.service({
-          target: this.$refs.mainContent.$el,
-          text: 'Menu sort is NOT saved, please save sort first.',
-          spinner: 'el-icon-lock'
-        })
-      } else {
-        if (this.mainContentLoadingObj) {
-          this.mainContentLoadingObj.close()
-        }
-        const sortList = []
-        if (this.serverSortGridList && this.serverSortGridList.length) {
-          for (const item of this.serverSortGridList) {
-            if (item.i) {
-              sortList[item.y] = item.i
-            }
+    resetSortList () {
+      const idList = new Set()
+      const rawList = this.serverSortList
+      const expandedList = []
+      const traverseId = (item) => {
+        idList.add(item.id)
+        if (item.isDir) {
+          if (item.expanded) {
+            expandedList.push(item.id)
+          }
+          for (const subItem of item.children || []) {
+            traverseId(subItem)
           }
         }
-        saveServerSortList({
-          list: sortList
-        }).then(res => {
-          this.refreshServerSortList()
-        })
       }
+      console.log('rawList: ', rawList)
+      rawList.forEach(item => {
+        traverseId(item)
+      })
+      for (const server of this.servers) {
+        if (!idList.has(server.id)) {
+          rawList.push({
+            id: server.id,
+            label: server.name,
+            isDir: false
+          })
+        }
+      }
+      console.log(rawList)
+      this.computedServerSortList = rawList
+      this.expandedList = expandedList
+    },
+    menuVisibleChange (d, evt) {
+      this.$set(d, 'showMenu', evt)
+    },
+    nodeExpand (data) {
+      data.expanded = true
+      setTimeout(() => {
+        saveServerSortList({
+          list: this.computedServerSortList
+        }).then(async res => {
+          await this.refreshServerSortList()
+        })
+      }, 300)
+    },
+    nodeCollapse (data) {
+      data.expanded = false
+      setTimeout(() => {
+        saveServerSortList({
+          list: this.computedServerSortList
+        }).then(async res => {
+          await this.refreshServerSortList()
+        })
+      }, 300)
+    }
+  },
+  watch: {
+    serverSortList () {
+      this.resetSortList()
     }
   },
   async created () {
     this.refreshCloseList()
     await this.refreshServers()
-    this.refreshServerSortList()
+    await this.refreshServerSortList()
   },
   computed: {
     ...mapGetters({
       servers: 'getServers',
       closeList: 'getCloseList',
       serverSortList: 'getServerSortList'
-    }),
-    computedServerSortList () {
-      const rawList = this.serverSortList.concat(this.servers)
-      const idList = new Set()
-      const sortList = []
-      rawList.forEach(item => {
-        if (typeof item === 'object') {
-          if (item.id && !idList.has(item.id)) {
-            idList.add(item.id)
-            sortList.push({
-              id: item.id,
-              label: '123',
-              isDir: item.isDir
-            })
-          }
-        } else if (!idList.has(item)) {
-          idList.add(item)
-          sortList.push({
-            id: item,
-            label: '345',
-            isDir: false
-          })
-        }
-      })
-      console.log(sortList)
-      return sortList
-    }
+    })
   }
 }
 </script>
 
 <style lang="scss">
   .home-page {
-    .el-tree-node__content {
-      height: 50px;
-      .tree-menu-wrap {
+    .menu-label {
+      display: inline-block;
+      overflow: hidden;
+      width: 100%;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .menu-wrap {
+      width: 100%;
+      margin-left: -4px;
+      .more-button {
+        position: absolute;
+        right: -15px;
+        top: 16px;
+        height: 26px;
+        pointer-events: none;
+        display: flex;
+        opacity: 0;
+        transition: .3s opacity;
+      }
+      .el-menu-item {
         width: 100%;
-        .el-menu-item {
-          width: 100%;
-          &:hover, &:active, &.is-active {
-            background-color: transparent;
+        margin-left: -20px;
+        &:hover, &:active, &.is-active {
+          background-color: transparent;
+        }
+        &:hover, &.hover {
+          .menu-label {
+            width: calc(100% - 25px);
+          }
+          .more-button {
+            opacity: 1;
+            pointer-events: auto;
           }
         }
+      }
+    }
+    .add-folder-wrap {
+      margin-left: -16px;
+    }
+    .el-tree-node__content {
+      height: 50px;
+      .el-icon-caret-right:before {
+        display: none;
       }
     }
     .el-aside {
@@ -194,8 +296,7 @@ export default {
       padding: 20px;
     }
     &-menu {
-      height: calc(100vh - 40px);
-      padding-bottom: 40px;
+      height: 100vh;
       overflow: scroll;
       .vue-grid-layout {
       }
@@ -203,6 +304,17 @@ export default {
         cursor: move;
         user-select: none;
         pointer-events: none;
+      }
+    }
+    .add-folder-item {
+      display: flex;
+      height: 50px;
+      align-items: center;
+      & > i {
+        line-height: 50px;
+      }
+      .el-input {
+        flex: 1;
       }
     }
   }
