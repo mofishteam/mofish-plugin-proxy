@@ -81,7 +81,8 @@ export default {
       'setCurrentServer',
       'clearCurrentServer',
       'refreshCloseList',
-      'refreshServerSortList'
+      'refreshServerSortList',
+      'prependServerSort'
     ]),
     getFolderId () {
       return md5(`folder-${folderIdCnt++}-${new Date().valueOf()}`)
@@ -118,15 +119,12 @@ export default {
     },
     addFolderConfirm () {
       if (this.addFolderLabel) {
-        saveServerSortList({
-          list: [{
-            id: this.getFolderId(),
-            isDir: true,
-            children: [],
-            label: this.addFolderLabel
-          }, ...this.computedServerSortList]
+        this.prependServerSort({
+          id: this.getFolderId(),
+          isDir: true,
+          children: [],
+          label: this.addFolderLabel
         }).then(res => {
-          this.refreshServerSortList()
           this.showAddFolder = false
           this.addFolderLabel = ''
         })
@@ -215,7 +213,6 @@ export default {
   async created () {
     this.refreshCloseList()
     await this.refreshServers()
-    await this.refreshServerSortList()
   },
   computed: {
     ...mapGetters({

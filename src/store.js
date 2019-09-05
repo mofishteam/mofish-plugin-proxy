@@ -23,6 +23,12 @@ export default new Vuex.Store({
     SET_SERVER_SORT_LIST (state, val) {
       state.serverSortList = val
     },
+    APPEND_SERVER_SORT (state, val) {
+      state.serverSortList.push(val)
+    },
+    PREPEND_SERVER_SORT (state, val) {
+      state.serverSortList.unshift(val)
+    },
     SET_CURRENT_SERVER_BY_ID (state, id) {
       for (const server of state.servers) {
         if (server.id === id) {
@@ -36,19 +42,17 @@ export default new Vuex.Store({
     },
     CLEAR_CURRENT_SERVER (state) {
       state.currentServer = {}
-    },
-    APPEND_SERVER_SORT (state, val) {
-      state.serverSortList.push(val)
     }
   },
   actions: {
-    refreshServers ({ commit, state }) {
+    refreshServers ({ commit, dispatch, state }) {
       return getServers().then(res => {
         if (!res.result) {
           commit('SET_SERVERS', res.data)
           if (state.currentServer && state.currentServer.id) {
             commit('SET_CURRENT_SERVER_BY_ID', state.currentServer.id)
           }
+          dispatch('refreshServerSortList')
         }
       })
     },
@@ -83,10 +87,22 @@ export default new Vuex.Store({
         }
       })
     },
-    async appendServerSort ({ commit, state, dispatch }, val) {
+    appendServerSort ({ commit, state }, val) {
       commit('APPEND_SERVER_SORT', val)
-      await saveServerSortList({
+      return saveServerSortList({
         list: state.serverSortList
+      })
+    },
+    prependServerSort ({ commit, state }, val) {
+      commit('PREPEND_SERVER_SORT', val)
+      return saveServerSortList({
+        list: state.serverSortList
+      })
+    },
+    saveServerSortList ({ commit }, list) {
+      commit('SET_SERVER_SORT_LIST', list)
+      return saveServerSortList({
+        list
       })
     },
     async saveServer ({ commit, state, dispatch }, val) {
@@ -98,7 +114,7 @@ export default new Vuex.Store({
             }
           })
           await dispatch('refreshServers')
-          dispatch('refreshServerSortList')
+          // dispatch('refreshServerSortList')
           return
         }
       }
@@ -107,7 +123,6 @@ export default new Vuex.Store({
           Message.success('Add server successful.')
         }
       })
-      await dispatch('appendServerSort')(val)
       await dispatch('refreshServers')
       dispatch('refreshServerSortList')
     },
