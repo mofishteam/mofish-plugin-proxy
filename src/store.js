@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getServers, saveServer, addServer, deleteServer, getServerSortList, deleteServerSortItem } from '@/api/service/servers'
+import { getServers, saveServer, addServer, deleteServer, getServerSortList, deleteServerSortItem, saveServerSortList } from '@/api/service/servers'
 import { setServerStatus, getCloseList } from '@/api/service/closeStatus'
 import { Message, MessageBox } from 'element-ui'
 
@@ -36,6 +36,9 @@ export default new Vuex.Store({
     },
     CLEAR_CURRENT_SERVER (state) {
       state.currentServer = {}
+    },
+    APPEND_SERVER_SORT (state, val) {
+      state.serverSortList.push(val)
     }
   },
   actions: {
@@ -80,6 +83,12 @@ export default new Vuex.Store({
         }
       })
     },
+    async appendServerSort ({ commit, state, dispatch }, val) {
+      commit('APPEND_SERVER_SORT', val)
+      await saveServerSortList({
+        list: state.serverSortList
+      })
+    },
     async saveServer ({ commit, state, dispatch }, val) {
       for (const server of state.servers) {
         if (server.id === val.id) {
@@ -98,6 +107,7 @@ export default new Vuex.Store({
           Message.success('Add server successful.')
         }
       })
+      await dispatch('appendServerSort')(val)
       await dispatch('refreshServers')
       dispatch('refreshServerSortList')
     },
