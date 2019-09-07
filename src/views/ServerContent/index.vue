@@ -57,7 +57,7 @@
           </el-form-item>
         </template>
         <el-form-item>
-          <el-button type="primary" @click="saveServerConfig()">Save And Restart</el-button>
+          <el-button type="primary" @click="saveServerConfig()">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
           <el-button @click="resetForm">Reset</el-button>
         </el-form-item>
       </el-form>
