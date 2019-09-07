@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getServers, saveServer, addServer, deleteServer, getServerSortList, deleteServerSortItem, saveServerSortList } from '@/api/service/servers'
+import { getServers, saveServer, addServer, deleteServer, getServerSortList, saveServerSortList } from '@/api/service/servers'
 import { setServerStatus, getCloseList } from '@/api/service/closeStatus'
 import { Message, MessageBox } from 'element-ui'
 
@@ -42,6 +42,24 @@ export default new Vuex.Store({
     },
     CLEAR_CURRENT_SERVER (state) {
       state.currentServer = {}
+    },
+    DELETE_SERVER_SORT_ITEM (state, id) {
+      const traverseDelete = (children) => {
+        if (children && children.length) {
+          for (const childIndex in children) {
+            const child = children[childIndex]
+            if (child && child.id === id) {
+              console.log(childIndex, child)
+              children.splice(childIndex, 1)
+              return
+            } else if (child.children) {
+              traverseDelete(child.children)
+            }
+          }
+        }
+      }
+      traverseDelete(state.serverSortList)
+      console.log(JSON.stringify(state.serverSortList, 2))
     }
   },
   actions: {
@@ -126,11 +144,12 @@ export default new Vuex.Store({
       await dispatch('refreshServers')
       dispatch('refreshServerSortList')
     },
-    async deleteServerSortItem ({ dispatch }, id) {
-      await deleteServerSortItem(id)
-      await dispatch('refreshServerSortList')
+    async deleteServerSortItem ({ commit, state }, id) {
+      commit('DELETE_SERVER_SORT_ITEM', id)
+      console.log(state.serverSortList.length)
     },
     async deleteServer ({ commit, dispatch, state }, id) {
+      console.log('deleteServer')
       await deleteServer(id).then(res => {
         if (!res.result) {
           Message.success('Delete server successful.')

@@ -38,7 +38,7 @@
                   :ref="`menu-popover-${data.id}`">
                   <el-button icon="el-icon-more" type="text" @click.stop style="padding: 0;"></el-button>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item icon="el-icon-delete" class="text-danger" @click="deleteServer(server.id)">
+                    <el-dropdown-item icon="el-icon-delete" class="text-danger" @click.native="deleteServerConfirm(server.id)">
                       Delete
                     </el-dropdown-item>
                   </el-dropdown-menu>
@@ -82,7 +82,8 @@ export default {
       'clearCurrentServer',
       'refreshCloseList',
       'refreshServerSortList',
-      'prependServerSort'
+      'prependServerSort',
+      'deleteServerConfirm'
     ]),
     getFolderId () {
       return md5(`folder-${folderIdCnt++}-${new Date().valueOf()}`)
@@ -154,13 +155,15 @@ export default {
       const rawList = this.serverSortList
       const expandedList = []
       const traverseId = (item) => {
-        idList.add(item.id)
-        if (item.isDir) {
-          if (item.expanded) {
-            expandedList.push(item.id)
-          }
-          for (const subItem of item.children || []) {
-            traverseId(subItem)
+        if (item) {
+          idList.add(item.id)
+          if (item.isDir) {
+            if (item.expanded) {
+              expandedList.push(item.id)
+            }
+            for (const subItem of item.children || []) {
+              traverseId(subItem)
+            }
           }
         }
       }

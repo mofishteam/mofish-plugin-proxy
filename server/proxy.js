@@ -195,6 +195,7 @@ export default class ProxyObj {
     }
   }
   async deleteSortItem (ctx) {
+    // 坏了，慎用
     const query = ctx.request.query
     if (!this.utils.check(query, [['id', 'string']])) {
       this.utils.response(ctx, 400, null, {
