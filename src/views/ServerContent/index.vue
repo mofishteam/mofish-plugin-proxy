@@ -124,6 +124,13 @@ export default {
         this.saveLocation()
       }
       this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
+      this.$router.push({
+        ...this.$route,
+        query: {
+          ...this.$route.query,
+          add: undefined
+        }
+      })
     },
     deleteServerConfirm () {
       this.$confirm('Are you sure to delete this server config?', 'Confirm').then(() => {
