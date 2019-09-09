@@ -3,7 +3,7 @@
     <el-card shadow="hover" class="server-content-page__container" v-if="isAdd || currentServer.name" :key="'server-' + currentServer.id">
       <div slot="header" class="clearfix">
         <span v-show="!isEdit">{{ currentServer.name }}</span>
-        <el-input v-show="isEdit" v-model="tempServerName" style="width: 100%; max-width: 300px;"></el-input>
+        <el-input v-show="isEdit" v-model="tempServerName" style="width: 100%; max-width: 300px;" @keyup.enter.native="switchEdit"></el-input>
         <el-button type="text" :icon="!isEdit ? 'el-icon-edit-outline' : 'el-icon-check'" style="margin-left: 5px;" @click="switchEdit"></el-button>
         <el-button v-show="isEdit" type="text" icon="el-icon-close" style="margin-left: 5px;" @click="isEdit = false"></el-button>
         <el-button style="float: right;" type="danger" icon="el-icon-delete" circle :disabled="isAdd" @click="deleteServerConfirm"></el-button>
