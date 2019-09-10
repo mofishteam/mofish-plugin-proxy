@@ -3,7 +3,7 @@
     <el-card shadow="hover" class="server-content-page__container" v-if="isAdd || currentServer.name" :key="'server-' + currentServer.id">
       <div slot="header" class="clearfix">
         <span v-show="!isEdit">{{ currentServer.name }}</span>
-        <el-input v-show="isEdit" v-model="tempServerName" style="width: 100%; max-width: 300px;"></el-input>
+        <el-input v-show="isEdit" v-model="tempServerName" style="width: 100%; max-width: 300px;" @keyup.enter.native="switchEdit"></el-input>
         <el-button type="text" :icon="!isEdit ? 'el-icon-edit-outline' : 'el-icon-check'" style="margin-left: 5px;" @click="switchEdit"></el-button>
         <el-button v-show="isEdit" type="text" icon="el-icon-close" style="margin-left: 5px;" @click="isEdit = false"></el-button>
         <el-button style="float: right;" type="danger" icon="el-icon-delete" circle :disabled="isAdd" @click="deleteServerConfirm(currentServer.id)"></el-button>
@@ -57,7 +57,7 @@
           </el-form-item>
         </template>
         <el-form-item>
-          <el-button type="primary" @click="saveServerConfig()">Save And Restart</el-button>
+          <el-button type="primary" @click="saveServerConfig()">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
           <el-button @click="resetForm">Reset</el-button>
         </el-form-item>
       </el-form>
@@ -124,6 +124,13 @@ export default {
         this.saveLocation()
       }
       this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
+      this.$router.push({
+        ...this.$route,
+        query: {
+          ...this.$route.query,
+          add: undefined
+        }
+      })
     },
     saveLocation () {
       this.currentLocation.id = getId('location')
