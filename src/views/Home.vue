@@ -89,7 +89,6 @@ export default {
       return md5(`folder-${folderIdCnt++}-${new Date().valueOf()}`)
     },
     menuDropEnd () {
-      console.log(this.computedServerSortList)
       saveServerSortList({
         list: this.computedServerSortList
       }).then(async res => {
@@ -167,7 +166,6 @@ export default {
           }
         }
       }
-      console.log('rawList: ', rawList)
       rawList.forEach(item => {
         traverseId(item)
       })
@@ -180,7 +178,6 @@ export default {
           })
         }
       }
-      console.log(rawList)
       this.computedServerSortList = rawList
       this.expandedList = expandedList
     },
@@ -193,7 +190,7 @@ export default {
         saveServerSortList({
           list: this.computedServerSortList
         }).then(async res => {
-          await this.refreshServerSortList()
+          // await this.refreshServerSortList()
         })
       }, 300)
     },
@@ -203,7 +200,7 @@ export default {
         saveServerSortList({
           list: this.computedServerSortList
         }).then(async res => {
-          await this.refreshServerSortList()
+          // await this.refreshServerSortList()
         })
       }, 300)
     }
@@ -216,6 +213,7 @@ export default {
   async created () {
     this.refreshCloseList()
     await this.refreshServers()
+    await this.refreshServerSortList()
   },
   computed: {
     ...mapGetters({

@@ -42,24 +42,6 @@ export default new Vuex.Store({
     },
     CLEAR_CURRENT_SERVER (state) {
       state.currentServer = {}
-    },
-    DELETE_SERVER_SORT_ITEM (state, id) {
-      const traverseDelete = (children) => {
-        if (children && children.length) {
-          for (const childIndex in children) {
-            const child = children[childIndex]
-            if (child && child.id === id) {
-              console.log(childIndex, child)
-              children.splice(childIndex, 1)
-              return
-            } else if (child.children) {
-              traverseDelete(child.children)
-            }
-          }
-        }
-      }
-      traverseDelete(state.serverSortList)
-      console.log(JSON.stringify(state.serverSortList, 2))
     }
   },
   actions: {
@@ -70,7 +52,7 @@ export default new Vuex.Store({
           if (state.currentServer && state.currentServer.id) {
             commit('SET_CURRENT_SERVER_BY_ID', state.currentServer.id)
           }
-          dispatch('refreshServerSortList')
+          // dispatch('refreshServerSortList')
         }
       })
     },
@@ -142,21 +124,16 @@ export default new Vuex.Store({
         }
       })
       await dispatch('refreshServers')
-      dispatch('refreshServerSortList')
-    },
-    async deleteServerSortItem ({ commit, state }, id) {
-      commit('DELETE_SERVER_SORT_ITEM', id)
-      console.log(state.serverSortList.length)
+      await dispatch('refreshServerSortList')
     },
     async deleteServer ({ commit, dispatch, state }, id) {
-      console.log('deleteServer')
       await deleteServer(id).then(res => {
         if (!res.result) {
           Message.success('Delete server successful.')
         }
       })
-      await dispatch('deleteServerSortItem', id)
-      dispatch('refreshServers')
+      await dispatch('refreshServers')
+      await dispatch('refreshServerSortList')
       commit('CLEAR_CURRENT_SERVER')
     },
     deleteServerConfirm ({ commit, dispatch }, id) {

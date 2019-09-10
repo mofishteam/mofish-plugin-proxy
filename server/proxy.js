@@ -108,8 +108,24 @@ export default class ProxyObj {
   }
   async getSortList (ctx) {
     const config = this.utils.getConfig()
+    const serverIdList = config.allProject.reduce((sum, cur) => {
+      sum.push(cur.id)
+      return sum
+    }, [])
+    const traverse = (children) => {
+      const result = []
+      for (const child of children) {
+        if (child.isDir || serverIdList.includes(child.id)) {
+          result.push(child)
+          if (child.children) {
+            child.children = traverse(child.children)
+          }
+        }
+      }
+      return result
+    }
     // allProject: 所有项目中都显示的项
-    this.utils.response(ctx, 200, config.sortList || [])
+    this.utils.response(ctx, 200, traverse(config.sortList || []))
   }
   async addProxy (ctx) {
     const body = ctx.request.body
@@ -205,9 +221,7 @@ export default class ProxyObj {
       this.utils.setConfig(this.name, (config) => {
         let found = false
         const traverse = (item, id) => {
-          console.log(item)
           if (item && item.children && item.children.length) {
-            console.log(item.children)
             for (const childIndex in item.children) {
               if (item.children[childIndex].id === id) {
                 delete item.children[childIndex]
@@ -221,7 +235,6 @@ export default class ProxyObj {
         traverse({
           children: config.sortList || []
         })
-        console.log('found', found)
         if (!found) {
           this.utils.response(ctx, 404, null, {
             message: `Cannot find Server Sort id "${query.id}"`
