@@ -18,14 +18,27 @@
         </div>
         <el-tree :default-expanded-keys="expandedList" @node-expand="nodeExpand" @node-collapse="nodeCollapse" empty-text="No Servers." :indent="8" :data="computedServerSortList" node-key="id" :draggable="true" @node-drop="menuDropEnd" :allow-drop="allowDrop">
           <div slot-scope="{ node, data }" class="menu-wrap">
-            <span v-if="data.isDir">
+            <div v-if="data.isDir" :class="['menu-folder-item', {hover: node.showMenu}]">
               <i v-if="!(data.children && data.children.length)" class="el-icon-folder-remove"></i>
               <template v-else>
                 <i v-if="node.expanded" class="el-icon-folder-opened"></i>
                 <i v-if="!node.expanded" class="el-icon-folder"></i>
               </template>
               <span>{{node.label}}</span>
-            </span>
+              <el-dropdown
+                placement="bottom-end"
+                @visible-change="menuVisibleChange(node, $event)"
+                trigger="click"
+                class="more-button"
+                :ref="`menu-folder-popover-${data.id}`">
+                <el-button icon="el-icon-more" type="text" @click.stop style="padding: 0;"></el-button>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item icon="el-icon-delete" class="text-danger" @click.native="deleteFolderConfirm(server.id)">
+                    Delete
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+            </div>
             <template v-if="!data.isDir">
               <el-menu-item :class="[{hover: node.showMenu}]" :index="`homeServers-${server.id}`" @click="setServer(server.id)" :key="server.id" v-for="server in getServerItem(data.id)">
                 <el-button circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
@@ -226,6 +239,7 @@ export default {
 </script>
 
 <style lang="scss">
+  @import "~@/assets/style/base.scss";
   .home-page {
     .menu-label {
       display: inline-block;
@@ -248,8 +262,19 @@ export default {
         transition: .3s opacity;
       }
       .el-menu-item {
-        width: 100%;
         margin-left: -20px;
+      }
+      .menu-folder-item {
+        .more-button {
+          right: 15px;
+          top: 12px;
+          & > button.el-button > i.el-icon-more {
+            color: $main-text-color;
+          }
+        }
+      }
+      .el-menu-item, .menu-folder-item {
+        width: 100%;
         &:hover, &:active, &.is-active {
           background-color: transparent;
         }
