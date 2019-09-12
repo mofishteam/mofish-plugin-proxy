@@ -140,6 +140,53 @@ export default new Vuex.Store({
       MessageBox.confirm('Are you sure to delete this server config?', 'Confirm').then(() => {
         dispatch('deleteServer', id)
       })
+    },
+    async deleteFolder ({ commit, dispatch, state }, id) {
+      const traverseFind = (children, _id) => {
+        for (const child of children) {
+          if (child.id === _id) {
+            return child
+          } else if (child.children) {
+            const result = traverseFind(child.children, _id)
+            if (result) {
+              return result
+            }
+          }
+        }
+        return null
+      }
+      const traverseFindServer = (children, sum) => {
+        for (const child of children) {
+          if (child.isDir) {
+            traverseFindServer(child.children || [], sum)
+          } else {
+            sum.push(child.id)
+          }
+        }
+      }
+      if (id) {
+        // 先找在sort中到folder
+        const sortFolder = traverseFind(state.serverSortList, id)
+        console.log(sortFolder)
+        if (sortFolder) {
+          const serverList = []
+          traverseFindServer(sortFolder.children, serverList)
+          console.log(serverList)
+        }
+      }
+      // await deleteServer(id).then(res => {
+      //   if (!res.result) {
+      //     Message.success('Delete server successful.')
+      //   }
+      // })
+      // await dispatch('refreshServers')
+      // await dispatch('refreshServerSortList')
+      // commit('CLEAR_CURRENT_SERVER')
+    },
+    deleteFolderConfirm ({ commit, dispatch }, id) {
+      MessageBox.confirm('Are you sure to delete this folder?', 'Confirm').then(() => {
+        dispatch('deleteFolder', id)
+      })
     }
   },
   getters: {

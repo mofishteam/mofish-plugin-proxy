@@ -32,8 +32,8 @@
                 class="more-button"
                 :ref="`menu-folder-popover-${data.id}`">
                 <el-button icon="el-icon-more" type="text" @click.stop style="padding: 0;"></el-button>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item icon="el-icon-delete" class="text-danger" @click.native="deleteFolderConfirm(server.id)">
+                <el-dropdown-menu slot="dropdown" class="menu-folder-popover-dropdown" :key="`menu-folder-popover-${data.id}`">
+                  <el-dropdown-item icon="el-icon-delete" class="text-danger" @click.native="deleteFolderConfirm(data.id)">
                     Delete
                   </el-dropdown-item>
                 </el-dropdown-menu>
@@ -50,7 +50,7 @@
                   class="more-button"
                   :ref="`menu-popover-${data.id}`">
                   <el-button icon="el-icon-more" type="text" @click.stop style="padding: 0;"></el-button>
-                  <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-menu slot="dropdown" :key="`menu-popover-${data.id}`">
                     <el-dropdown-item icon="el-icon-delete" class="text-danger" @click.native="deleteServerConfirm(server.id)">
                       Delete
                     </el-dropdown-item>
@@ -96,7 +96,8 @@ export default {
       'refreshCloseList',
       'refreshServerSortList',
       'prependServerSort',
-      'deleteServerConfirm'
+      'deleteServerConfirm',
+      'deleteFolderConfirm'
     ]),
     getFolderId () {
       return md5(`folder-${folderIdCnt++}-${new Date().valueOf()}`)
@@ -240,6 +241,9 @@ export default {
 
 <style lang="scss">
   @import "~@/assets/style/base.scss";
+  .menu-folder-popover-dropdown {
+    transform: translateX(8px);
+  }
   .home-page {
     .menu-label {
       display: inline-block;
@@ -260,6 +264,9 @@ export default {
         display: flex;
         opacity: 0;
         transition: .3s opacity;
+        & > button.el-button > i.el-icon-more {
+          color: $main-text-color;
+        }
       }
       .el-menu-item {
         margin-left: -20px;
@@ -268,9 +275,6 @@ export default {
         .more-button {
           right: 15px;
           top: 12px;
-          & > button.el-button > i.el-icon-more {
-            color: $main-text-color;
-          }
         }
       }
       .el-menu-item, .menu-folder-item {
