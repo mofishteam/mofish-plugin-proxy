@@ -1,34 +1,11 @@
-# mofish-plugin-proxy-2
+# mofish-plugin-proxy
 
-## Project setup
-```
-npm install
-```
+A proxy plugin for Mofish Development Frame.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## Usage
 
-### Compiles and minifies for production
-```
-npm run build
-```
+Please install Mofish before use this plugin.
 
-### Run your tests
-```
-npm run test
-```
+> npm install mofish -g
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Run your unit tests
-```
-npm run test:unit
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+For installing details please see [https://github.com/mofishteam/mofish](https://github.com/mofishteam/mofish)
