@@ -42,6 +42,23 @@ export default new Vuex.Store({
     },
     CLEAR_CURRENT_SERVER (state) {
       state.currentServer = {}
+    },
+    DELETE_SERVER_SORT_ITEM (state, id) {
+      const traverseDelete = (children) => {
+        for (const childIndex in children) {
+          const child = children[childIndex]
+          if (child.id === id) {
+            children.splice(childIndex, 1)
+            return true
+          } else if (child.isDir) {
+            const result = traverseDelete(child.children || [])
+            if (result) {
+              return true
+            }
+          }
+        }
+      }
+      traverseDelete(state.serverSortList)
     }
   },
   actions: {
@@ -155,6 +172,7 @@ export default new Vuex.Store({
         }
         return null
       }
+      // 遍历寻找并写入sum
       const traverseFindServer = (children, sum) => {
         for (const child of children) {
           if (child.isDir) {
@@ -167,11 +185,17 @@ export default new Vuex.Store({
       if (id) {
         // 先找在sort中到folder
         const sortFolder = traverseFind(state.serverSortList, id)
-        console.log(sortFolder)
         if (sortFolder) {
           const serverList = []
           traverseFindServer(sortFolder.children, serverList)
-          console.log(serverList)
+          // serverList就是所有需要删除的项
+          for (const serverId of serverList) {
+            await dispatch('deleteServer', serverId)
+          }
+          commit('DELETE_SERVER_SORT_ITEM', id)
+          await saveServerSortList({
+            list: state.serverSortList
+          })
         }
       }
       // await deleteServer(id).then(res => {

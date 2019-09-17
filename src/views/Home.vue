@@ -272,9 +272,11 @@ export default {
         margin-left: -20px;
       }
       .menu-folder-item {
+        position: relative;
         .more-button {
           right: 15px;
-          top: 12px;
+          top: 50%;
+          transform: translateY(-50%);
         }
       }
       .el-menu-item, .menu-folder-item {
