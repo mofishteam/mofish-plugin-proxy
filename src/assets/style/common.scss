@@ -1,4 +1,10 @@
 @import "./base.scss";
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
 .tac {
   text-align: center;
 }
@@ -64,4 +70,8 @@
   &:before {
     display: none;
   }
+}
+
+.rect-button {
+  border-radius: 0!important;
 }

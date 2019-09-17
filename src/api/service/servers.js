@@ -21,7 +21,11 @@ export const getServerSortList = () => {
 }
 
 export const saveServerSortList = (params) => {
-  return axios.put('/plugin/Proxy/save/sort-list', params)
+  return axios.put('/plugin/Proxy/server/sort-list', params)
+}
+
+export const deleteServerSortItem = (id) => {
+  return axios.delete(`/plugin/Proxy/server/sort?id=${id}`)
 }
 
 // export const deletePlugin = (params) => {
