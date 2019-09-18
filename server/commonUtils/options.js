@@ -10,7 +10,7 @@ export const defaultServerOption = () => ({
   include: null,
   name: getId('serverName'),
   server: {
-    name: [],
+    name: ['0.0.0.0'],
     ssl: false,
     sslOptions: {
       key: '',

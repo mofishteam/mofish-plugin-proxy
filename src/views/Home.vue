@@ -13,11 +13,12 @@
         <div class="add-folder-wrap">
           <el-menu-item index="addFolder" class="add-folder-item" v-if="showAddFolder">
             <i class="el-icon-folder"></i>
-            <el-input ref="addFolderInput" size="mini" @keyup.enter="addFolderConfirm" @blur="addFolderConfirm" v-model="addFolderLabel"></el-input>
+            <el-input ref="addFolderInput" size="mini" @keyup.enter.native="addFolderConfirm" @blur="addFolderConfirm" v-model="addFolderLabel"></el-input>
+            <i class="el-icon-close" style="margin-right: -15px;"></i>
           </el-menu-item>
         </div>
         <el-tree :default-expanded-keys="expandedList" @node-expand="nodeExpand" @node-collapse="nodeCollapse" empty-text="No Servers." :indent="8" :data="computedServerSortList" node-key="id" :draggable="true" @node-drop="menuDropEnd" :allow-drop="allowDrop">
-          <div slot-scope="{ node, data }" class="menu-wrap">
+          <div slot-scope="{ node, data }" :class="['menu-wrap', {'is-dir': data.isDir}]">
             <div v-if="data.isDir" :class="['menu-folder-item', {hover: node.showMenu}]">
               <i v-if="!(data.children && data.children.length)" class="el-icon-folder-remove"></i>
               <template v-else>
@@ -255,6 +256,10 @@ export default {
     .menu-wrap {
       width: 100%;
       margin-left: -4px;
+      &.is-dir {
+        height: 100%;
+        line-height: 50px;
+      }
       .more-button {
         position: absolute;
         right: -15px;
