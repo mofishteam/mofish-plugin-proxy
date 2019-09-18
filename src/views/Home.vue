@@ -17,7 +17,7 @@
             <i class="el-icon-close" style="margin-right: -15px;"></i>
           </el-menu-item>
         </div>
-        <el-tree :default-expanded-keys="expandedList" @node-expand="nodeExpand" @node-collapse="nodeCollapse" empty-text="No Servers." :indent="8" :data="computedServerSortList" node-key="id" :draggable="true" @node-drop="menuDropEnd" :allow-drop="allowDrop">
+        <el-tree :default-expanded-keys="expandedList" @node-expand="nodeExpand" @node-collapse="nodeCollapse" @node-contextmenu="showTreeItemContextMenu" empty-text="No Servers." :indent="8" :data="computedServerSortList" node-key="id" :draggable="true" @node-drop="menuDropEnd" :allow-drop="allowDrop">
           <div slot-scope="{ node, data }" :class="['menu-wrap', {'is-dir': data.isDir}]">
             <div v-if="data.isDir" :class="['menu-folder-item', {hover: node.showMenu}]">
               <i v-if="!(data.children && data.children.length)" class="el-icon-folder-remove"></i>
@@ -32,7 +32,7 @@
                 trigger="click"
                 class="more-button"
                 :ref="`menu-folder-popover-${data.id}`">
-                <el-button icon="el-icon-more" type="text" @click.stop style="padding: 0;"></el-button>
+                <el-button :ref="`menu-item-popover-button-${data.id}`" class="more-button-display" icon="el-icon-more" type="text" @click.stop style="padding: 0;"></el-button>
                 <el-dropdown-menu slot="dropdown" class="menu-folder-popover-dropdown" :key="`menu-folder-popover-${data.id}`">
                   <el-dropdown-item icon="el-icon-delete" class="text-danger" @click.native="deleteFolderConfirm(data.id)">
                     Delete
@@ -50,7 +50,7 @@
                   trigger="click"
                   class="more-button"
                   :ref="`menu-popover-${data.id}`">
-                  <el-button icon="el-icon-more" type="text" @click.stop style="padding: 0;"></el-button>
+                  <el-button :ref="`menu-item-popover-button-${data.id}`" class="more-button-display" icon="el-icon-more" type="text" @click.stop style="padding: 0;"></el-button>
                   <el-dropdown-menu slot="dropdown" :key="`menu-popover-${data.id}`">
                     <el-dropdown-item icon="el-icon-delete" class="text-danger" @click.native="deleteServerConfirm(server.id)">
                       Delete
@@ -218,6 +218,8 @@ export default {
           // await this.refreshServerSortList()
         })
       }, 300)
+    },
+    showTreeItemContextMenu (event, dataItem, node, component) {
     }
   },
   watch: {
@@ -259,6 +261,16 @@ export default {
       &.is-dir {
         height: 100%;
         line-height: 50px;
+      }
+      .more-button-display {
+        &:after {
+          content: '';
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+        }
       }
       .more-button {
         position: absolute;
