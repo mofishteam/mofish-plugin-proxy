@@ -230,5 +230,8 @@ export default {
       transform: translateY(-50%);
       font-size: 24px;
     }
+    .server-content-page__container {
+      margin-bottom: 20px;
+    }
   }
 </style>
