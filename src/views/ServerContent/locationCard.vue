@@ -6,7 +6,7 @@
       <el-tag size="mini" type="danger" style="margin-left: 20px;" v-show="location.isClose">CLOSED</el-tag>
       <el-tag size="mini" type="info" style="margin-left: 20px;" v-show="isAdd">new</el-tag>
     </div>
-    <el-form :ref="`location-${location.id}`" :model="location" label-width="100px">
+    <el-form :ref="`location-${location.id}`" :model="location" label-width="100px" size="mini">
       <el-form-item label="Location">
         <el-input v-model="location.url" placeholder="Please input location url."></el-input>
       </el-form-item>
