@@ -1,7 +1,7 @@
 <template>
   <el-container class="home-page">
     <el-aside width="240px">
-      <el-menu default-active="homeServers" class="home-page-menu">
+      <el-menu :default-active="`homeServers-${(currentServer || {}).id}`" class="home-page-menu">
         <el-row>
           <el-col :span="12">
             <el-button class="rect-button" type="text" icon="el-icon-plus" @click="addServer" style="width: 100%;">Server</el-button>
@@ -98,7 +98,9 @@ export default {
       'refreshServerSortList',
       'prependServerSort',
       'deleteServerConfirm',
-      'deleteFolderConfirm'
+      'deleteFolderConfirm',
+      'setDefaultCurrentServer',
+      'setCurrentServerIsAdd'
     ]),
     getFolderId () {
       return md5(`folder-${folderIdCnt++}-${new Date().valueOf()}`)
@@ -114,15 +116,10 @@ export default {
       return !(type === 'inner' && !dropNode.data.isDir)
     },
     addServer () {
-      if (!this.$route.query.add) {
+      if (!this.currentServerIsAdd) {
         this.clearCurrentServer()
-        this.$router.push({
-          ...this.$route,
-          query: {
-            ...this.$route.query,
-            add: true
-          }
-        })
+        this.setDefaultCurrentServer()
+        this.setCurrentServerIsAdd()
       }
     },
     addFolder () {
@@ -155,13 +152,6 @@ export default {
       ].filter(item => item)
     },
     setServer (id) {
-      this.$router.push({
-        ...this.$route,
-        query: {
-          ...this.$route.query,
-          add: false
-        }
-      })
       this.setCurrentServer(id)
     },
     resetSortList () {
@@ -236,7 +226,9 @@ export default {
     ...mapGetters({
       servers: 'getServers',
       closeList: 'getCloseList',
-      serverSortList: 'getServerSortList'
+      serverSortList: 'getServerSortList',
+      currentServerIsAdd: 'getCurrentServerIsAdd',
+      currentServer: 'getCurrentServer'
     })
   }
 }

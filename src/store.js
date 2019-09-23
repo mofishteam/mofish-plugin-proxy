@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import { getServers, saveServer, addServer, deleteServer, getServerSortList, saveServerSortList } from '@/api/service/servers'
 import { setServerStatus, getCloseList } from '@/api/service/closeStatus'
 import { Message, MessageBox } from 'element-ui'
+import { defaultServerOption } from '../server/commonUtils/options'
 
 Vue.use(Vuex)
 
@@ -11,9 +12,13 @@ export default new Vuex.Store({
     servers: [],
     closeList: [],
     currentServer: {},
+    currentServerIsAdd: false,
     serverSortList: []
   },
   mutations: {
+    SET_CURRENT_SERVER_IS_ADD (state, val) {
+      state.currentServerIsAdd = val
+    },
     SET_SERVERS (state, val) {
       state.servers = val
     },
@@ -91,11 +96,18 @@ export default new Vuex.Store({
       commit('CLEAR_CURRENT_SERVER')
     },
     setCurrentServer ({ commit }, val) {
+      commit('SET_CURRENT_SERVER_IS_ADD', false)
       if (typeof val === 'string') {
         commit('SET_CURRENT_SERVER_BY_ID', val)
       } else {
         commit('SET_CURRENT_SERVER_BY_OBJECT', val)
       }
+    },
+    setDefaultCurrentServer ({ commit }) {
+      commit('SET_CURRENT_SERVER_BY_OBJECT', defaultServerOption())
+    },
+    setCurrentServerIsAdd ({ commit }) {
+      commit('SET_CURRENT_SERVER_IS_ADD', true)
     },
     setServerStatus ({ dispatch, state }, id) {
       setServerStatus({ id, close: !state.closeList.includes(id) }).then(res => {
@@ -225,6 +237,9 @@ export default new Vuex.Store({
     },
     getServerSortList (state) {
       return state.serverSortList
+    },
+    getCurrentServerIsAdd (state) {
+      return state.currentServerIsAdd
     }
   }
 })
