@@ -13,9 +13,22 @@ export default new Vuex.Store({
     closeList: [],
     currentServer: {},
     currentServerIsAdd: false,
+    currentServerDraft: {
+      tabList: [],
+      draftList: {}
+    },
     serverSortList: []
   },
   mutations: {
+    SET_DRAFT_ID_LIST (state, val) {
+      state.currentServerDraft.tabList = val
+    },
+    ADD_DRAFT_CONTENT (state, { id, val }) {
+      state.currentServerDraft.draftList[id] = val
+    },
+    REMOVE_DRAFT_CONTENT (state, id) {
+      delete state.currentServerDraft.draftList[id]
+    },
     SET_CURRENT_SERVER_IS_ADD (state, val) {
       state.currentServerIsAdd = val
     },
@@ -67,6 +80,15 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    setDraftIdList ({ commit }, val) {
+      commit('SET_DRAFT_ID_LIST', val)
+    },
+    addDraftContent ({ commit }, val) {
+      commit('ADD_DRAFT_CONTENT', val)
+    },
+    removeDraftContent ({ commit }, val) {
+      commit('REMOVE_DRAFT_CONTENT', val)
+    },
     refreshServers ({ commit, dispatch, state }) {
       return getServers().then(res => {
         if (!res.result) {
@@ -240,6 +262,9 @@ export default new Vuex.Store({
     },
     getCurrentServerIsAdd (state) {
       return state.currentServerIsAdd
+    },
+    getCurrentServerDraft (state) {
+      return state.currentServerDraft
     }
   }
 })

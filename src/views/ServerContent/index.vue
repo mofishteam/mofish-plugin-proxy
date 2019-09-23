@@ -1,5 +1,9 @@
 <template>
-  <server-content-item :server="getCurrentServer" :is-add="currentServerIsAdd"></server-content-item>
+  <el-tabs>
+    <el-tab-pane>
+      <server-content-item :server="getCurrentServer" :is-add="currentServerIsAdd"></server-content-item>
+    </el-tab-pane>
+  </el-tabs>
 </template>
 
 <script>
