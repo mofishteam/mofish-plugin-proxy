@@ -1,6 +1,6 @@
 <template>
   <el-container class="home-page">
-    <el-aside width="240px">
+    <el-aside width="240px" v-resizeable.right>
       <el-menu default-active="homeServers" class="home-page-menu">
         <el-row>
           <el-col :span="12">
