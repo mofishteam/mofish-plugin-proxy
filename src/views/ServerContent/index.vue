@@ -1,18 +1,24 @@
 <template>
-  <el-tabs type="card" editable @edit="handleTabsEdit">
-    <el-tab-pane v-for="item in currentServerDraft.tabList" :label="(currentServerDraft.draftList[item] || {}).name" :name="item" :key="item">
-      <server-content-item :server="serverIdMap[item]" :is-add="currentServerIsAdd"></server-content-item>
+  <el-tabs type="card" editable @edit="handleTabsEdit" v-model="currentServerId">
+    <el-tab-pane v-for="item in currentServerDraft.tabList" :name="item.id" :key="item.id">
+      <el-badge is-dot slot="label" style="display: inline;" :hidden="!draftEditedList.includes(item.id)">
+        <span>
+          {{(serverIdMap[item.id] || {}).name || 'New Tab'}}
+        </span>
+      </el-badge>
+      <server-content-item :server="serverIdMap[item.id] || currentServerDraft.draftList[item.id]" :is-add="!serverIdMap[item.id]" @edited="setDraftEdited(item.id)"></server-content-item>
     </el-tab-pane>
   </el-tabs>
 </template>
 
 <script>
 import ServerContentItem from './serverContentItem'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'ServerContentPage',
   data () {
     return {
+      currentServerId: this.getCurrentServer
     }
   },
   computed: {
@@ -20,24 +26,42 @@ export default {
       servers: 'getServers',
       getCurrentServer: 'getCurrentServer',
       currentServerIsAdd: 'getCurrentServerIsAdd',
-      currentServerDraft: 'getCurrentServerDraft'
+      currentServerDraft: 'getCurrentServerDraft',
+      draftEditedList: 'getDraftEditedList'
     }),
     serverIdMap () {
       const result = {}
       for (const item of this.servers) {
         result[item.id] = item
       }
+      console.log(result)
       return result
     }
   },
   created () {
   },
   methods: {
+    ...mapActions([
+      'setActiveServer',
+      'removeDraft',
+      'addTempServer',
+      'setDraftEdited'
+    ]),
     handleTabsEdit (targetName, action) {
-      if (action === 'add') {} else if (action === 'remove') {}
+      if (action === 'add') {
+        this.addTempServer()
+      } else if (action === 'remove') {
+        this.removeDraft(targetName)
+      }
     }
   },
   watch: {
+    getCurrentServer (val) {
+      this.currentServerId = val
+    },
+    currentServerId (id) {
+      this.setActiveServer(id)
+    }
   },
   components: {
     ServerContentItem

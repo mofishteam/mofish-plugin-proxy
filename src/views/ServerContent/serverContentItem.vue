@@ -1,6 +1,6 @@
 <template>
   <section class="server-content-page">
-    <el-card shadow="hover" class="server-content-page__container" v-if="isAdd || currentServer.name" :key="'server-' + currentServer.id">
+    <el-card shadow="hover" class="server-content-page__container" v-if="(currentServer && currentServer.id && currentServer.server && currentServer.name) || isAdd" :key="'server-' + currentServer.id">
       <div slot="header" class="clearfix">
         <span v-show="!isEdit">{{ currentServer.name }}</span>
         <el-input v-show="isEdit" v-model="tempServerName" style="width: 100%; max-width: 300px;" @keyup.enter.native="switchEdit" placeholder="Server Name"></el-input>
@@ -57,14 +57,14 @@
           </el-form-item>
         </template>
         <el-form-item>
-          <el-button type="primary" @click="saveServerConfig()">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
-          <el-button @click="resetForm">Reset</el-button>
+          <el-button type="primary" @click="saveServerConfig()" :disabled="!draftEditedList.includes(server.id)">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
+          <el-button @click="resetForm" :disabled="!draftEditedList.includes(server.id)">Reset</el-button>
         </el-form-item>
       </el-form>
     </el-card>
-    <div class="server-content-page__empty text-placeholder" v-if="!isAdd && !currentServer.name">
-      Click 'Add Server' button or chose a server
-    </div>
+<!--    <div class="server-content-page__empty text-placeholder" v-if="!currentServer || (!isAdd && !currentServer.name)">-->
+<!--      Click 'Add Server' button or chose a server-->
+<!--    </div>-->
     <el-dialog
       title="Sort Location"
       :visible.sync="showSortLocation"
@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import { defaultServerOption, defaultLocationOption, getId } from '../../../server/commonUtils/options'
+import { defaultLocationOption, getId } from '../../../server/commonUtils/options'
 import LocationCard from './locationCard'
 import { mapGetters, mapActions } from 'vuex'
 import { merge } from 'lodash'
@@ -94,7 +94,7 @@ export default {
   data () {
     return {
       tempServerName: '',
-      currentServer: {},
+      currentServer: this.cloneServer(this.server),
       currentLocation: null,
       showSortLocation: false,
       isEdit: false,
@@ -105,19 +105,15 @@ export default {
   },
   computed: {
     ...mapGetters({
-      getCurrentServer: 'getCurrentServer',
-      closeList: 'getCloseList'
+      closeList: 'getCloseList',
+      draftEditedList: 'getDraftEditedList'
     })
   },
   created () {
-    if (this.isAdd) {
-      this.currentServer = defaultServerOption()
-      this.currentLocation = null
-    }
   },
   methods: {
     ...mapActions([
-      'saveServer', 'deleteServer', 'setServerStatus', 'deleteServerConfirm', 'setCurrentServer'
+      'saveServer', 'deleteServer', 'setServerStatus', 'deleteServerConfirm', 'setActiveServer'
     ]),
     addLocation () {
       this.currentLocation = defaultLocationOption()
@@ -130,7 +126,7 @@ export default {
         this.saveLocation()
       }
       this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
-      this.setCurrentServer(this.currentServer.id)
+      this.setActiveServer(this.currentServer.id)
     },
     saveLocation () {
       this.currentLocation.id = getId('location')
@@ -186,20 +182,18 @@ export default {
   },
   watch: {
     server (val) {
+      console.log('server change: ', val)
       this.currentServer = this.cloneServer(val)
       this.currentLocation = null
       this.locationShowList = []
     },
-    $route (val) {
-      this.displayMode = 'visual'
-      if (val.query.add) {
-        this.currentServer = defaultServerOption()
-        this.currentLocation = null
-        this.locationShowList = []
+    currentServer: {
+      deep: true,
+      handler (val) {
+        console.log('currentServerChanged')
+        this.$emit('edited')
+        this.currentServerString = JSON.stringify(val, undefined, 4)
       }
-    },
-    currentServer (val) {
-      this.currentServerString = JSON.stringify(val, undefined, 4)
     },
     displayMode (val) {
       if (val === 'visual') {

@@ -1,7 +1,7 @@
 <template>
   <el-container class="home-page">
     <el-aside width="240px">
-      <el-menu :default-active="`homeServers-${(currentServer || {}).id}`" class="home-page-menu">
+      <el-menu :default-active="`homeServers-${currentServer}`" class="home-page-menu">
         <el-row>
           <el-col :span="12">
             <el-button class="rect-button" type="text" icon="el-icon-plus" @click="addServer" style="width: 100%;">Server</el-button>
@@ -92,15 +92,15 @@ export default {
   methods: {
     ...mapActions([
       'refreshServers',
-      'setCurrentServer',
+      'setActiveServer',
       'clearCurrentServer',
       'refreshCloseList',
       'refreshServerSortList',
       'prependServerSort',
       'deleteServerConfirm',
       'deleteFolderConfirm',
-      'setDefaultCurrentServer',
-      'setCurrentServerIsAdd'
+      'setCurrentServerIsAdd',
+      'addTempServer'
     ]),
     getFolderId () {
       return md5(`folder-${folderIdCnt++}-${new Date().valueOf()}`)
@@ -118,8 +118,7 @@ export default {
     addServer () {
       if (!this.currentServerIsAdd) {
         this.clearCurrentServer()
-        this.setDefaultCurrentServer()
-        this.setCurrentServerIsAdd()
+        this.addTempServer()
       }
     },
     addFolder () {
@@ -152,7 +151,8 @@ export default {
       ].filter(item => item)
     },
     setServer (id) {
-      this.setCurrentServer(id)
+      console.log('setServer', id)
+      this.setActiveServer(id)
     },
     resetSortList () {
       const idList = new Set()
