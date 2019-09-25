@@ -5,6 +5,7 @@ import { setServerStatus, getCloseList } from '@/api/service/closeStatus'
 import { Message, MessageBox } from 'element-ui'
 import { defaultServerOption } from '../server/commonUtils/options'
 import cloneDeep from 'lodash.clonedeep'
+import isEqual from 'lodash.isequal'
 
 Vue.use(Vuex)
 
@@ -14,43 +15,38 @@ export default new Vuex.Store({
     closeList: [],
     currentServer: '',
     currentServerIsAdd: false,
-    currentServerDraft: {
-      tabList: [],
-      draftList: {}
-    },
+    currentServerTabList: [],
+    currentServerDraftList: {},
     serverSortList: []
   },
   mutations: {
     SET_DRAFT_ID_LIST (state, val) {
-      state.currentServerDraft.tabList = val
+      Vue.set(state, 'currentServerTabList', val)
     },
     REMOVE_DRAFT_ID (state, id) {
-      const result = state.currentServerDraft.tabList.find(item => item.id === id)
+      const result = state.currentServerTabList.find(item => item.id === id)
       if (result) {
-        state.currentServerDraft.tabList.splice(state.currentServerDraft.tabList.indexOf(result), 1)
+        state.currentServerTabList.splice(state.currentServerTabList.indexOf(result), 1)
       }
     },
     ADD_DRAFT_ID (state, id) {
-      if (!state.currentServerDraft.tabList.find(item => item.id === id)) {
-        state.currentServerDraft.tabList.push({ id })
+      if (!state.currentServerTabList.find(item => item.id === id)) {
+        state.currentServerTabList.push({ id })
       }
     },
     ADD_DRAFT_CONTENT (state, { id, val }) {
-      state.currentServerDraft.draftList[id] = val
+      Vue.set(state.currentServerDraftList, id, val)
     },
     REMOVE_DRAFT_CONTENT (state, id) {
-      delete state.currentServerDraft.draftList[id]
+      delete state.currentServerDraftList[id]
+    },
+    EDIT_DRAFT_CONTENT (state, { id, val }) {
+      Vue.set(state.currentServerDraftList, id, val)
     },
     SET_DRAFT_EDITED (state, id) {
-      const result = state.currentServerDraft.tabList.find(item => item.id === id)
+      const result = state.currentServerTabList.find(item => item.id === id)
       if (result) {
         Vue.set(result, 'edited', true)
-      }
-    },
-    REMOVE_DRAFT_EDITED (state, id) {
-      const result = state.currentServerDraft.tabList.find(item => item.id === id)
-      if (result) {
-        state.currentServerDraft.tabList.splice(state.currentServerDraft.tabList.indexOf(result), 1)
       }
     },
     SET_CURRENT_SERVER_IS_ADD (state, val) {
@@ -75,18 +71,18 @@ export default new Vuex.Store({
       state.currentServer = id
       for (const server of state.servers) {
         if (server.id === id) {
-          if (!state.currentServerDraft.tabList.find(item => item.id === id)) {
-            state.currentServerDraft.tabList.push({ id })
-            state.currentServerDraft.draftList[id] = cloneDeep(server)
+          if (!state.currentServerTabList.find(item => item.id === id)) {
+            state.currentServerTabList.push({ id })
+            Vue.set(state.currentServerDraftList, id, cloneDeep(server))
           }
           break
         }
       }
     },
     SET_CURRENT_SERVER_BY_OBJECT (state, server) {
-      if (!state.currentServerDraft.tabList.find(item => item.id === server.id)) {
-        state.currentServerDraft.tabList.push({ id: server.id })
-        state.currentServerDraft.draftList[server.id] = cloneDeep(server)
+      if (!state.currentServerTabList.find(item => item.id === server.id)) {
+        state.currentServerTabList.push({ id: server.id })
+        Vue.set(state.currentServerDraftList, server.id, cloneDeep(server))
       }
       state.currentServer = server.id
     },
@@ -115,6 +111,9 @@ export default new Vuex.Store({
     setDraftIdList ({ commit }, val) {
       commit('SET_DRAFT_ID_LIST', val)
     },
+    editDraftContent ({ commit }, val) {
+      commit('EDIT_DRAFT_CONTENT', val)
+    },
     addDraftId ({ commit }, id) {
       commit('ADD_DRAFT_ID', id)
     },
@@ -129,16 +128,13 @@ export default new Vuex.Store({
       commit('REMOVE_DRAFT_CONTENT', id)
       if (state.currentServer === id) {
         commit('CLEAR_CURRENT_SERVER')
-        if (state.currentServerDraft.tabList && state.currentServerDraft.tabList.length) {
-          dispatch('setActiveServer', state.currentServerDraft.tabList[state.currentServerDraft.tabList.length - 1])
+        if (state.currentServerTabList && state.currentServerTabList.length) {
+          dispatch('setActiveServer', state.currentServerTabList[state.currentServerTabList.length - 1])
         }
       }
     },
     setDraftEdited ({ commit }, id) {
       commit('SET_DRAFT_EDITED', id)
-    },
-    removeDraftEdited ({ commit }, id) {
-      commit('REMOVE_DRAFT_EDITED', id)
     },
     refreshServers ({ commit, dispatch, state }) {
       return getServers().then(res => {
@@ -214,7 +210,6 @@ export default new Vuex.Store({
       })
     },
     async saveServer ({ commit, state, dispatch }, val) {
-      commit('REMOVE_DRAFT_EDITED', val.id)
       for (const server of state.servers) {
         if (server.id === val.id) {
           await saveServer(val).then(res => {
@@ -246,8 +241,8 @@ export default new Vuex.Store({
       await dispatch('refreshServers')
       await dispatch('refreshServerSortList')
       commit('REMOVE_DRAFT_CONTENT', id)
-      if (state.currentServerDraft.tabList && state.currentServerDraft.tabList.length) {
-        dispatch('setActiveServer', state.currentServerDraft.tabList[state.currentServerDraft.tabList.length - 1].id)
+      if (state.currentServerTabList && state.currentServerTabList.length) {
+        dispatch('setActiveServer', state.currentServerTabList[state.currentServerTabList.length - 1].id)
       }
     },
     deleteServerConfirm ({ commit, dispatch }, id) {
@@ -327,13 +322,31 @@ export default new Vuex.Store({
       return state.currentServerIsAdd
     },
     getCurrentServerDraft (state) {
-      return state.currentServerDraft
+      return {
+        draftList: state.currentServerDraftList,
+        tabList: state.currentServerTabList
+      }
+    },
+    getCurrentServerDraftList (state) {
+      return state.currentServerDraftList
     },
     getDraftEditedList (state) {
       const result = []
-      for (const item of state.currentServerDraft.tabList) {
-        if (item.edited) {
-          result.push(item.id)
+      console.log('get draft edited list')
+      for (const item of state.currentServerTabList) {
+        const draft = state.currentServerDraftList[item.id]
+        let server = state.servers.find(val => val.id === item.id)
+        if (server) {
+          // console.log({ ...draft, id: '' }, { ...server, id: '' })
+          if (!isEqual(draft, server)) {
+            result.push(item.id)
+          }
+        } else {
+          server = defaultServerOption()
+          console.log({ ...draft, id: '', name: '' }, { ...server, id: '', name: '' })
+          if (!isEqual({ ...draft, id: '', name: '' }, { ...server, id: '', name: '' })) {
+            result.push(item.id)
+          }
         }
       }
       return result

@@ -57,8 +57,8 @@
           </el-form-item>
         </template>
         <el-form-item>
-          <el-button type="primary" @click="saveServerConfig()" :disabled="!draftEditedList.includes(server.id)">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
-          <el-button @click="resetForm" :disabled="!draftEditedList.includes(server.id)">Reset</el-button>
+          <el-button type="primary" @click="saveServerConfig()" :disabled="!draftEditedList.includes(server.id) && !isAdd">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
+          <el-button @click="resetForm" :disabled="!draftEditedList.includes(server.id) && !isAdd">Reset</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -100,7 +100,8 @@ export default {
       isEdit: false,
       locationShowList: [],
       displayMode: 'visual',
-      currentServerString: '{}'
+      currentServerString: '{}',
+      edited: false
     }
   },
   computed: {
@@ -113,7 +114,7 @@ export default {
   },
   methods: {
     ...mapActions([
-      'saveServer', 'deleteServer', 'setServerStatus', 'deleteServerConfirm', 'setActiveServer'
+      'saveServer', 'deleteServer', 'setServerStatus', 'deleteServerConfirm', 'setActiveServer', 'editDraftContent'
     ]),
     addLocation () {
       this.currentLocation = defaultLocationOption()
@@ -121,12 +122,12 @@ export default {
         this.locationShowList.push('add')
       }
     },
-    saveServerConfig () {
+    async saveServerConfig () {
       if (this.currentLocation) {
         this.saveLocation()
       }
-      this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
-      this.setActiveServer(this.currentServer.id)
+      await this.setActiveServer(this.currentServer.id)
+      await this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
     },
     saveLocation () {
       this.currentLocation.id = getId('location')
@@ -183,7 +184,7 @@ export default {
   watch: {
     server (val) {
       console.log('server change: ', val)
-      this.currentServer = this.cloneServer(val)
+      // this.currentServer = this.cloneServer(val)
       this.currentLocation = null
       this.locationShowList = []
     },
@@ -191,7 +192,8 @@ export default {
       deep: true,
       handler (val) {
         console.log('currentServerChanged')
-        this.$emit('edited')
+        this.edited = true
+        this.editDraftContent({ id: val.id, val })
         this.currentServerString = JSON.stringify(val, undefined, 4)
       }
     },
