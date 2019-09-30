@@ -3,10 +3,10 @@
     <el-aside width="240px">
       <el-menu :default-active="`homeServers-${currentServer}`" class="home-page-menu">
         <el-row>
-          <el-col :span="12">
-            <el-button class="rect-button" type="text" icon="el-icon-plus" @click="addServer" style="width: 100%;">Server</el-button>
-          </el-col>
-          <el-col :span="12">
+<!--          <el-col :span="12">-->
+<!--            <el-button class="rect-button" type="text" icon="el-icon-plus" @click="addServer" style="width: 100%;">Server</el-button>-->
+<!--          </el-col>-->
+          <el-col :span="24">
             <el-button class="rect-button" type="text" icon="el-icon-folder-add" @click="addFolder" style="width: 100%;">Folder</el-button>
           </el-col>
         </el-row>
