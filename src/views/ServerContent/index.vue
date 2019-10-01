@@ -105,5 +105,8 @@ export default {
       left: 50%;
       transform: translate(-50%, -50%);
     }
+    .el-tabs__new-tab {
+      outline: none;
+    }
   }
 </style>
