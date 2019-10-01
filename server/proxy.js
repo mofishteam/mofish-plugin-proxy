@@ -60,7 +60,7 @@ export default class ProxyObj {
   }
   async getProxyList (ctx) {
     const config = this.utils.getConfig()
-    const result = config.allProject.map(server => {
+    const result = (config.allProject || []).map(server => {
       server = merge(defaultServerOption(), server)
       if (server.server.locations && server.server.locations.length) {
         server.server.locations.map(location => {
@@ -108,7 +108,7 @@ export default class ProxyObj {
   }
   async getSortList (ctx) {
     const config = this.utils.getConfig()
-    const serverIdList = config.allProject.reduce((sum, cur) => {
+    const serverIdList = (config.allProject || []).reduce((sum, cur) => {
       sum.push(cur.id)
       return sum
     }, [])
