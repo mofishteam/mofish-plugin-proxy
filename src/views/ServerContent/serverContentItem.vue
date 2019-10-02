@@ -1,24 +1,10 @@
 <template>
-  <section class="server-content-page">
-    <el-card shadow="hover" class="server-content-page__container" v-if="(currentServer && currentServer.id && currentServer.server && currentServer.name) || isAdd" :key="'server-' + currentServer.id">
-      <div slot="header" class="clearfix">
-        <span v-show="!isEdit">{{ currentServer.name }}</span>
-        <el-input v-show="isEdit" v-model="tempServerName" style="width: 100%; max-width: 300px;" @keyup.enter.native="switchEdit" placeholder="Server Name"></el-input>
-        <el-button type="text" :icon="!isEdit ? 'el-icon-edit-outline' : 'el-icon-check'" style="margin-left: 5px;" @click="switchEdit"></el-button>
-        <el-button v-show="isEdit" type="text" icon="el-icon-close" style="margin-left: 5px;" @click="isEdit = false"></el-button>
-        <el-button style="float: right;" type="danger" icon="el-icon-delete" circle :disabled="isAdd" @click="deleteServerConfirm(currentServer.id)"></el-button>
-        <el-button style="float: right;" :type="closeList.includes(currentServer.id) ? 'danger' : 'success'" icon="el-icon-switch-button" circle :disabled="isAdd" @click="switchServerStatus"></el-button>
-        <el-radio-group style="float: right; vertical-align: middle;" v-model="displayMode">
-          <el-radio-button label="visual">
-            <i class="el-icon-turn-off"></i>
-          </el-radio-button>
-          <el-radio-button label="code">
-            <i class="el-icon-tickets"></i>
-          </el-radio-button>
-        </el-radio-group>
-      </div>
-      <el-form ref="form" :model="currentServer" :label-width="displayMode === 'visual' ? '100px' : '0px'" style="max-width: 800px;">
-        <template v-if="displayMode === 'visual'">
+  <section class="server-content-page" v-if="(currentServer && currentServer.id && currentServer.server && currentServer.name) || isAdd" :key="'server-' + currentServer.id">
+    <el-form ref="form" :model="currentServer" :label-width="displayMode === 'visual' ? '100px' : '100px'" style="max-width: 800px;">
+      <!--顶部信息和操作-->
+      <div class="base-info-and-action-box">
+        <!--顶部左侧基础信息-->
+        <div class="base-info-box">
           <el-form-item label="ServerName">
             <el-input v-model="currentServer.server.name[0]" placeholder="Input server name and press enter to add."></el-input>
           </el-form-item>
@@ -38,30 +24,52 @@
               <port-test :current-id="currentServer.id" v-if="currentServer.server.listen" slot="append" :port="currentServer.server.listen"></port-test>
             </el-input>
           </el-form-item>
-          <el-form-item label="Locations">
-            <el-collapse v-model="locationShowList" style="max-width: 800px; margin-bottom: 10px;" v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation">
-              <location-card @delete="deleteLocation(location)" :name="`location-card-${$locationIndex}`" v-for="(location, $locationIndex) in currentServer.server.locations" :key="location.id" :location="location"></location-card>
-              <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>
-            </el-collapse>
-            <div class="tac" style="max-width: 800px;">
-              <el-button v-show="!currentLocation" icon="el-icon-plus" @click="addLocation">Add Location</el-button>
-              <el-button v-show="!currentLocation" icon="el-icon-sort" @click="sortLocation">Sort</el-button>
-              <el-button v-show="currentLocation" type="primary" icon="el-icon-check" @click="saveLocation">Save Addition</el-button>
-            </div>
+        </div>
+        <!--顶部右侧灰色部分-->
+        <div class="action-box">
+          <el-form-item label-width="0px" class="tac">
+            <el-tooltip effect="light" content="Name of tab display." placement="top">
+              <span class="text-secondary-black server-name">{{currentServer.name}}</span>
+            </el-tooltip>
+            <el-button type="text" icon="el-icon-edit-outline" style="margin-left: 5px;" @click="editServerTabName"></el-button>
           </el-form-item>
-        </template>
-        <template v-if="displayMode !== 'visual'">
-          <el-form-item label="">
-            <el-input @keyup.enter.stop type="textarea" v-model="currentServerString"
-                      :autosize="{ minRows: 10, maxRows: 20}"></el-input>
+          <el-form-item class="tac" label-width="0px">
+            <el-switch v-model="displayMode"
+                       active-value="visual"
+                       active-text="Visual mode"
+                       inactive-text="Code mode"
+                       inactive-value="code"></el-switch>
           </el-form-item>
-        </template>
-        <el-form-item>
-          <el-button type="primary" @click="saveServerConfig()" :disabled="!draftEditedList.includes(server.id) && !isAdd">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
-          <el-button @click="resetForm" :disabled="!draftEditedList.includes(server.id) && !isAdd">Reset</el-button>
+          <el-form-item label-width="0px" class="tac">
+            <el-button size="mini" :type="closeList.includes(currentServer.id) || isAdd ? 'danger' : 'success'" icon="el-icon-switch-button" :disabled="isAdd" @click="switchServerStatus">{{closeList.includes(currentServer.id) ? 'Closed' : (isAdd ? 'Please save' : 'Running')}}</el-button>
+            <el-button type="danger" icon="el-icon-delete" :disabled="isAdd" @click="deleteServerConfirm(currentServer.id)" size="mini">Delete</el-button>
+          </el-form-item>
+        </div>
+      </div>
+      <template v-if="displayMode === 'visual'">
+        <el-form-item label="Locations">
+          <el-collapse v-model="locationShowList" style="max-width: 800px; margin-bottom: 10px;" v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation">
+            <location-card @delete="deleteLocation(location)" :name="`location-card-${$locationIndex}`" v-for="(location, $locationIndex) in currentServer.server.locations" :key="location.id" :location="location"></location-card>
+            <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>
+          </el-collapse>
+          <div class="tac" style="max-width: 800px;">
+            <el-button v-show="!currentLocation" icon="el-icon-plus" @click="addLocation">Add Location</el-button>
+            <el-button v-show="!currentLocation" icon="el-icon-sort" @click="sortLocation">Sort</el-button>
+            <el-button v-show="currentLocation" type="primary" icon="el-icon-check" @click="saveLocation">Save Addition</el-button>
+          </div>
         </el-form-item>
-      </el-form>
-    </el-card>
+      </template>
+      <template v-if="displayMode !== 'visual'">
+        <el-form-item label="">
+          <el-input @keyup.enter.stop type="textarea" v-model="currentServerString"
+                    :autosize="{ minRows: 10, maxRows: 20}"></el-input>
+        </el-form-item>
+      </template>
+      <el-form-item>
+        <el-button type="primary" @click="saveServerConfig()" :disabled="!draftEditedList.includes(server.id) && !isAdd">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
+        <el-button @click="resetForm" :disabled="!draftEditedList.includes(server.id) && !isAdd">Reset</el-button>
+      </el-form-item>
+    </el-form>
 <!--    <div class="server-content-page__empty text-placeholder" v-if="!currentServer || (!isAdd && !currentServer.name)">-->
 <!--      Click 'Add Server' button or chose a server-->
 <!--    </div>-->
@@ -179,6 +187,15 @@ export default {
       this.$confirm(`Are you sure to ${this.closeList.includes(this.currentServer.id) ? 'RESUME' : 'CLOSE'} this Server?`, 'Confirm for switch server status').then(() => {
         this.setServerStatus(this.currentServer.id)
       })
+    },
+    editServerTabName () {
+      this.$prompt('Input character for server tab name', 'Edit server tab name', {
+        inputValue: this.currentServer.name
+      }).then(result => {
+        if (result.action === 'confirm') {
+          this.currentServer.name = result.value
+        }
+      })
     }
   },
   watch: {
@@ -213,10 +230,37 @@ export default {
 </script>
 
 <style lang="scss">
+  @import "~@/assets/style/base.scss";
   .server-content-page {
     position: relative;
     width: 100%;
+    max-width: 1280px;
     height: 100%;
+    margin: 0 auto;
+    .base-info-and-action-box {
+      display: flex;
+      margin-bottom: 20px;
+      .base-info-box {
+        flex: 1;
+        .el-form-item:last-child {
+          margin-bottom: 0;
+        }
+      }
+      .action-box {
+        width: 270px;
+        margin-left: 20px;
+        border-radius: 4px;
+        background-color: lighten($placeholder-text-color, 19.5%);
+        overflow: hidden;
+        .el-form-item {
+          margin-bottom: 0;
+        }
+        .server-name {
+          font-size: 16px;
+          font-weight: bold;
+        }
+      }
+    }
     .server-content-page__empty {
       position: absolute;
       left: 0;

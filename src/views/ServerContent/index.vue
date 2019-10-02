@@ -3,9 +3,9 @@
     <el-tabs type="card" editable @edit="handleTabsEdit" v-model="currentServerId" stretch addable closable v-show="currentServerDraft.tabList.length">
       <el-tab-pane v-for="item in currentServerDraft.tabList" :name="item.id" :key="item.id">
         <el-badge is-dot slot="label" style="display: inline;" :hidden="!draftEditedList.includes(item.id)">
-        <span>
-          {{(serverIdMap[item.id] || {}).name || 'New Tab'}}
-        </span>
+          <span class="tabs-label-wrap">
+            <span class="tabs-label-inner">{{(serverIdMap[item.id] || {}).name || 'New Tab'}}</span>
+          </span>
         </el-badge>
         <server-content-item :server="serverIdMap[item.id] || currentServerDraft.draftList[item.id]" :is-add="!serverIdMap[item.id]"></server-content-item>
       </el-tab-pane>
@@ -107,6 +107,9 @@ export default {
     }
     .el-tabs__new-tab {
       outline: none;
+    }
+    .tabs-label-wrap {
+      display: inline;
     }
   }
 </style>
