@@ -31,7 +31,7 @@
             <el-tooltip effect="light" content="Name of tab display." placement="top">
               <span class="text-secondary-black server-name">{{currentServer.name}}</span>
             </el-tooltip>
-            <el-button type="text" icon="el-icon-edit-outline" style="margin-left: 5px;" @click="editServerTabName"></el-button>
+            <el-button type="text" icon="el-icon-edit-outline" style="margin-left: 5px; vertical-align: middle;" @click="editServerTabName"></el-button>
           </el-form-item>
           <el-form-item class="tac" label-width="0px">
             <el-switch v-model="displayMode"
@@ -252,12 +252,22 @@ export default {
         border-radius: 4px;
         background-color: lighten($placeholder-text-color, 19.5%);
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-top: -10px;
         .el-form-item {
           margin-bottom: 0;
         }
         .server-name {
           font-size: 16px;
           font-weight: bold;
+          max-width: 200px;
+          display: inline-block;
+          overflow: hidden;
+          vertical-align: middle;
+          text-overflow:ellipsis;
+          white-space: nowrap;
         }
       }
     }
