@@ -41,7 +41,7 @@
                        inactive-value="code"></el-switch>
           </el-form-item>
           <el-form-item label-width="0px" class="tac">
-            <el-button size="mini" :type="closeList.includes(currentServer.id) || isAdd ? 'danger' : 'success'" icon="el-icon-switch-button" :disabled="isAdd" @click="switchServerStatus">{{closeList.includes(currentServer.id) ? 'Closed' : (isAdd ? 'Please save' : 'Running')}}</el-button>
+            <el-button size="mini" :type="closeList.includes(currentServer.id) || isAdd ? 'danger' : 'success'" icon="el-icon-switch-button" :disabled="isAdd" @click="switchServerStatus">{{closeList.includes(currentServer.id) ? 'Closed' : (isAdd ? 'Please save first' : 'Running')}}</el-button>
             <el-button type="danger" icon="el-icon-delete" :disabled="isAdd" @click="deleteServerConfirm(currentServer.id)" size="mini">Delete</el-button>
           </el-form-item>
         </div>
