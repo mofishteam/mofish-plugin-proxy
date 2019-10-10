@@ -1,6 +1,6 @@
 <template>
   <section :class="['server-content-page', {'is-empty': !currentServerDraft.tabList.length}]">
-    <el-tabs type="card" editable @edit="handleTabsEdit" v-model="currentServerId" stretch addable closable v-show="currentServerDraft.tabList.length">
+    <el-tabs type="card" editable @edit="handleTabsEdit" v-model="currentServerId" addable closable v-show="currentServerDraft.tabList.length">
       <el-tab-pane v-for="item in currentServerDraft.tabList" :name="item.id" :key="item.id">
         <el-badge is-dot slot="label" style="display: inline;" :hidden="!draftEditedList.includes(item.id)">
           <span class="tabs-label-wrap">

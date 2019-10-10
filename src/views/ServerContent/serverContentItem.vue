@@ -28,7 +28,7 @@
         <!--顶部右侧灰色部分-->
         <div class="action-box">
           <el-form-item label-width="0px" class="tac">
-            <el-tooltip effect="light" content="Name of tab display." placement="top">
+            <el-tooltip effect="light" :content="`Name of tab display: ${currentServer.name}`" placement="top">
               <span class="text-secondary-black server-name">{{currentServer.name}}</span>
             </el-tooltip>
             <el-button type="text" icon="el-icon-edit-outline" style="margin-left: 5px; vertical-align: middle;" @click="editServerTabName"></el-button>
@@ -234,9 +234,7 @@ export default {
   .server-content-page {
     position: relative;
     width: 100%;
-    max-width: 1280px;
     height: 100%;
-    margin: 0 auto;
     .base-info-and-action-box {
       display: flex;
       margin-bottom: 20px;

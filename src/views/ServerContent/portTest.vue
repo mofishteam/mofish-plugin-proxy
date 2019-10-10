@@ -11,7 +11,14 @@
         </el-form-item>
         <el-form-item label="Process">
           <el-table :data="lsofInfo" style="width: 100%;">
-            <el-table-column prop="command" label="command"></el-table-column>
+            <el-table-column prop="command" label="command">
+              <template slot-scope="scope">
+                <span>
+                  <el-tag type="primary" v-if="scope.row.pid + '' === currentPid + ''" style="margin-right: 5px;" size="mini">current</el-tag>
+                  <span>{{scope.row.command}}</span>
+                </span>
+              </template>
+            </el-table-column>
             <el-table-column prop="node" label="node"></el-table-column>
             <el-table-column prop="pid" label="pid"></el-table-column>
             <el-table-column prop="state" label="state"></el-table-column>
