@@ -28,8 +28,12 @@
         <!--顶部右侧灰色部分-->
         <div class="action-box">
           <el-form-item label-width="0px" class="tac">
-            <el-tooltip effect="light" :content="`Name of tab display: ${currentServer.name}`" placement="top">
-              <span class="text-secondary-black server-name">{{currentServer.name}}</span>
+            <el-tooltip effect="light" :content="`Name of tab display: ${currentServer.name}${currentServer.name === server.name ? '' : ' (EDITED)'}`" placement="top">
+              <span class="text-secondary-black server-name" :style="{paddingRight: currentServer.name === server.name ? '0' : '5px'}">
+                <el-badge is-dot :hidden="currentServer.name === server.name" style="line-height: 1.3; padding-right: 5px;">
+                  {{currentServer.name}}
+                </el-badge>
+              </span>
             </el-tooltip>
             <el-button type="text" icon="el-icon-edit-outline" style="margin-left: 5px; vertical-align: middle;" @click="editServerTabName"></el-button>
           </el-form-item>
