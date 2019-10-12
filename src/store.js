@@ -246,7 +246,10 @@ export default new Vuex.Store({
       }
     },
     deleteServerConfirm ({ commit, dispatch }, id) {
-      MessageBox.confirm('Are you sure to delete this server config?', 'Confirm').then(() => {
+      MessageBox.confirm('Are you sure to delete this server config?', 'Confirm', {
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm'
+      }).then(() => {
         dispatch('deleteServer', id)
       })
     },
@@ -300,7 +303,10 @@ export default new Vuex.Store({
       // commit('CLEAR_CURRENT_SERVER')
     },
     deleteFolderConfirm ({ commit, dispatch }, id) {
-      MessageBox.confirm('Are you sure to delete this folder?', 'Confirm').then(() => {
+      MessageBox.confirm('Are you sure to delete this folder?', 'Confirm', {
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm'
+      }).then(() => {
         dispatch('deleteFolder', id)
       })
     }

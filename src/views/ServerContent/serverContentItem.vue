@@ -162,7 +162,10 @@ export default {
       }
     },
     resetForm () {
-      this.$confirm('Are you sure to reset this server config?', 'Confirm').then(() => {
+      this.$confirm('Are you sure to reset this server config?', 'Confirm', {
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm'
+      }).then(() => {
         this.currentLocation = null
         this.currentServer = this.cloneServer(this.server)
       })
@@ -184,13 +187,18 @@ export default {
       return type !== 'inner'
     },
     switchServerStatus () {
-      this.$confirm(`Are you sure to ${this.closeList.includes(this.currentServer.id) ? 'RESUME' : 'CLOSE'} this Server?`, 'Confirm for switch server status').then(() => {
+      this.$confirm(`Are you sure to ${this.closeList.includes(this.currentServer.id) ? 'RESUME' : 'CLOSE'} this Server?`, 'Confirm for switch server status', {
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm'
+      }).then(() => {
         this.setServerStatus(this.currentServer.id)
       })
     },
     editServerTabName () {
       this.$prompt('Input character for server tab name', 'Edit server tab name', {
-        inputValue: this.currentServer.name
+        inputValue: this.currentServer.name,
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm'
       }).then(result => {
         if (result.action === 'confirm') {
           this.currentServer.name = result.value

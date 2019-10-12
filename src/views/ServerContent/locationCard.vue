@@ -181,7 +181,10 @@ export default {
       }
     },
     deleteSelf () {
-      this.$confirm('Are you sure to delete this Location?', 'Confirm').then(() => {
+      this.$confirm('Are you sure to delete this Location?', 'Confirm', {
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm'
+      }).then(() => {
         this.$emit('delete')
       })
     },
@@ -222,7 +225,10 @@ export default {
     },
     deleteInterceptor (id, type) {
       const interceptorItem = this.proxyPassScope.interceptors[type].find(item => item.id === id)
-      this.$confirm(`Are you sure to delete interceptor "${interceptorItem.name}" ?`, 'Are you sure').then(res => {
+      this.$confirm(`Are you sure to delete interceptor "${interceptorItem.name}" ?`, 'Are you sure', {
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm'
+      }).then(res => {
         this.proxyPassScope.interceptors[type].splice(
           this.proxyPassScope.interceptors[type].indexOf(interceptorItem),
           1
