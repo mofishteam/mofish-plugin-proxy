@@ -25,7 +25,7 @@
                 <i v-if="node.expanded" class="el-icon-folder-opened"></i>
                 <i v-if="!node.expanded" class="el-icon-folder"></i>
               </template>
-              <span>{{node.label}}</span>
+              <span style="margin-left: 4px;">{{node.label}}</span>
               <el-dropdown
                 placement="bottom-end"
                 @visible-change="menuVisibleChange(node, $event)"
