@@ -240,6 +240,25 @@ export default {
     transform: translateX(8px);
   }
   .home-page {
+    .el-menu-item {
+      position: relative;
+      &:before {
+        content: '';
+        transition: all .3s;
+        position: absolute;
+        background-color: transparent;
+        width: 4px;
+        height: calc(100% - 6px);
+        top: 50%;
+        right: 215px;
+        transform: translateY(-50%);
+      }
+      &.is-active {
+        &:before {
+          background-color: $main-color;
+        }
+      }
+    }
     .menu-label {
       display: inline-block;
       overflow: hidden;
