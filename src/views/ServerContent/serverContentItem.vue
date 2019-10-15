@@ -30,8 +30,8 @@
           <el-form-item label-width="0px" class="tac">
             <el-tooltip effect="light" :content="`Name of tab display: ${currentServer.name}${currentServer.name === server.name ? '' : ' (EDITED)'}`" placement="top">
               <span class="text-secondary-black server-name" :style="{paddingRight: currentServer.name === server.name ? '0' : '5px'}">
-                <el-badge is-dot :hidden="currentServer.name === server.name" style="line-height: 1.3; padding-right: 5px;">
-                  {{currentServer.name}}
+                <el-badge is-dot :hidden="currentServer.name === server.name" style="line-height: 1.3; padding-right: 5px; width: 100%;">
+                  <p class="current-server-name-text">{{currentServer.name}}</p>
                 </el-badge>
               </span>
             </el-tooltip>
@@ -274,10 +274,13 @@ export default {
           font-weight: bold;
           max-width: 200px;
           display: inline-block;
-          overflow: hidden;
           vertical-align: middle;
-          text-overflow:ellipsis;
-          white-space: nowrap;
+          .current-server-name-text {
+            text-overflow:ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+          }
         }
       }
     }
