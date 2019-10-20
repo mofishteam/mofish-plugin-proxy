@@ -108,8 +108,20 @@ export default {
     .el-tabs__new-tab {
       outline: none;
     }
+    .el-tabs__nav {
+      display: flex;
+    }
+    .el-tabs__item {
+      display: flex;
+      align-items: center;
+      .el-badge {
+        max-width: 200px;
+        text-overflow:ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+    }
     .tabs-label-wrap {
-      display: inline;
     }
   }
 </style>

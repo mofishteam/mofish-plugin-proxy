@@ -262,7 +262,7 @@ export default {
     .menu-label {
       display: inline-block;
       overflow: hidden;
-      width: 100%;
+      width: 188px;
       text-overflow:ellipsis;
       white-space:nowrap;
     }
@@ -314,7 +314,7 @@ export default {
         }
         &:hover, &.hover {
           .menu-label {
-            width: calc(100% - 25px);
+            width: 170px;
           }
           .more-button {
             opacity: 1;
