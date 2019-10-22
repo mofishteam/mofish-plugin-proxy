@@ -2,11 +2,10 @@
   <section :class="['server-content-page', {'is-empty': !currentServerDraft.tabList.length}]">
     <el-tabs type="card" editable @edit="handleTabsEdit" v-model="currentServerId" addable closable v-show="currentServerDraft.tabList.length">
       <el-tab-pane v-for="item in currentServerDraft.tabList" :name="item.id" :key="item.id">
-        <el-badge is-dot slot="label" style="display: inline;" :hidden="!draftEditedList.includes(item.id)">
-          <span class="tabs-label-wrap">
-            <span class="tabs-label-inner">{{(serverIdMap[item.id] || {}).name || 'New Tab'}}</span>
-          </span>
-        </el-badge>
+        <span class="tabs-label-wrap" slot="label">
+          <span v-show="draftEditedList.includes(item.id)" class="text-danger">* </span>
+          <span class="tabs-label-inner">{{(serverIdMap[item.id] || {}).name || 'New Tab'}}</span>
+        </span>
         <server-content-item :server="serverIdMap[item.id] || currentServerDraft.draftList[item.id]" :is-add="!serverIdMap[item.id]"></server-content-item>
       </el-tab-pane>
     </el-tabs>
@@ -114,7 +113,7 @@ export default {
     .el-tabs__item {
       display: flex;
       align-items: center;
-      .el-badge {
+      .tabs-label-wrap {
         max-width: 200px;
         text-overflow:ellipsis;
         white-space: nowrap;
