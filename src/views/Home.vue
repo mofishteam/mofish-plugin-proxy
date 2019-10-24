@@ -43,7 +43,10 @@
             <template v-if="!data.isDir">
               <el-menu-item :class="[{hover: node.showMenu}]" :index="`homeServers-${server.id}`" @click="setServer(server.id)" :key="server.id" v-for="server in getServerItem(data.id)">
                 <el-button circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
-                <span class="menu-label">{{ server.name }}</span>
+                <span class="menu-label">
+                  <span class="text-danger" v-show="draftEditedList.includes(server.id)" style="margin-right: 4px;">*</span>
+                  <span>{{ server.name }}</span>
+                </span>
                 <el-dropdown
                   placement="bottom-end"
                   @visible-change="menuVisibleChange(node, $event)"
@@ -227,6 +230,7 @@ export default {
       servers: 'getServers',
       closeList: 'getCloseList',
       serverSortList: 'getServerSortList',
+      draftEditedList: 'getDraftEditedList',
       currentServerIsAdd: 'getCurrentServerIsAdd',
       currentServer: 'getCurrentServer'
     })
@@ -243,7 +247,7 @@ export default {
     .el-menu-item {
       position: relative;
       &:before {
-        content: '';
+        /*content: '';*/
         transition: all .3s;
         position: absolute;
         background-color: transparent;
@@ -254,6 +258,7 @@ export default {
         transform: translateY(-50%);
       }
       &.is-active {
+        font-weight: bold;
         &:before {
           background-color: $main-color;
         }
