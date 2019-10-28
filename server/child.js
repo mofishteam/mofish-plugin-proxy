@@ -23,6 +23,12 @@ const arrayToObject = (arr) => {
   return result
 }
 
+const sleep = async (time) => new Promise(resolve => {
+  setTimeout(() => {
+    resolve()
+  }, time)
+})
+
 let app = new Koa()
 process.on('message', async (options) => {
   if (options.startType === 'init') {
@@ -103,6 +109,9 @@ process.on('message', async (options) => {
             const proxyConnect = Connect(proxy)
             const proxyApp = new Koa()
             proxyApp.use(async (ctx, next) => {
+              if (mergedOption.delay) {
+                await sleep(parseInt(mergedOption.delay) || 0)
+              }
               if (!ctx.handled) {
                 ctx.handled = true
                 await proxyConnect(ctx, next)
@@ -116,6 +125,9 @@ process.on('message', async (options) => {
             const staticApp = new Koa()
             const staticMidd = Static(mergedOption.static.path, mergedOption.static)
             staticApp.use(async (ctx, next) => {
+              if (mergedOption.delay) {
+                await sleep(parseInt(mergedOption.delay) || 0)
+              }
               if (!ctx.handled) {
                 ctx.handled = true
                 await staticMidd(ctx, next)
@@ -128,6 +140,9 @@ process.on('message', async (options) => {
           case 'mock':
             const mockRouter = new Router()
             mockRouter[mergedOption.mock.method](mergedOption.url, async (ctx, next) => {
+              if (mergedOption.delay) {
+                await sleep(parseInt(mergedOption.delay) || 0)
+              }
               if (!ctx.handled) {
                 ctx.handled = true
                 switch (mergedOption.mock.type) {

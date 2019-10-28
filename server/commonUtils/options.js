@@ -24,6 +24,7 @@ export const defaultServerOption = () => ({
 export const defaultLocationOption = () => ({
   id: getId('location'),
   isClose: false,
+  delay: 0,
   url: '/',
   type: 'proxyPass',
   proxyPass: defaultLocationProxyPassOption(),

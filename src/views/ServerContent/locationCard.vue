@@ -14,6 +14,11 @@
         <span slot="label" class="text-danger">Close</span>
         <el-switch active-color="#ff4949" v-model="location.isClose"></el-switch>
       </el-form-item>
+      <el-form-item label="Delay">
+        <el-input style="width: 100px;" placeholder="0" v-model="location.delay">
+          <span slot="suffix">ms</span>
+        </el-input>
+      </el-form-item>
       <el-form-item label="Type">
         <el-radio-group v-model="location.type" size="small">
           <el-radio-button label="proxyPass">ProxyPass</el-radio-button>
