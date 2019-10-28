@@ -14,10 +14,18 @@
         <span slot="label" class="text-danger">Close</span>
         <el-switch active-color="#ff4949" v-model="location.isClose"></el-switch>
       </el-form-item>
-      <el-form-item label="Delay">
-        <el-input style="width: 100px;" placeholder="0" v-model="location.delay">
-          <span slot="suffix">ms</span>
+      <el-form-item label="Delay(ms)">
+        <el-input style="width: 200px;" placeholder="0" v-model="delay[0]">
+          <el-select slot="prepend" style="width: 100px;" v-model="delayType">
+            <el-option label="Regular" value="regular"></el-option>
+            <el-option label="Random" value="random"></el-option>
+          </el-select>
         </el-input>
+        <template v-if="delayType === 'random'">
+          <span style="margin: 0 5px;"> ~ </span>
+          <el-input v-model="delay[1]" style="width: 100px;"></el-input>
+        </template>
+        <span style="margin-left: 5px;">ms</span>
       </el-form-item>
       <el-form-item label="Type">
         <el-radio-group v-model="location.type" size="small">
@@ -170,7 +178,8 @@ export default {
       showAdvanced: false,
       showInterceptorDialog: false,
       isAddInterceptor: true,
-      currentEditInterceptorId: ''
+      currentEditInterceptorId: '',
+      delayType: 'regular'
     }
   },
   created () {
@@ -259,11 +268,35 @@ export default {
       } else {
         return this.location.proxyPass
       }
+    },
+    delay: {
+      set (val) {
+        if (this.delayType === 'regular') {
+          this.location.delay = val[0]
+        } else if (this.delayType === 'random') {
+          this.location.delay = val.join(',')
+        }
+      },
+      get () {
+        return this.location.delay.split(',')
+        // return this.$delayType
+      }
     }
   },
   watch: {
     'location.type' (val) {
       this.onTypeChange(val)
+    },
+    'location.delay' (val) {
+      if (val.indexOf(',') > -1) {
+        if (this.delayType !== 'random') {
+          this.delayType = 'random'
+        }
+      } else {
+        if (this.delayType !== 'regular') {
+          this.delayType = 'regular'
+        }
+      }
     },
     proxyPassScope: {
       deep: true,
