@@ -58,7 +58,15 @@ export default {
       if (action === 'add') {
         this.addTempServer()
       } else if (action === 'remove') {
-        this.removeDraft(targetName)
+        if (this.draftEditedList.includes(targetName)) {
+          this.$confirm('This proxy is not saved before it was edited.', 'Are you sure to close?').then(res => {
+            if (res === 'confirm') {
+              this.removeDraft(targetName)
+            }
+          }).catch(() => {})
+        } else {
+          this.removeDraft(targetName)
+        }
       }
     }
   },
