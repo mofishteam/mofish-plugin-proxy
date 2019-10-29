@@ -47,7 +47,8 @@
         </el-form-item>
         <template v-if="location.mock.type === 'json'">
           <el-form-item label="MockData">
-            <el-input type="textarea" v-model="location.mock.json"></el-input>
+            <editor v-model="location.mock.json"></editor>
+<!--            <el-input type="textarea" v-model="location.mock.json"></el-input>-->
           </el-form-item>
         </template>
         <template v-if="location.mock.type === 'jsonFile'">
@@ -148,6 +149,7 @@
 <script>
 import { defaultLocationProxyPassOption, defaultLocationStaticOption, defaultLocationMockOption } from '../../../server/commonUtils/options'
 import InterceptorDialog from './interceptorDialog'
+import editor from '@/components/Common/jsonEditor.vue'
 export default {
   name: 'LocationCard',
   props: {
@@ -273,7 +275,8 @@ export default {
     }
   },
   components: {
-    InterceptorDialog
+    InterceptorDialog,
+    editor
   }
 }
 </script>
