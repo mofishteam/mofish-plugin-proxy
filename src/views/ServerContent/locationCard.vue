@@ -6,7 +6,7 @@
       <el-tag size="mini" type="danger" style="margin-left: 20px;" v-show="location.isClose">CLOSED</el-tag>
       <el-tag size="mini" type="info" style="margin-left: 20px;" v-show="isAdd">new</el-tag>
     </div>
-    <el-form :ref="`location-${location.id}`" :model="location" label-width="100px" size="mini">
+    <el-form :ref="`location-${location.id}`" :model="location" label-width="100px">
       <el-form-item label="Location">
         <el-input v-model="location.url" placeholder="Please input location url."></el-input>
       </el-form-item>
@@ -47,8 +47,19 @@
         </el-form-item>
         <template v-if="location.mock.type === 'json'">
           <el-form-item label="MockData">
-            <editor v-model="location.mock.json"></editor>
-<!--            <el-input type="textarea" v-model="location.mock.json"></el-input>-->
+            <el-row :gutter="10" type="flex">
+              <el-col>
+                <editor v-model="location.mock.json" ref="mockJsonEditor"></editor>
+              </el-col>
+              <el-col>
+                <el-tooltip effect="light" content="Zoom" placement="right" style="display: block;">
+                  <el-button icon="el-icon-full-screen" circle size="large" @click="$refs.mockJsonEditor.fullscreen()"></el-button>
+                </el-tooltip>
+                <el-tooltip effect="light" content="Format" placement="right" style="display: block; margin-left: 0; margin-top: 10px;">
+                  <el-button icon="el-icon-magic-stick" circle size="large" @click="location.mock.json = $refs.mockJsonEditor.format(location.mock.json)"></el-button>
+                </el-tooltip>
+              </el-col>
+            </el-row>
           </el-form-item>
         </template>
         <template v-if="location.mock.type === 'jsonFile'">
@@ -85,8 +96,8 @@
               <el-input v-model="pathRewriteRow[1]"></el-input>
             </el-col>
             <el-col :span="3">
-              <el-button size="small" type="danger" icon="el-icon-delete" circle @click="deletePathRewrite(proxyPassScope.pathRewrite, pathRewriteIndex)"></el-button>
-              <el-button size="small" icon="el-icon-plus" circle plain v-show="pathRewriteIndex === proxyPassScope.pathRewrite.length - 1" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" circle @click="deletePathRewrite(proxyPassScope.pathRewrite, pathRewriteIndex)"></el-button>
+              <el-button icon="el-icon-plus" circle plain v-show="pathRewriteIndex === proxyPassScope.pathRewrite.length - 1" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
             </el-col>
           </el-row>
         </el-form-item>
@@ -103,8 +114,8 @@
               <el-input v-model="routerRow[1]"></el-input>
             </el-col>
             <el-col :span="3">
-              <el-button size="small" type="danger" icon="el-icon-delete" circle @click="deleteRouter(proxyPassScope.router, routerIndex)"></el-button>
-              <el-button size="small" icon="el-icon-plus" circle plain v-show="routerIndex === proxyPassScope.router.length - 1" @click="addRouter(proxyPassScope.router)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" circle @click="deleteRouter(proxyPassScope.router, routerIndex)"></el-button>
+              <el-button icon="el-icon-plus" circle plain v-show="routerIndex === proxyPassScope.router.length - 1" @click="addRouter(proxyPassScope.router)"></el-button>
             </el-col>
           </el-row>
         </el-form-item>
@@ -113,7 +124,7 @@
             <el-popover trigger="hover" width="600" placement="right">
               <div slot="reference" class="dib">
                 <span>{{ interceptor.name }}</span>
-                <el-tag :type="interceptor.type === 'request' ? 'success' : 'primary'" size="mini" style="margin-left: 10px;">{{ interceptor.type === 'request' ? 'REQ' : 'RES' }}</el-tag>
+                <el-tag :type="interceptor.type === 'request' ? 'success' : 'primary'" style="margin-left: 10px;">{{ interceptor.type === 'request' ? 'REQ' : 'RES' }}</el-tag>
                 <el-button type="text" icon="el-icon-edit-outline" style="margin-left: 10px;" @click="editInterceptor(interceptor.id, interceptor.type)"></el-button>
                 <el-button type="text" icon="el-icon-delete" @click="deleteInterceptor(interceptor.id, interceptor.type)"></el-button>
               </div>
