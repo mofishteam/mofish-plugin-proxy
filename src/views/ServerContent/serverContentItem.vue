@@ -1,5 +1,5 @@
 <template>
-  <section class="server-content-page" v-if="(currentServer && currentServer.id && currentServer.server && currentServer.name) || isAdd" :key="'server-' + currentServer.id">
+  <section class="server-content-item" v-if="(currentServer && currentServer.id && currentServer.server && currentServer.name) || isAdd" :key="'server-' + currentServer.id">
     <el-form ref="form" :model="currentServer" :label-width="displayMode === 'visual' ? '100px' : '100px'" style="max-width: 800px;">
       <!--顶部信息和操作-->
       <div class="base-info-and-action-box">
@@ -65,8 +65,7 @@
       </template>
       <template v-if="displayMode !== 'visual'">
         <el-form-item label="">
-          <el-input @keyup.enter.stop type="textarea" v-model="currentServerString"
-                    :autosize="{ minRows: 10, maxRows: 20}"></el-input>
+          <editor @keyup.enter.stop v-model="currentServerString" height="500"></editor>
         </el-form-item>
       </template>
       <el-form-item>
@@ -74,7 +73,7 @@
         <el-button @click="resetForm" :disabled="!draftEditedList.includes(server.id) && !isAdd">Reset</el-button>
       </el-form-item>
     </el-form>
-<!--    <div class="server-content-page__empty text-placeholder" v-if="!currentServer || (!isAdd && !currentServer.name)">-->
+<!--    <div class="server-content-item__empty text-placeholder" v-if="!currentServer || (!isAdd && !currentServer.name)">-->
 <!--      Click 'Add Server' button or chose a server-->
 <!--    </div>-->
     <el-dialog
@@ -92,6 +91,7 @@ import LocationCard from './locationCard'
 import { mapGetters, mapActions } from 'vuex'
 import { merge } from 'lodash'
 import PortTest from './portTest'
+import editor from '@/components/Common/jsonEditor.vue'
 export default {
   name: 'ServerContentItem',
   props: {
@@ -236,18 +236,17 @@ export default {
   },
   components: {
     LocationCard,
-    PortTest
+    PortTest,
+    editor
   }
 }
 </script>
 
 <style lang="scss">
   @import "~@/assets/style/base.scss";
-  .server-content-page {
+  .server-content-item {
     position: relative;
     width: 100%;
-    height: 100%;
-    margin-bottom: 20px;
     .base-info-and-action-box {
       display: flex;
       margin-bottom: 20px;
@@ -285,7 +284,7 @@ export default {
         }
       }
     }
-    .server-content-page__empty {
+    .server-content-item__empty {
       position: absolute;
       left: 0;
       top: 50%;
@@ -294,7 +293,7 @@ export default {
       transform: translateY(-50%);
       font-size: 24px;
     }
-    .server-content-page__container {
+    .server-content-item__container {
       margin-bottom: 20px;
     }
   }

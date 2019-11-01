@@ -87,6 +87,14 @@ export default {
 <style lang="scss">
   .server-content-page {
     position: relative;
+    .el-tabs__header {
+      margin-bottom: 0;
+    }
+    .el-tabs__content {
+      height: calc(100vh - 82px);
+      overflow: scroll;
+      padding-top: 20px;
+    }
     &:not(.is-empty) {
       &:before, &:after {
         content: '';
