@@ -1,6 +1,6 @@
 <template>
   <div class="json-editor">
-    <editor v-model="currentValue" @init="editorInit" lang="json" theme="chrome" width="450" height="100"></editor>
+    <editor v-model="currentValue" @init="editorInit" lang="json" theme="chrome" width="450" :height="height"></editor>
     <el-dialog :visible.sync="showDialog" :fullscreen="isFullscreen">
       <div slot="title">
         <span>Json data editor</span>
@@ -21,7 +21,10 @@ import editor from 'vue2-ace-editor'
 export default {
   name: 'JsonEditor',
   props: {
-    value: {}
+    value: {},
+    height: {
+      default: '100'
+    }
   },
   data () {
     return {

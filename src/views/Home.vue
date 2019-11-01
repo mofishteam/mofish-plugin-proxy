@@ -349,13 +349,11 @@ export default {
         }
       }
     }
-    .home-page-content {
+    &-content {
+      padding: 20px 20px 0 20px;
       width: 100%;
       height: 100vh;
       overflow: scroll;
-    }
-    &-content {
-      padding: 20px;
     }
     &-menu {
       height: 100vh;
