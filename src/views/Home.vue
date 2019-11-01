@@ -7,63 +7,65 @@
 <!--            <el-button class="rect-button" type="text" icon="el-icon-plus" @click="addServer" style="width: 100%;">Server</el-button>-->
 <!--          </el-col>-->
           <el-col :span="24">
-            <el-button class="rect-button" type="text" icon="el-icon-folder-add" @click="addFolder" style="width: 100%;">Folder</el-button>
+            <el-button class="rect-button no-border-button" type="primary" plain icon="el-icon-folder-add" @click="addFolder" style="width: 100%;">Folder</el-button>
           </el-col>
         </el-row>
-        <div class="add-folder-wrap">
-          <el-menu-item index="addFolder" class="add-folder-item" v-if="showAddFolder">
-            <i class="el-icon-folder"></i>
-            <el-input ref="addFolderInput" size="mini" @keyup.enter.native="addFolderConfirm" @blur="addFolderConfirm" v-model="addFolderLabel"></el-input>
-            <i class="el-icon-close" style="margin-right: -15px;"></i>
-          </el-menu-item>
-        </div>
-        <el-tree :default-expanded-keys="expandedList" @node-expand="nodeExpand" @node-collapse="nodeCollapse" @node-contextmenu="showTreeItemContextMenu" empty-text="No Servers." :indent="8" :data="computedServerSortList" node-key="id" :draggable="true" @node-drop="menuDropEnd" :allow-drop="allowDrop">
-          <div slot-scope="{ node, data }" :class="['menu-wrap', {'is-dir': data.isDir}]">
-            <div v-if="data.isDir" :class="['menu-folder-item', {hover: node.showMenu}]">
-              <i v-if="!(data.children && data.children.length)" class="el-icon-folder-remove"></i>
-              <template v-else>
-                <i v-if="node.expanded" class="el-icon-folder-opened"></i>
-                <i v-if="!node.expanded" class="el-icon-folder"></i>
-              </template>
-              <span style="margin-left: 4px;">{{node.label}}</span>
-              <el-dropdown
-                placement="bottom-end"
-                @visible-change="menuVisibleChange(node, $event)"
-                trigger="click"
-                class="more-button"
-                :ref="`menu-folder-popover-${data.id}`">
-                <el-button :ref="`menu-item-popover-button-${data.id}`" class="more-button-display" icon="el-icon-more" type="text" @click.stop style="padding: 0;"></el-button>
-                <el-dropdown-menu slot="dropdown" class="menu-folder-popover-dropdown" :key="`menu-folder-popover-${data.id}`">
-                  <el-dropdown-item icon="el-icon-delete" class="text-danger" @click.native="deleteFolderConfirm(data.id)">
-                    Delete
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-            </div>
-            <template v-if="!data.isDir">
-              <el-menu-item :class="[{hover: node.showMenu}]" :index="`homeServers-${server.id}`" @click="setServer(server.id)" :key="server.id" v-for="server in getServerItem(data.id)">
-                <el-button circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
-                <span class="menu-label">
-                  <span class="text-danger" v-show="draftEditedList.includes(server.id)" style="margin-right: 4px;">*</span>
-                  <span>{{ server.name }}</span>
-                </span>
+        <div class="home-page_scroll-view">
+          <div class="add-folder-wrap">
+            <el-menu-item index="addFolder" class="add-folder-item" v-if="showAddFolder">
+              <i class="el-icon-folder"></i>
+              <el-input ref="addFolderInput" size="mini" @keyup.enter.native="addFolderConfirm" @blur="addFolderConfirm" v-model="addFolderLabel"></el-input>
+              <i class="el-icon-close" style="margin-right: -15px;"></i>
+            </el-menu-item>
+          </div>
+          <el-tree :default-expanded-keys="expandedList" @node-expand="nodeExpand" @node-collapse="nodeCollapse" @node-contextmenu="showTreeItemContextMenu" empty-text="No Servers." :indent="8" :data="computedServerSortList" node-key="id" :draggable="true" @node-drop="menuDropEnd" :allow-drop="allowDrop">
+            <div slot-scope="{ node, data }" :class="['menu-wrap', {'is-dir': data.isDir}]">
+              <div v-if="data.isDir" :class="['menu-folder-item', {hover: node.showMenu}]">
+                <i v-if="!(data.children && data.children.length)" class="el-icon-folder-remove"></i>
+                <template v-else>
+                  <i v-if="node.expanded" class="el-icon-folder-opened"></i>
+                  <i v-if="!node.expanded" class="el-icon-folder"></i>
+                </template>
+                <span style="margin-left: 4px;">{{node.label}}</span>
                 <el-dropdown
                   placement="bottom-end"
                   @visible-change="menuVisibleChange(node, $event)"
                   trigger="click"
                   class="more-button"
-                  :ref="`menu-popover-${data.id}`">
+                  :ref="`menu-folder-popover-${data.id}`">
                   <el-button :ref="`menu-item-popover-button-${data.id}`" class="more-button-display" icon="el-icon-more" type="text" @click.stop style="padding: 0;"></el-button>
-                  <el-dropdown-menu slot="dropdown" :key="`menu-popover-${data.id}`">
-                    <el-dropdown-item icon="el-icon-delete" class="text-danger" @click.native="deleteServerConfirm(server.id)">
+                  <el-dropdown-menu slot="dropdown" class="menu-folder-popover-dropdown" :key="`menu-folder-popover-${data.id}`">
+                    <el-dropdown-item icon="el-icon-delete" class="text-danger" @click.native="deleteFolderConfirm(data.id)">
                       Delete
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
-              </el-menu-item>
-            </template>
-          </div>
-        </el-tree>
+              </div>
+              <template v-if="!data.isDir">
+                <el-menu-item :class="[{hover: node.showMenu}]" :index="`homeServers-${server.id}`" @click="setServer(server.id)" :key="server.id" v-for="server in getServerItem(data.id)">
+                  <el-button circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
+                  <span class="menu-label">
+                  <span class="text-danger" v-show="draftEditedList.includes(server.id)" style="margin-right: 4px;">*</span>
+                  <span>{{ server.name }}</span>
+                </span>
+                  <el-dropdown
+                    placement="bottom-end"
+                    @visible-change="menuVisibleChange(node, $event)"
+                    trigger="click"
+                    class="more-button"
+                    :ref="`menu-popover-${data.id}`">
+                    <el-button :ref="`menu-item-popover-button-${data.id}`" class="more-button-display" icon="el-icon-more" type="text" @click.stop style="padding: 0;"></el-button>
+                    <el-dropdown-menu slot="dropdown" :key="`menu-popover-${data.id}`">
+                      <el-dropdown-item icon="el-icon-delete" class="text-danger" @click.native="deleteServerConfirm(server.id)">
+                        Delete
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                </el-menu-item>
+              </template>
+            </div>
+          </el-tree>
+        </div>
       </el-menu>
     </el-aside>
     <el-main class="home-page-content" ref="mainContent">
@@ -244,6 +246,10 @@ export default {
     transform: translateX(8px);
   }
   .home-page {
+    .home-page_scroll-view {
+      height: calc(100% - 40px);
+      overflow: scroll;
+    }
     .el-menu-item {
       position: relative;
       &:before {

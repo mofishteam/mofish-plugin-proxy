@@ -95,6 +95,10 @@ export default {
       overflow: scroll;
       padding-top: 20px;
     }
+    &.is-empty {
+      height: calc(100% - 20px);
+      padding-bottom: 20px;
+    }
     &:not(.is-empty) {
       &:before, &:after {
         content: '';
