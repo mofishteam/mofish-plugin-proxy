@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import { getServers, saveServer, addServer, deleteServer, getServerSortList, saveServerSortList } from '@/api/service/servers'
 import { setServerStatus, getCloseList } from '@/api/service/closeStatus'
 import { Message, MessageBox } from 'element-ui'
-import { defaultServerOption } from '../server/commonUtils/options'
+import { defaultServerOption } from '../../server/commonUtils/options'
 import cloneDeep from 'lodash.clonedeep'
 import isEqual from 'lodash.isequal'
 
