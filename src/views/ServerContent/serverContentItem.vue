@@ -69,8 +69,8 @@
         </el-form-item>
       </template>
       <el-form-item>
-        <el-button type="primary" @click="saveServerConfig()" :disabled="!draftEditedList.includes(server.id) && !isAdd">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
-        <el-button @click="resetForm" :disabled="!draftEditedList.includes(server.id) && !isAdd">Reset</el-button>
+        <el-button type="primary" @click="saveServerConfig()" :disabled="isEdited">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
+        <el-button @click="resetForm" :disabled="isEdited">Reset</el-button>
       </el-form-item>
     </el-form>
 <!--    <div class="server-content-item__empty text-placeholder" v-if="!currentServer || (!isAdd && !currentServer.name)">-->
@@ -119,10 +119,19 @@ export default {
   computed: {
     ...mapGetters({
       closeList: 'getCloseList',
-      draftEditedList: 'getDraftEditedList'
-    })
+      draftEditedList: 'getDraftEditedList',
+      currentActiveServer: 'getCurrentServer'
+    }),
+    isEdited () {
+      return !this.draftEditedList.includes(this.server.id) && !this.isAdd
+    }
   },
   created () {
+    this.$bus.$on('saveChange', () => {
+      if (this.currentActiveServer === this.currentServer.id && !this.isEdited) {
+        this.saveServerConfig()
+      }
+    })
   },
   methods: {
     ...mapActions([
@@ -208,7 +217,11 @@ export default {
           this.currentServer.name = result.value
         }
       })
-    }
+    },
+    setSSLKeyFilePath (file) {
+      console.log(file)
+    },
+    getFilePath () {}
   },
   watch: {
     server (val) {
