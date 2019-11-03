@@ -356,6 +356,16 @@ export default new Vuex.Store({
         }
       }
       return result
+    },
+    getLocationMap (state) {
+      console.log(state.servers)
+      return state.servers.reduce((sum, cur) => {
+        sum[cur.id] = cur.server.locations.reduce((_sum, location) => {
+          _sum[location.id] = location
+          return _sum
+        }, {})
+        return sum
+      }, {})
     }
   }
 })

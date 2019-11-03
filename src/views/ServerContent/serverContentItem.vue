@@ -52,10 +52,25 @@
       </div>
       <template v-if="displayMode === 'visual'">
         <el-form-item label="Locations">
-          <el-collapse v-model="locationShowList" style="max-width: 800px; margin-bottom: 10px;" v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation">
-            <location-card @delete="deleteLocation(location)" :name="`location-card-${$locationIndex}`" v-for="(location, $locationIndex) in currentServer.server.locations" :key="location.id" :location="location"></location-card>
-            <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>
-          </el-collapse>
+          <grid-layout :layout="locationLayout"
+                       :row-height="100"
+                       :is-draggable="true"
+                       :is-resizable="false"
+                       :is-mirrored="false"
+                       :vertical-compact="true"
+                       v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation"
+                       :col-num="2">
+            <grid-item v-for="location in locationLayout"  :key="location.i" :i="location.i" :x="location.x" :y="location.y" :w="location.w" :h="location.h">
+              <location-card @delete="deleteLocation(location.i)" :location-id="location.i"></location-card>
+            </grid-item>
+<!--            <grid-item :x="0" :y="currentServer.server.locations.length" :w="1" :h="1" i="add">-->
+<!--              <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>-->
+<!--            </grid-item>-->
+          </grid-layout>
+<!--          <el-collapse v-model="locationShowList" style="max-width: 800px; margin-bottom: 10px;" v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation">-->
+<!--            <location-card @delete="deleteLocation(location)" :name="`location-card-${$locationIndex}`" v-for="(location, $locationIndex) in currentServer.server.locations" :key="location.id" :location="location"></location-card>-->
+<!--            <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>-->
+<!--          </el-collapse>-->
           <div class="tac" style="max-width: 800px;">
             <el-button v-show="!currentLocation" icon="el-icon-plus" @click="addLocation">Add Location</el-button>
             <el-button v-show="!currentLocation" icon="el-icon-sort" @click="sortLocation">Sort</el-button>
@@ -92,6 +107,7 @@ import { mapGetters, mapActions } from 'vuex'
 import { merge } from 'lodash'
 import PortTest from './portTest'
 import editor from '@/components/Common/jsonEditor.vue'
+import VueGridLayout from 'vue-grid-layout'
 export default {
   name: 'ServerContentItem',
   props: {
@@ -124,6 +140,18 @@ export default {
     }),
     isEdited () {
       return !this.draftEditedList.includes(this.server.id) && !this.isAdd
+    },
+    locationLayout () {
+      return this.currentServer.server.locations.map((val, idx) => {
+        return {
+          x: 0,
+          y: idx,
+          w: 12,
+          h: 1,
+          i: val.id,
+          item: val
+        }
+      })
     }
   },
   created () {
@@ -168,9 +196,12 @@ export default {
       }
     },
     deleteLocation (location) {
-      if (this.currentServer.server.locations.includes(location)) {
+      const result = this.currentServer.server.locations.find(val => {
+        return val.id === location
+      })
+      if (result) {
         this.currentServer.server.locations.splice(
-          this.currentServer.server.locations.indexOf(location), 1
+          this.currentServer.server.locations.indexOf(result), 1
         )
       }
     },
@@ -250,7 +281,9 @@ export default {
   components: {
     LocationCard,
     PortTest,
-    editor
+    editor,
+    GridLayout: VueGridLayout.GridLayout,
+    GridItem: VueGridLayout.GridItem
   }
 }
 </script>

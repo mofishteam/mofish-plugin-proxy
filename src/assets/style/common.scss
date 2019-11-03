@@ -79,3 +79,7 @@
 .no-border-button {
   border: 0!important;
 }
+
+.vue-grid-item.vue-grid-placeholder {
+  background-color: $main-color!important;
+}
