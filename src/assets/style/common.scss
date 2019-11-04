@@ -83,3 +83,12 @@
 .vue-grid-item.vue-grid-placeholder {
   background-color: $main-color!important;
 }
+
+.location-edit-drawer {
+  .el-drawer__body {
+    height: 100%;
+    margin-top: -20px;
+    padding-top: 20px;
+    overflow: scroll;
+  }
+}

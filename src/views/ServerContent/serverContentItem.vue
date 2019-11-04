@@ -52,16 +52,16 @@
       </div>
       <template v-if="displayMode === 'visual'">
         <el-form-item label="Locations">
-          <grid-layout :layout="locationLayout"
-                       :row-height="100"
+          <grid-layout :layout.sync="locationLayout"
+                       :row-height="90"
                        :is-draggable="true"
                        :is-resizable="false"
                        :is-mirrored="false"
                        :vertical-compact="true"
                        v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation"
-                       :col-num="2">
+                       :col-num="1">
             <grid-item v-for="location in locationLayout"  :key="location.i" :i="location.i" :x="location.x" :y="location.y" :w="location.w" :h="location.h">
-              <location-card @delete="deleteLocation(location.i)" :location-id="location.i"></location-card>
+              <location-card :current-server="currentServer" @delete="deleteLocation(location.i)" :location-id="location.i"></location-card>
             </grid-item>
 <!--            <grid-item :x="0" :y="currentServer.server.locations.length" :w="1" :h="1" i="add">-->
 <!--              <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>-->
@@ -72,9 +72,8 @@
 <!--            <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>-->
 <!--          </el-collapse>-->
           <div class="tac" style="max-width: 800px;">
-            <el-button v-show="!currentLocation" icon="el-icon-plus" @click="addLocation">Add Location</el-button>
-            <el-button v-show="!currentLocation" icon="el-icon-sort" @click="sortLocation">Sort</el-button>
-            <el-button v-show="currentLocation" type="primary" icon="el-icon-check" @click="saveLocation">Save Addition</el-button>
+            <el-button icon="el-icon-plus" @click="addLocation">Add Location</el-button>
+<!--            <el-button v-show="!currentLocation" icon="el-icon-sort" @click="sortLocation">Sort</el-button>-->
           </div>
         </el-form-item>
       </template>
@@ -97,12 +96,24 @@
       width="500px">
       <el-tree v-if="currentServer && currentServer.server" :data="currentServer.server.locations" node-key="id" empty-text="No Locations." :props="{label: (data, node) => `${data.url} | ${data.type}`}" draggable :allow-drop="locationAllowDrop"></el-tree>
     </el-dialog>
+    <el-drawer
+      title="Add Location"
+      :visible.sync="showAddLocation"
+      size="500px"
+      custom-class="location-edit-drawer"
+      :append-to-body="true"
+      direction="rtl">
+      <location-content v-model="currentLocation"></location-content>
+      <el-button type="primary" @click="saveLocation">Save</el-button>
+      <el-button plain @click="resetCurrentLocation">Reset</el-button>
+    </el-drawer>
   </section>
 </template>
 
 <script>
-import { defaultLocationOption, getId } from '../../../server/commonUtils/options'
+import { defaultLocationOption } from '../../../server/commonUtils/options'
 import LocationCard from './locationCard'
+import LocationContent from './locationContent'
 import { mapGetters, mapActions } from 'vuex'
 import { merge } from 'lodash'
 import PortTest from './portTest'
@@ -129,7 +140,8 @@ export default {
       locationShowList: [],
       displayMode: 'visual',
       currentServerString: '{}',
-      edited: false
+      edited: false,
+      showAddLocation: false
     }
   },
   computed: {
@@ -165,26 +177,28 @@ export default {
     ...mapActions([
       'saveServer', 'deleteServer', 'setServerStatus', 'deleteServerConfirm', 'setActiveServer', 'editDraftContent'
     ]),
-    addLocation () {
+    resetCurrentLocation () {
       this.currentLocation = defaultLocationOption()
-      if (!this.locationShowList.includes('add')) {
-        this.locationShowList.push('add')
-      }
+    },
+    addLocation () {
+      this.resetCurrentLocation()
+      this.showAddLocation = true
     },
     async saveServerConfig () {
-      if (this.currentLocation) {
-        this.saveLocation()
-      }
+      // if (this.currentLocation) {
+      //   this.saveLocation()
+      // }
       await this.setActiveServer(this.currentServer.id)
       await this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
     },
     saveLocation () {
-      this.currentLocation.id = getId('location')
+      // this.currentLocation.id = getId('location')
       this.currentServer.server.locations.push(this.currentLocation)
-      this.currentLocation = null
-      if (this.locationShowList.includes('add')) {
-        this.locationShowList.splice(this.locationShowList.indexOf('add'), 1)
-      }
+      this.showAddLocation = false
+      // this.currentLocation = null
+      // if (this.locationShowList.includes('add')) {
+      //   this.locationShowList.splice(this.locationShowList.indexOf('add'), 1)
+      // }
     },
     switchEdit () {
       if (this.isEdit) {
@@ -258,7 +272,7 @@ export default {
     server (val) {
       console.log('server change: ', val)
       // this.currentServer = this.cloneServer(val)
-      this.currentLocation = null
+      // this.currentLocation = null
       this.locationShowList = []
     },
     currentServer: {
@@ -280,6 +294,7 @@ export default {
   },
   components: {
     LocationCard,
+    LocationContent,
     PortTest,
     editor,
     GridLayout: VueGridLayout.GridLayout,

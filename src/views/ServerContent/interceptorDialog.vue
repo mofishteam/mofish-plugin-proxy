@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :visible.sync="curValue" :title="`${isAdd ? 'Add ' : 'Edit '}Interceptor`">
+  <el-dialog :append-to-body="true" :visible.sync="curValue" :title="`${isAdd ? 'Add ' : 'Edit '}Interceptor`">
     <el-form ref="interceptorDialog" :model="interceptorScope" label-width="100px">
       <el-form-item label="Name">
         <el-input v-model="interceptorScope.name"></el-input>

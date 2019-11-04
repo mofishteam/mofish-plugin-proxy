@@ -8,13 +8,18 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 export default {
   name: 'LocationCard',
   props: {
     locationId: {
       default: '',
       type: String
+    },
+    currentServer: {
+      default: () => ({
+        server: {}
+      }),
+      type: Object
     }
   },
   data () {
@@ -22,12 +27,11 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      locationMap: 'getLocationMap',
-      currentServer: 'getCurrentServer'
-    }),
     location () {
-      return this.locationMap[this.currentServer][this.locationId]
+      console.log(this.currentServer)
+      return this.currentServer.server.locations.find((item) => {
+        return item.id === this.locationId
+      })
     }
   }
 }
@@ -35,6 +39,11 @@ export default {
 
 <style lang="scss">
   .location-card {
+    height: 90px;
+    .el-card__body {
+      padding-top: 5px;
+      padding-bottom: 0;
+    }
     &_title {
 
     }

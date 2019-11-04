@@ -1,29 +1,29 @@
 <template>
   <div class="location-content">
-    <el-form :ref="`location-${location.id}`" :model="location" label-width="100px">
+    <el-form :ref="`location-${currentValue.id}`" :model="currentValue" label-width="100px">
       <el-form-item label="Location">
-        <el-input v-model="location.url" placeholder="Please input location url."></el-input>
+        <el-input v-model="currentValue.url" placeholder="Please input location url."></el-input>
       </el-form-item>
       <el-form-item>
         <span slot="label" class="text-danger">Close</span>
-        <el-switch active-color="#ff4949" v-model="location.isClose"></el-switch>
+        <el-switch active-color="#ff4949" v-model="currentValue.isClose"></el-switch>
       </el-form-item>
       <el-form-item label="Delay">
-        <el-input style="width: 100px;" placeholder="0" v-model="location.delay">
+        <el-input style="width: 100px;" placeholder="0" v-model="currentValue.delay">
           <span slot="suffix">ms</span>
         </el-input>
       </el-form-item>
       <el-form-item label="Type">
-        <el-radio-group v-model="location.type" size="small">
+        <el-radio-group v-model="currentValue.type" size="small">
           <el-radio-button label="proxyPass">ProxyPass</el-radio-button>
           <el-radio-button label="static">Static</el-radio-button>
           <el-radio-button label="mock">Mock</el-radio-button>
           <!--                      <el-radio-button label="alias"></el-radio-button>-->
         </el-radio-group>
       </el-form-item>
-      <template v-if="location.type === 'mock'">
+      <template v-if="currentValue.type === 'mock'">
         <el-form-item label="Method">
-          <el-radio-group v-model="location.mock.method" size="small">
+          <el-radio-group v-model="currentValue.mock.method" size="small">
             <el-radio-button label="all">ALL</el-radio-button>
             <el-radio-button label="get">GET</el-radio-button>
             <el-radio-button label="post">POST</el-radio-button>
@@ -32,42 +32,42 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="MockType">
-          <el-radio-group v-model="location.mock.type" size="small">
+          <el-radio-group v-model="currentValue.mock.type" size="small">
             <el-radio-button label="json">JSON</el-radio-button>
             <!--            <el-radio-button label="jsonFile">JSONFile</el-radio-button>-->
             <!--            <el-radio-button label="function">Function</el-radio-button>-->
             <!--            <el-radio-button label="proxyPass">ProxyPass</el-radio-button>-->
           </el-radio-group>
         </el-form-item>
-        <template v-if="location.mock.type === 'json'">
+        <template v-if="currentValue.mock.type === 'json'">
           <el-form-item label="MockData">
             <el-row :gutter="10" type="flex">
               <el-col>
-                <editor v-model="location.mock.json" ref="mockJsonEditor"></editor>
+                <editor v-model="currentValue.mock.json" ref="mockJsonEditor"></editor>
               </el-col>
               <el-col>
                 <el-tooltip effect="light" content="Zoom" placement="right" style="display: block;">
                   <el-button icon="el-icon-full-screen" circle size="large" @click="$refs.mockJsonEditor.fullscreen()"></el-button>
                 </el-tooltip>
                 <el-tooltip effect="light" content="Format" placement="right" style="display: block; margin-left: 0; margin-top: 10px;">
-                  <el-button icon="el-icon-magic-stick" circle size="large" @click="location.mock.json = $refs.mockJsonEditor.format(location.mock.json)"></el-button>
+                  <el-button icon="el-icon-magic-stick" circle size="large" @click="currentValue.mock.json = $refs.mockJsonEditor.format(currentValue.mock.json)"></el-button>
                 </el-tooltip>
               </el-col>
             </el-row>
           </el-form-item>
         </template>
-        <template v-if="location.mock.type === 'jsonFile'">
+        <template v-if="currentValue.mock.type === 'jsonFile'">
           <el-form-item label="MockData">
-            <el-input v-model="location.mock.jsonPath"></el-input>
+            <el-input v-model="currentValue.mock.jsonPath"></el-input>
           </el-form-item>
         </template>
-        <template v-if="location.mock.type === 'Function'">
+        <template v-if="currentValue.mock.type === 'Function'">
           <el-form-item label="MockData">
-            <el-input type="textarea" v-model="location.mock.handler"></el-input>
+            <el-input type="textarea" v-model="currentValue.mock.handler"></el-input>
           </el-form-item>
         </template>
       </template>
-      <template v-if="location.type === 'proxyPass' || (location.type === 'mock' && location.mock.type === 'proxyPass')">
+      <template v-if="currentValue.type === 'proxyPass' || (currentValue.type === 'mock' && currentValue.mock.type === 'proxyPass')">
         <el-form-item label="Target">
           <el-input v-model="proxyPassScope.target" placeholder="Please input the target of proxyPass."></el-input>
         </el-form-item>
@@ -128,9 +128,9 @@
           <el-button icon="el-icon-plus" circle plain @click="addInterceptor(proxyPassScope.interceptors)"></el-button>
         </el-form-item>
       </template>
-      <template v-if="location.type === 'static'">
+      <template v-if="currentValue.type === 'static'">
         <el-form-item label="Path">
-          <el-input v-model="location.static.path"></el-input>
+          <el-input v-model="currentValue.static.path"></el-input>
         </el-form-item>
       </template>
       <el-form-item label="Actions">
@@ -140,7 +140,7 @@
         <el-switch v-model="showAdvanced"></el-switch>
       </el-form-item>
       <template v-if="showAdvanced">
-        <template v-if="location.type === 'proxyPass'">
+        <template v-if="currentValue.type === 'proxyPass'">
           <el-form-item label="Secure">
             <el-switch v-model="proxyPassScope.secure"></el-switch>
           </el-form-item>
@@ -162,16 +162,12 @@ export default {
       type: Boolean,
       default: false
     },
-    location: {
-      type: Object,
-      default: () => ({})
-    },
     value: {
       default: () => ({}),
       type: Object
     }
   },
-  data() {
+  data () {
     return {
       currentValue: this.value,
       isEdit: false,
@@ -183,16 +179,16 @@ export default {
   },
   created () {
     if (this.isAdd) {
-      this.onTypeChange(this.location.type)
+      this.onTypeChange(this.currentValue.type)
     }
-    this.mergeLocation()
+    // this.mergeLocation()
   },
   methods: {
-    mergeLocation () {
-      if (!this.location.proxyPass.interceptors) {
-
-      }
-    },
+    // mergeLocation () {
+    //   if (!this.location.proxyPass.interceptors) {
+    //
+    //   }
+    // },
     deleteSelf () {
       this.$confirm('Are you sure to delete this Location?', 'Confirm', {
         cancelButtonText: 'Cancel',
@@ -202,16 +198,16 @@ export default {
       })
     },
     clearOptions () {
-      this.$set(this.location, 'proxyPass', defaultLocationProxyPassOption())
-      this.$set(this.location, 'mock', defaultLocationMockOption())
-      this.$set(this.location, 'static', defaultLocationStaticOption())
+      this.$set(this.currentValue, 'proxyPass', defaultLocationProxyPassOption())
+      this.$set(this.currentValue, 'mock', defaultLocationMockOption())
+      this.$set(this.currentValue, 'static', defaultLocationStaticOption())
     },
     onTypeChange (val, isInit) {
       this.clearOptions()
       switch (val) {
-        case 'proxyPass': this.$set(this.location, 'proxyPass', defaultLocationProxyPassOption()); break
-        case 'static': this.$set(this.location, 'static', defaultLocationStaticOption()); break
-        case 'mock': this.$set(this.location, 'mock', defaultLocationMockOption()); break
+        case 'proxyPass': this.$set(this.currentValue, 'proxyPass', defaultLocationProxyPassOption()); break
+        case 'static': this.$set(this.currentValue, 'static', defaultLocationStaticOption()); break
+        case 'mock': this.$set(this.currentValue, 'mock', defaultLocationMockOption()); break
       }
     },
     addPathRewrite (pathRewrite) {
@@ -262,21 +258,21 @@ export default {
   },
   computed: {
     proxyPassScope () {
-      if (this.location.type === 'mock' && this.location.mock.type === 'proxyPass') {
-        return this.location.mock.proxyPass
+      if (this.currentValue.type === 'mock' && this.currentValue.mock.type === 'proxyPass') {
+        return this.currentValue.mock.proxyPass
       } else {
-        return this.location.proxyPass
+        return this.currentValue.proxyPass
       }
     }
   },
   watch: {
-    'location.type' (val) {
+    'currentValue.type' (val) {
       this.onTypeChange(val)
     },
     proxyPassScope: {
       deep: true,
       handler () {
-        this.mergeLocation()
+        // this.mergeLocation()
       }
     },
     value (val) {
@@ -292,3 +288,9 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+  .location-content {
+    padding: 0 60px 0 20px;
+  }
+</style>
