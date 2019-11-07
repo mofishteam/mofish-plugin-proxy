@@ -51,14 +51,15 @@
         </div>
       </div>
       <template v-if="displayMode === 'visual'">
+        {{locationLayout.map(item => item.i)}}
         <el-form-item label="Locations">
           <grid-layout :layout.sync="locationLayout"
+                       :key="`grid-layout-${currentServer.id}`"
                        :row-height="90"
                        :is-draggable="true"
                        :is-resizable="false"
                        :is-mirrored="false"
                        :vertical-compact="true"
-                       :responsive="true"
                        @layout-updated="onLocationLayoutUpdated"
                        v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation"
                        :col-num="1">
@@ -143,8 +144,7 @@ export default {
       displayMode: 'visual',
       currentServerString: '{}',
       edited: false,
-      showAddLocation: false,
-      locationLayout: []
+      showAddLocation: false
     }
   },
   computed: {
@@ -155,6 +155,14 @@ export default {
     }),
     isEdited () {
       return !this.draftEditedList.includes(this.server.id) && !this.isAdd
+    },
+    locationLayout: {
+      set (val) {
+        this.$locationLayout = val
+      },
+      get () {
+        return this.$locationLayout
+      }
     }
   },
   created () {
@@ -170,17 +178,28 @@ export default {
       'saveServer', 'deleteServer', 'setServerStatus', 'deleteServerConfirm', 'setActiveServer', 'editDraftContent'
     ]),
     initLocationLayout () {
+      console.log('init')
       if (this.currentServer && this.currentServer.server && this.currentServer.server && this.currentServer.server.locations) {
-        this.$set(this, 'locationLayout', this.currentServer.server.locations.map((val, idx) => {
-          return {
-            x: 0,
-            y: idx,
-            w: 12,
-            h: 1,
-            i: val.id,
-            item: val
+        const isSame = this.currentServer.server.locations.reduce((sum, cur, idx) => {
+          if (!sum) {
+            return false
+          } else {
+            return this.locationLayout[idx] && cur.id === this.locationLayout[idx].i
           }
-        }))
+        }, true)
+        console.log('isSame', isSame)
+        if (!isSame) {
+          this.$set(this, 'locationLayout', this.currentServer.server.locations.map((val, idx) => {
+            return {
+              x: 0,
+              y: idx,
+              w: 12,
+              h: 1,
+              i: val.id,
+              item: val
+            }
+          }))
+        }
       }
     },
     resetCurrentLocation () {
@@ -273,8 +292,13 @@ export default {
       console.log(file)
     },
     getFilePath () {},
-    onLocationLayoutUpdated (...args) {
-      console.log(...args)
+    onLayoutUpdate (layouts) {
+      console.log(layouts)
+    },
+    onLocationLayoutUpdated (layouts) {
+      console.log(layouts.map(item => item.i))
+      // const locations = layouts.map(item => item.item)
+      // this.$set(this.currentServer.server, 'locations', locations)
     }
   },
   watch: {
@@ -291,7 +315,11 @@ export default {
         this.edited = true
         this.editDraftContent({ id: val.id, val })
         this.currentServerString = JSON.stringify(val, undefined, 4)
-        this.initLocationLayout()
+        // console.log(val, oldVal)
+        // if (!oldVal || (val && val.id !== oldVal.id)) {
+        //   console.log('initLocationLayout')
+        //   this.initLocationLayout()
+        // }
       }
     },
     displayMode (val) {

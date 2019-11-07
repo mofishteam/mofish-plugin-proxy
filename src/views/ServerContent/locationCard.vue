@@ -2,18 +2,20 @@
   <el-card class="location-card" shadow="hover" :body-style="{paddingTop: '5px', paddingBottom: '0'}">
     <div class="location-card_title">
       <el-button type="text" icon="el-icon-arrow-right" class="text-secondary-black expand-button"></el-button>
-      <span class="location-card_url">{{location.url}}</span>
+      <span class="location-card_url">{{location.url}}{{location.id}}</span>
       <el-tag size="small" class="location-card_status-tag">{{location.type}}</el-tag>
       <el-tag size="small" v-show="location.isClose" type="danger" class="location-card_status-tag">CLOSED</el-tag>
       <el-button type="text" icon="el-icon-edit-outline" class="location-card_action-button"></el-button>
       <el-button type="text" icon="el-icon-delete" class="location-card_action-button text-danger"></el-button>
     </div>
     <div class="location-card_info">
-      <div v-if="location.type === 'proxyPass'" class="location-card_info-item">
-        <p class="location-card_info-item-title text-secondary-black">Target:</p>
-        <p class="location-card_info-item-value text-main">{{location.proxyPass.target}}</p>
-      </div>
-      <el-divider direction="vertical"></el-divider>
+      <template v-if="location.type === 'proxyPass'">
+        <div class="location-card_info-item">
+          <p class="location-card_info-item-title text-secondary-black">Target:</p>
+          <p class="location-card_info-item-value text-main">{{location.proxyPass.target}}</p>
+        </div>
+        <el-divider direction="vertical" class="location-card_info-item-divider"></el-divider>
+      </template>
     </div>
   </el-card>
 </template>
@@ -71,6 +73,9 @@ export default {
     }
     &_info {
       display: flex;
+      .el-divider--vertical {
+        height: 30px;
+      }
       &-item {
         line-height: 1.3;
         cursor: default;
