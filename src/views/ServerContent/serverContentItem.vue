@@ -58,6 +58,8 @@
                        :is-resizable="false"
                        :is-mirrored="false"
                        :vertical-compact="true"
+                       :responsive="true"
+                       @layout-updated="onLocationLayoutUpdated"
                        v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation"
                        :col-num="1">
             <grid-item v-for="location in locationLayout"  :key="location.i" :i="location.i" :x="location.x" :y="location.y" :w="location.w" :h="location.h">
@@ -141,7 +143,8 @@ export default {
       displayMode: 'visual',
       currentServerString: '{}',
       edited: false,
-      showAddLocation: false
+      showAddLocation: false,
+      locationLayout: []
     }
   },
   computed: {
@@ -152,18 +155,6 @@ export default {
     }),
     isEdited () {
       return !this.draftEditedList.includes(this.server.id) && !this.isAdd
-    },
-    locationLayout () {
-      return this.currentServer.server.locations.map((val, idx) => {
-        return {
-          x: 0,
-          y: idx,
-          w: 12,
-          h: 1,
-          i: val.id,
-          item: val
-        }
-      })
     }
   },
   created () {
@@ -172,11 +163,26 @@ export default {
         this.saveServerConfig()
       }
     })
+    this.initLocationLayout()
   },
   methods: {
     ...mapActions([
       'saveServer', 'deleteServer', 'setServerStatus', 'deleteServerConfirm', 'setActiveServer', 'editDraftContent'
     ]),
+    initLocationLayout () {
+      if (this.currentServer && this.currentServer.server && this.currentServer.server && this.currentServer.server.locations) {
+        this.$set(this, 'locationLayout', this.currentServer.server.locations.map((val, idx) => {
+          return {
+            x: 0,
+            y: idx,
+            w: 12,
+            h: 1,
+            i: val.id,
+            item: val
+          }
+        }))
+      }
+    },
     resetCurrentLocation () {
       this.currentLocation = defaultLocationOption()
     },
@@ -266,7 +272,10 @@ export default {
     setSSLKeyFilePath (file) {
       console.log(file)
     },
-    getFilePath () {}
+    getFilePath () {},
+    onLocationLayoutUpdated (...args) {
+      console.log(...args)
+    }
   },
   watch: {
     server (val) {
@@ -282,6 +291,7 @@ export default {
         this.edited = true
         this.editDraftContent({ id: val.id, val })
         this.currentServerString = JSON.stringify(val, undefined, 4)
+        this.initLocationLayout()
       }
     },
     displayMode (val) {

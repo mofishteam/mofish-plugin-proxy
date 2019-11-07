@@ -21,6 +21,10 @@
   color: $main-color;
 }
 
+.text-main-light {
+  color: lighten($main-color, 8%);
+}
+
 .text-black {
   color: $main-black;
 }
