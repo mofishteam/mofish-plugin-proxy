@@ -21,6 +21,10 @@
   color: $main-color;
 }
 
+.text-main-light {
+  color: lighten($main-color, 8%);
+}
+
 .text-black {
   color: $main-black;
 }
@@ -78,4 +82,17 @@
 
 .no-border-button {
   border: 0!important;
+}
+
+.vue-grid-item.vue-grid-placeholder {
+  background-color: $main-color!important;
+}
+
+.location-edit-drawer {
+  .el-drawer__body {
+    height: 100%;
+    margin-top: -20px;
+    padding-top: 20px;
+    overflow: scroll;
+  }
 }

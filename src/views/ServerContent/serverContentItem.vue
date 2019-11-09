@@ -51,15 +51,37 @@
         </div>
       </div>
       <template v-if="displayMode === 'visual'">
-        <el-form-item label="Locations">
-          <el-collapse v-model="locationShowList" style="max-width: 800px; margin-bottom: 10px;" v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation">
-            <location-card @delete="deleteLocation(location)" :name="`location-card-${$locationIndex}`" v-for="(location, $locationIndex) in currentServer.server.locations" :key="location.id" :location="location"></location-card>
-            <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>
-          </el-collapse>
+        <el-form-item label="">
+          <action-bar>
+            <el-button slot="left" type="text" @click="saveServerConfig()" :disabled="isEdited">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
+            <el-divider direction="vertical" slot="left"></el-divider>
+            <el-button slot="left" @click="resetForm" :disabled="isEdited" type="text">Reset</el-button>
+            <el-button icon="el-icon-plus" slot="right" type="text" @click="addLocation"></el-button>
+          </action-bar>
+          <grid-layout :layout.sync="locationLayout"
+                       :key="`grid-layout-${currentServer.id}`"
+                       :row-height="90"
+                       :is-draggable="true"
+                       :is-resizable="false"
+                       :is-mirrored="false"
+                       :vertical-compact="true"
+                       @layout-updated="onLocationLayoutUpdated"
+                       v-if="showLocation && currentServer.server.locations && currentServer.server.locations.length || currentLocation"
+                       :col-num="1">
+            <grid-item v-for="location in locationLayout" :key="`location-grid-item-${location.i}`" :i="location.i" :x="location.x" :y="location.y" :w="location.w" :h="location.h">
+              <location-card :key="`location-card-${location.i}`" :current-server="currentServer" @delete="deleteLocation(location.i)" @edit="editLocation" :location-id="location.i"></location-card>
+            </grid-item>
+<!--            <grid-item :x="0" :y="currentServer.server.locations.length" :w="1" :h="1" i="add">-->
+<!--              <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>-->
+<!--            </grid-item>-->
+          </grid-layout>
+<!--          <el-collapse v-model="locationShowList" style="max-width: 800px; margin-bottom: 10px;" v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation">-->
+<!--            <location-card @delete="deleteLocation(location)" :name="`location-card-${$locationIndex}`" v-for="(location, $locationIndex) in currentServer.server.locations" :key="location.id" :location="location"></location-card>-->
+<!--            <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>-->
+<!--          </el-collapse>-->
           <div class="tac" style="max-width: 800px;">
-            <el-button v-show="!currentLocation" icon="el-icon-plus" @click="addLocation">Add Location</el-button>
-            <el-button v-show="!currentLocation" icon="el-icon-sort" @click="sortLocation">Sort</el-button>
-            <el-button v-show="currentLocation" type="primary" icon="el-icon-check" @click="saveLocation">Save Addition</el-button>
+<!--            <el-button icon="el-icon-plus" @click="addLocation">Add Location</el-button>-->
+<!--            <el-button v-show="!currentLocation" icon="el-icon-sort" @click="sortLocation">Sort</el-button>-->
           </div>
         </el-form-item>
       </template>
@@ -82,16 +104,33 @@
       width="500px">
       <el-tree v-if="currentServer && currentServer.server" :data="currentServer.server.locations" node-key="id" empty-text="No Locations." :props="{label: (data, node) => `${data.url} | ${data.type}`}" draggable :allow-drop="locationAllowDrop"></el-tree>
     </el-dialog>
+    <el-drawer
+      title="Add Location"
+      :visible.sync="showAddLocation"
+      size="500px"
+      custom-class="location-edit-drawer"
+      :append-to-body="true"
+      direction="rtl">
+      <location-content v-model="currentLocation"></location-content>
+      <div class="location-edit-drawer_action-button tac">
+        <el-button type="primary" @click="saveLocation">Save</el-button>
+        <el-button plain @click="resetCurrentLocation">Reset</el-button>
+      </div>
+    </el-drawer>
   </section>
 </template>
 
 <script>
-import { defaultLocationOption, getId } from '../../../server/commonUtils/options'
+import { defaultLocationOption } from '../../../server/commonUtils/options'
 import LocationCard from './locationCard'
+import LocationContent from './locationContent'
 import { mapGetters, mapActions } from 'vuex'
 import { merge } from 'lodash'
 import PortTest from './portTest'
 import editor from '@/components/Common/jsonEditor.vue'
+import VueGridLayout from 'vue-grid-layout'
+import ActionBar from '@/components/Common/locationCardActionBar'
+import isEqual from 'lodash.isequal'
 export default {
   name: 'ServerContentItem',
   props: {
@@ -107,13 +146,16 @@ export default {
     return {
       tempServerName: '',
       currentServer: this.cloneServer(this.server),
-      currentLocation: null,
+      currentLocation: defaultLocationOption(),
       showSortLocation: false,
       isEdit: false,
       locationShowList: [],
       displayMode: 'visual',
       currentServerString: '{}',
-      edited: false
+      edited: false,
+      showAddLocation: false,
+      locationLayout: [],
+      showLocation: true
     }
   },
   computed: {
@@ -132,31 +174,83 @@ export default {
         this.saveServerConfig()
       }
     })
+    this.initLocationLayout()
   },
   methods: {
     ...mapActions([
       'saveServer', 'deleteServer', 'setServerStatus', 'deleteServerConfirm', 'setActiveServer', 'editDraftContent'
     ]),
-    addLocation () {
-      this.currentLocation = defaultLocationOption()
-      if (!this.locationShowList.includes('add')) {
-        this.locationShowList.push('add')
+    initLocationLayout () {
+      console.log('init')
+      if (this.currentServer && this.currentServer.server && this.currentServer.server && this.currentServer.server.locations) {
+        const isSame = this.currentServer.server.locations.reduce((sum, cur, idx) => {
+          if (!sum) {
+            return false
+          } else {
+            return this.locationLayout[idx] && cur.id === this.locationLayout[idx].i
+          }
+        }, true)
+        console.log('isSame', isSame)
+        if (!isSame) {
+          const layouts = {}
+          this.locationLayout.forEach(val => {
+            layouts[val.i] = val
+          })
+          this.locationLayout.splice(0)
+          this.currentServer.server.locations.map((val, idx) => {
+            let item = layouts[val.id]
+            if (item) {
+              item.y = idx
+            } else {
+              item = {
+                x: 0,
+                y: idx,
+                w: 12,
+                h: 1,
+                i: val.id,
+                item: val
+              }
+            }
+            this.locationLayout.push(item)
+          })
+        }
       }
     },
-    async saveServerConfig () {
-      if (this.currentLocation) {
-        this.saveLocation()
+    resetCurrentLocation () {
+      this.currentLocation = defaultLocationOption()
+    },
+    editLocation (location) {
+      const locationId = location.id
+      const oldLocationItem = this.currentServer.server.locations.find(item => item.id === locationId)
+      if (oldLocationItem) {
+        for (const key in oldLocationItem) {
+          oldLocationItem[key] = undefined
+        }
+        for (const key in location) {
+          oldLocationItem[key] = location[key]
+        }
+        this.$set(this, 'oldLocationItem', oldLocationItem)
       }
+    },
+    addLocation () {
+      this.resetCurrentLocation()
+      this.showAddLocation = true
+    },
+    async saveServerConfig () {
+      // if (this.currentLocation) {
+      //   this.saveLocation()
+      // }
       await this.setActiveServer(this.currentServer.id)
       await this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
     },
     saveLocation () {
-      this.currentLocation.id = getId('location')
+      // this.currentLocation.id = getId('location')
       this.currentServer.server.locations.push(this.currentLocation)
-      this.currentLocation = null
-      if (this.locationShowList.includes('add')) {
-        this.locationShowList.splice(this.locationShowList.indexOf('add'), 1)
-      }
+      this.showAddLocation = false
+      // this.currentLocation = null
+      // if (this.locationShowList.includes('add')) {
+      //   this.locationShowList.splice(this.locationShowList.indexOf('add'), 1)
+      // }
     },
     switchEdit () {
       if (this.isEdit) {
@@ -168,9 +262,15 @@ export default {
       }
     },
     deleteLocation (location) {
-      if (this.currentServer.server.locations.includes(location)) {
+      const result = this.currentServer.server.locations.find(val => {
+        return val.id === location
+      })
+      if (result) {
+        this.locationLayout.splice(
+          this.locationLayout.findIndex(item => item.id === result.id), 1
+        )
         this.currentServer.server.locations.splice(
-          this.currentServer.server.locations.indexOf(location), 1
+          this.currentServer.server.locations.indexOf(result), 1
         )
       }
     },
@@ -178,9 +278,12 @@ export default {
       this.$confirm('Are you sure to reset this server config?', 'Confirm', {
         cancelButtonText: 'Cancel',
         confirmButtonText: 'Confirm'
-      }).then(() => {
-        this.currentLocation = null
+      }).then(async () => {
+        this.showLocation = false
+        this.currentLocation = defaultLocationOption()
         this.currentServer = this.cloneServer(this.server)
+        await this.$nextTick()
+        this.showLocation = true
       })
     },
     cloneServer (raw) {
@@ -221,13 +324,23 @@ export default {
     setSSLKeyFilePath (file) {
       console.log(file)
     },
-    getFilePath () {}
+    getFilePath () {},
+    onLayoutUpdate (layouts) {
+      console.log(layouts)
+    },
+    onLocationLayoutUpdated (layouts) {
+      const locations = []
+      layouts.forEach(item => {
+        locations[item.y] = item.item
+      })
+      this.$set(this.currentServer.server, 'locations', locations)
+    }
   },
   watch: {
     server (val) {
       console.log('server change: ', val)
       // this.currentServer = this.cloneServer(val)
-      this.currentLocation = null
+      // this.currentLocation = null
       this.locationShowList = []
     },
     currentServer: {
@@ -237,6 +350,11 @@ export default {
         this.edited = true
         this.editDraftContent({ id: val.id, val })
         this.currentServerString = JSON.stringify(val, undefined, 4)
+        // console.log(val, oldVal)
+        // if (!oldVal || (val && val.id !== oldVal.id)) {
+        //   console.log('initLocationLayout')
+        this.initLocationLayout()
+        // }
       }
     },
     displayMode (val) {
@@ -249,8 +367,12 @@ export default {
   },
   components: {
     LocationCard,
+    LocationContent,
     PortTest,
-    editor
+    editor,
+    ActionBar,
+    GridLayout: VueGridLayout.GridLayout,
+    GridItem: VueGridLayout.GridItem
   }
 }
 </script>
