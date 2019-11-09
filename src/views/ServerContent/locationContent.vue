@@ -133,9 +133,9 @@
           <el-input v-model="currentValue.static.path"></el-input>
         </el-form-item>
       </template>
-      <el-form-item label="Actions">
-        <el-button type="danger" @click="deleteSelf" size="small">Delete</el-button>
-      </el-form-item>
+<!--      <el-form-item label="Actions">-->
+<!--        <el-button type="danger" @click="deleteSelf" size="small">Delete</el-button>-->
+<!--      </el-form-item>-->
       <el-form-item label="ShowAdvanced">
         <el-switch v-model="showAdvanced"></el-switch>
       </el-form-item>
@@ -203,6 +203,7 @@ export default {
       this.$set(this.currentValue, 'static', defaultLocationStaticOption())
     },
     onTypeChange (val, isInit) {
+      console.log(val)
       this.clearOptions()
       switch (val) {
         case 'proxyPass': this.$set(this.currentValue, 'proxyPass', defaultLocationProxyPassOption()); break

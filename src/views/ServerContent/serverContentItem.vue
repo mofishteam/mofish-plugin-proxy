@@ -51,8 +51,13 @@
         </div>
       </div>
       <template v-if="displayMode === 'visual'">
-        {{locationLayout.map(item => item.i)}}
-        <el-form-item label="Locations">
+        <el-form-item label="">
+          <action-bar>
+            <el-button slot="left" type="text" @click="saveServerConfig()" :disabled="isEdited">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
+            <el-divider direction="vertical" slot="left"></el-divider>
+            <el-button slot="left" @click="resetForm" :disabled="isEdited" type="text">Reset</el-button>
+            <el-button icon="el-icon-plus" slot="right" type="text" @click="addLocation"></el-button>
+          </action-bar>
           <grid-layout :layout.sync="locationLayout"
                        :key="`grid-layout-${currentServer.id}`"
                        :row-height="90"
@@ -61,10 +66,10 @@
                        :is-mirrored="false"
                        :vertical-compact="true"
                        @layout-updated="onLocationLayoutUpdated"
-                       v-show="currentServer.server.locations && currentServer.server.locations.length || currentLocation"
+                       v-if="showLocation && currentServer.server.locations && currentServer.server.locations.length || currentLocation"
                        :col-num="1">
-            <grid-item v-for="location in locationLayout"  :key="location.i" :i="location.i" :x="location.x" :y="location.y" :w="location.w" :h="location.h">
-              <location-card :current-server="currentServer" @delete="deleteLocation(location.i)" :location-id="location.i"></location-card>
+            <grid-item v-for="location in locationLayout" :key="`location-grid-item-${location.i}`" :i="location.i" :x="location.x" :y="location.y" :w="location.w" :h="location.h">
+              <location-card :key="`location-card-${location.i}`" :current-server="currentServer" @delete="deleteLocation(location.i)" @edit="editLocation" :location-id="location.i"></location-card>
             </grid-item>
 <!--            <grid-item :x="0" :y="currentServer.server.locations.length" :w="1" :h="1" i="add">-->
 <!--              <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>-->
@@ -75,7 +80,7 @@
 <!--            <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>-->
 <!--          </el-collapse>-->
           <div class="tac" style="max-width: 800px;">
-            <el-button icon="el-icon-plus" @click="addLocation">Add Location</el-button>
+<!--            <el-button icon="el-icon-plus" @click="addLocation">Add Location</el-button>-->
 <!--            <el-button v-show="!currentLocation" icon="el-icon-sort" @click="sortLocation">Sort</el-button>-->
           </div>
         </el-form-item>
@@ -107,8 +112,10 @@
       :append-to-body="true"
       direction="rtl">
       <location-content v-model="currentLocation"></location-content>
-      <el-button type="primary" @click="saveLocation">Save</el-button>
-      <el-button plain @click="resetCurrentLocation">Reset</el-button>
+      <div class="location-edit-drawer_action-button tac">
+        <el-button type="primary" @click="saveLocation">Save</el-button>
+        <el-button plain @click="resetCurrentLocation">Reset</el-button>
+      </div>
     </el-drawer>
   </section>
 </template>
@@ -122,6 +129,8 @@ import { merge } from 'lodash'
 import PortTest from './portTest'
 import editor from '@/components/Common/jsonEditor.vue'
 import VueGridLayout from 'vue-grid-layout'
+import ActionBar from '@/components/Common/locationCardActionBar'
+import isEqual from 'lodash.isequal'
 export default {
   name: 'ServerContentItem',
   props: {
@@ -137,14 +146,16 @@ export default {
     return {
       tempServerName: '',
       currentServer: this.cloneServer(this.server),
-      currentLocation: null,
+      currentLocation: defaultLocationOption(),
       showSortLocation: false,
       isEdit: false,
       locationShowList: [],
       displayMode: 'visual',
       currentServerString: '{}',
       edited: false,
-      showAddLocation: false
+      showAddLocation: false,
+      locationLayout: [],
+      showLocation: true
     }
   },
   computed: {
@@ -155,14 +166,6 @@ export default {
     }),
     isEdited () {
       return !this.draftEditedList.includes(this.server.id) && !this.isAdd
-    },
-    locationLayout: {
-      set (val) {
-        this.$locationLayout = val
-      },
-      get () {
-        return this.$locationLayout
-      }
     }
   },
   created () {
@@ -189,21 +192,45 @@ export default {
         }, true)
         console.log('isSame', isSame)
         if (!isSame) {
-          this.$set(this, 'locationLayout', this.currentServer.server.locations.map((val, idx) => {
-            return {
-              x: 0,
-              y: idx,
-              w: 12,
-              h: 1,
-              i: val.id,
-              item: val
+          const layouts = {}
+          this.locationLayout.forEach(val => {
+            layouts[val.i] = val
+          })
+          this.locationLayout.splice(0)
+          this.currentServer.server.locations.map((val, idx) => {
+            let item = layouts[val.id]
+            if (item) {
+              item.y = idx
+            } else {
+              item = {
+                x: 0,
+                y: idx,
+                w: 12,
+                h: 1,
+                i: val.id,
+                item: val
+              }
             }
-          }))
+            this.locationLayout.push(item)
+          })
         }
       }
     },
     resetCurrentLocation () {
       this.currentLocation = defaultLocationOption()
+    },
+    editLocation (location) {
+      const locationId = location.id
+      const oldLocationItem = this.currentServer.server.locations.find(item => item.id === locationId)
+      if (oldLocationItem) {
+        for (const key in oldLocationItem) {
+          oldLocationItem[key] = undefined
+        }
+        for (const key in location) {
+          oldLocationItem[key] = location[key]
+        }
+        this.$set(this, 'oldLocationItem', oldLocationItem)
+      }
     },
     addLocation () {
       this.resetCurrentLocation()
@@ -239,6 +266,9 @@ export default {
         return val.id === location
       })
       if (result) {
+        this.locationLayout.splice(
+          this.locationLayout.findIndex(item => item.id === result.id), 1
+        )
         this.currentServer.server.locations.splice(
           this.currentServer.server.locations.indexOf(result), 1
         )
@@ -248,9 +278,12 @@ export default {
       this.$confirm('Are you sure to reset this server config?', 'Confirm', {
         cancelButtonText: 'Cancel',
         confirmButtonText: 'Confirm'
-      }).then(() => {
-        this.currentLocation = null
+      }).then(async () => {
+        this.showLocation = false
+        this.currentLocation = defaultLocationOption()
         this.currentServer = this.cloneServer(this.server)
+        await this.$nextTick()
+        this.showLocation = true
       })
     },
     cloneServer (raw) {
@@ -296,9 +329,11 @@ export default {
       console.log(layouts)
     },
     onLocationLayoutUpdated (layouts) {
-      console.log(layouts.map(item => item.i))
-      // const locations = layouts.map(item => item.item)
-      // this.$set(this.currentServer.server, 'locations', locations)
+      const locations = []
+      layouts.forEach(item => {
+        locations[item.y] = item.item
+      })
+      this.$set(this.currentServer.server, 'locations', locations)
     }
   },
   watch: {
@@ -318,7 +353,7 @@ export default {
         // console.log(val, oldVal)
         // if (!oldVal || (val && val.id !== oldVal.id)) {
         //   console.log('initLocationLayout')
-        //   this.initLocationLayout()
+        this.initLocationLayout()
         // }
       }
     },
@@ -335,6 +370,7 @@ export default {
     LocationContent,
     PortTest,
     editor,
+    ActionBar,
     GridLayout: VueGridLayout.GridLayout,
     GridItem: VueGridLayout.GridItem
   }
