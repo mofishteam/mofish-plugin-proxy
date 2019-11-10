@@ -1,5 +1,5 @@
 <template>
-  <el-card class="location-card" shadow="hover" :body-style="{paddingTop: '5px', paddingBottom: '0'}">
+  <el-card class="location-card" shadow="hover" :body-style="{paddingTop: '5px', paddingBottom: '0'}" v-if="location">
     <div class="location-card_title">
       <span class="move-icon-wrap text-main" @mouseenter="$emit('move')" @mouseleave="$emit('static')">
         <i class="el-icon-bottom-right static-icon"></i>
@@ -7,25 +7,27 @@
       </span>
       <span class="location-card_url">{{location.url}}</span>
       <el-tag size="small" class="location-card_status-tag">{{location.type}}</el-tag>
+      <el-tag size="small" v-show="isNew" type="success" class="location-card_status-tag">NEW</el-tag>
       <el-tag size="small" v-show="location.isClose" type="danger" class="location-card_status-tag">CLOSED</el-tag>
+      <el-button type="text" icon="el-icon-copy-document" class="location-card_action-button" @click="$emit('copy')"></el-button>
       <el-button type="text" icon="el-icon-edit-outline" class="location-card_action-button" @click="edit"></el-button>
-      <el-button type="text" icon="el-icon-delete" class="location-card_action-button text-danger" @click="deleteSelf"></el-button>
+      <el-button type="text" icon="el-icon-delete" class="location-card_action-button text-danger-important" @click="deleteSelf"></el-button>
     </div>
     <div class="location-card_info">
       <template v-if="location.type === 'proxyPass'">
         <div class="location-card_info-item">
-          <p class="location-card_info-item-title text-secondary-black">Target:</p>
+          <p class="location-card_info-item-title text-secondary-black">Target</p>
           <p class="location-card_info-item-value text-main">{{location.proxyPass.target}}</p>
         </div>
         <el-divider direction="vertical" class="location-card_info-item-divider"></el-divider>
         <div class="location-card_info-item">
-          <p class="location-card_info-item-title text-secondary-black">ChangeOrigin:</p>
+          <p class="location-card_info-item-title text-secondary-black">ChangeOrigin</p>
           <p :class="['location-card_info-item-value', 'text-main', location.proxyPass.changeOrigin ? 'text-success' : 'text-info']">{{(location.proxyPass.changeOrigin + '').toUpperCase()}}</p>
         </div>
       </template>
       <template v-if="location.type === 'mock'">
         <div class="location-card_info-item">
-          <p class="location-card_info-item-title text-secondary-black">MockData:</p>
+          <p class="location-card_info-item-title text-secondary-black">MockData</p>
           <el-popover placement="top" trigger="click">
             <p slot="reference" class="location-card_info-item-value text-main" style="cursor: pointer;" @click="viewData">View Data</p>
             <pre>{{JSON.stringify(JSON.parse(location.mock.json), '', 2)}}</pre>
@@ -34,7 +36,7 @@
       </template>
       <template v-if="location.type === 'static'">
         <div class="location-card_info-item">
-          <p class="location-card_info-item-title text-secondary-black">Path:</p>
+          <p class="location-card_info-item-title text-secondary-black">Path</p>
           <el-popover placement="top" trigger="click" :content="location.static.path">
             <p slot="reference" class="location-card_info-item-value text-main location-static-path" style="cursor: pointer;">{{location.static.path}}</p>
           </el-popover>
@@ -42,7 +44,7 @@
       </template>
       <el-divider direction="vertical" class="location-card_info-item-divider"></el-divider>
       <div class="location-card_info-item">
-        <p class="location-card_info-item-title text-secondary-black">Delay:</p>
+        <p class="location-card_info-item-title text-secondary-black">Delay</p>
         <p class="location-card_info-item-value text-main">
           <span :class="location.delay + '' === '0' ? 'text-info' : 'text-warning'">{{location.delay}}ms</span>
         </p>
@@ -80,6 +82,10 @@ export default {
         server: {}
       }),
       type: Object
+    },
+    isNew: {
+      default: false,
+      type: Boolean
     }
   },
   data () {
