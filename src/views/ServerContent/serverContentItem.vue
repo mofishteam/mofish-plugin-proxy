@@ -61,7 +61,7 @@
           <grid-layout :layout.sync="locationLayout"
                        :key="`grid-layout-${currentServer.id}`"
                        :row-height="90"
-                       :is-draggable="true"
+                       :is-draggable="locationMove"
                        :is-resizable="false"
                        :is-mirrored="false"
                        :vertical-compact="true"
@@ -69,7 +69,7 @@
                        v-if="showLocation && currentServer.server.locations && currentServer.server.locations.length || currentLocation"
                        :col-num="1">
             <grid-item v-for="location in locationLayout" :key="`location-grid-item-${location.i}`" :i="location.i" :x="location.x" :y="location.y" :w="location.w" :h="location.h">
-              <location-card :key="`location-card-${location.i}`" :current-server="currentServer" @delete="deleteLocation(location.i)" @edit="editLocation" :location-id="location.i"></location-card>
+              <location-card :key="`location-card-${location.i}`" :current-server="currentServer" @delete="deleteLocation(location.i)" @edit="editLocation" @move="locationMove = true" @static="locationMove = false" :location-id="location.i"></location-card>
             </grid-item>
 <!--            <grid-item :x="0" :y="currentServer.server.locations.length" :w="1" :h="1" i="add">-->
 <!--              <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>-->
@@ -90,7 +90,7 @@
           <editor @keyup.enter.stop v-model="currentServerString" height="500"></editor>
         </el-form-item>
       </template>
-      <el-form-item>
+      <el-form-item class="tac">
         <el-button type="primary" @click="saveServerConfig()" :disabled="isEdited">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
         <el-button @click="resetForm" :disabled="isEdited">Reset</el-button>
       </el-form-item>
@@ -130,7 +130,7 @@ import PortTest from './portTest'
 import editor from '@/components/Common/jsonEditor.vue'
 import VueGridLayout from 'vue-grid-layout'
 import ActionBar from '@/components/Common/locationCardActionBar'
-import isEqual from 'lodash.isequal'
+
 export default {
   name: 'ServerContentItem',
   props: {
@@ -155,7 +155,8 @@ export default {
       edited: false,
       showAddLocation: false,
       locationLayout: [],
-      showLocation: true
+      showLocation: true,
+      locationMove: false
     }
   },
   computed: {
