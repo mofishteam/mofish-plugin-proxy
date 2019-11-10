@@ -61,7 +61,7 @@
           <grid-layout :layout.sync="locationLayout"
                        :key="`grid-layout-${currentServer.id}`"
                        :row-height="90"
-                       :is-draggable="true"
+                       :is-draggable="locationMove"
                        :is-resizable="false"
                        :is-mirrored="false"
                        :vertical-compact="true"
@@ -69,7 +69,7 @@
                        v-if="showLocation && currentServer.server.locations && currentServer.server.locations.length || currentLocation"
                        :col-num="1">
             <grid-item v-for="location in locationLayout" :key="`location-grid-item-${location.i}`" :i="location.i" :x="location.x" :y="location.y" :w="location.w" :h="location.h">
-              <location-card :key="`location-card-${location.i}`" :current-server="currentServer" @delete="deleteLocation(location.i)" @edit="editLocation" :location-id="location.i"></location-card>
+              <location-card v-if="location && location.item" :key="`location-card-${location.i}`" :current-server="currentServer" @delete="deleteLocation(location.i)" @edit="editLocation" @move="locationMove = true" @static="locationMove = false" @copy="copyLocation(location)" :location-id="location.i" :is-new="newLocation.has(location.i)"></location-card>
             </grid-item>
 <!--            <grid-item :x="0" :y="currentServer.server.locations.length" :w="1" :h="1" i="add">-->
 <!--              <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>-->
@@ -90,10 +90,10 @@
           <editor @keyup.enter.stop v-model="currentServerString" height="500"></editor>
         </el-form-item>
       </template>
-      <el-form-item>
-        <el-button type="primary" @click="saveServerConfig()" :disabled="isEdited">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
-        <el-button @click="resetForm" :disabled="isEdited">Reset</el-button>
-      </el-form-item>
+<!--      <el-form-item class="tac">-->
+<!--        <el-button type="primary" @click="saveServerConfig()" :disabled="isEdited">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>-->
+<!--        <el-button @click="resetForm" :disabled="isEdited">Reset</el-button>-->
+<!--      </el-form-item>-->
     </el-form>
 <!--    <div class="server-content-item__empty text-placeholder" v-if="!currentServer || (!isAdd && !currentServer.name)">-->
 <!--      Click 'Add Server' button or chose a server-->
@@ -121,16 +121,17 @@
 </template>
 
 <script>
-import { defaultLocationOption } from '../../../server/commonUtils/options'
+import { defaultLocationOption, getId } from '../../../server/commonUtils/options'
 import LocationCard from './locationCard'
 import LocationContent from './locationContent'
 import { mapGetters, mapActions } from 'vuex'
 import { merge } from 'lodash'
+import cloneDeep from 'lodash.clonedeep'
 import PortTest from './portTest'
 import editor from '@/components/Common/jsonEditor.vue'
 import VueGridLayout from 'vue-grid-layout'
 import ActionBar from '@/components/Common/locationCardActionBar'
-import isEqual from 'lodash.isequal'
+
 export default {
   name: 'ServerContentItem',
   props: {
@@ -155,7 +156,9 @@ export default {
       edited: false,
       showAddLocation: false,
       locationLayout: [],
-      showLocation: true
+      showLocation: true,
+      locationMove: false,
+      newLocation: new Set()
     }
   },
   computed: {
@@ -180,6 +183,13 @@ export default {
     ...mapActions([
       'saveServer', 'deleteServer', 'setServerStatus', 'deleteServerConfirm', 'setActiveServer', 'editDraftContent'
     ]),
+    registerNewLocation (locationId) {
+      this.newLocation.add(locationId)
+      setTimeout(() => {
+        this.newLocation.delete(locationId)
+        this.$set(this, 'newLocation', this.newLocation)
+      }, 10000)
+    },
     initLocationLayout () {
       console.log('init')
       if (this.currentServer && this.currentServer.server && this.currentServer.server && this.currentServer.server.locations) {
@@ -243,23 +253,22 @@ export default {
       await this.setActiveServer(this.currentServer.id)
       await this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
     },
+    copyLocation (locationLayoutItem) {
+      const newId = getId('location')
+      const newLocation = cloneDeep(locationLayoutItem.item)
+      newLocation.id = newId
+      this.currentServer.server.locations.splice(locationLayoutItem.y + 1, 0, newLocation)
+      this.registerNewLocation(newId)
+    },
     saveLocation () {
       // this.currentLocation.id = getId('location')
       this.currentServer.server.locations.push(this.currentLocation)
+      this.registerNewLocation(this.currentLocation.id)
       this.showAddLocation = false
       // this.currentLocation = null
       // if (this.locationShowList.includes('add')) {
       //   this.locationShowList.splice(this.locationShowList.indexOf('add'), 1)
       // }
-    },
-    switchEdit () {
-      if (this.isEdit) {
-        this.isEdit = false
-        this.currentServer.name = this.tempServerName
-      } else {
-        this.isEdit = true
-        this.tempServerName = this.currentServer.name
-      }
     },
     deleteLocation (location) {
       const result = this.currentServer.server.locations.find(val => {
@@ -295,9 +304,6 @@ export default {
         }
       }
       return server
-    },
-    sortLocation () {
-      this.showSortLocation = true
     },
     locationAllowDrop (draggingNode, dropNode, type) {
       return type !== 'inner'

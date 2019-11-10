@@ -1,45 +1,50 @@
 <template>
-  <el-card class="location-card" shadow="hover" :body-style="{paddingTop: '5px', paddingBottom: '0'}">
+  <el-card class="location-card" shadow="hover" :body-style="{paddingTop: '5px', paddingBottom: '0'}" v-if="location">
     <div class="location-card_title">
-      <el-button type="text" icon="el-icon-arrow-right" class="text-secondary-black expand-button"></el-button>
+      <span class="move-icon-wrap text-main" @mouseenter="$emit('move')" @mouseleave="$emit('static')">
+        <i class="el-icon-bottom-right static-icon"></i>
+        <i class="el-icon-rank move-icon"></i>
+      </span>
       <span class="location-card_url">{{location.url}}</span>
       <el-tag size="small" class="location-card_status-tag">{{location.type}}</el-tag>
+      <el-tag size="small" v-show="isNew" type="success" class="location-card_status-tag">NEW</el-tag>
       <el-tag size="small" v-show="location.isClose" type="danger" class="location-card_status-tag">CLOSED</el-tag>
+      <el-button type="text" icon="el-icon-copy-document" class="location-card_action-button" @click="$emit('copy')"></el-button>
       <el-button type="text" icon="el-icon-edit-outline" class="location-card_action-button" @click="edit"></el-button>
-      <el-button type="text" icon="el-icon-delete" class="location-card_action-button text-danger" @click="deleteSelf"></el-button>
+      <el-button type="text" icon="el-icon-delete" class="location-card_action-button text-danger-important" @click="deleteSelf"></el-button>
     </div>
     <div class="location-card_info">
       <template v-if="location.type === 'proxyPass'">
         <div class="location-card_info-item">
-          <p class="location-card_info-item-title text-secondary-black">Target:</p>
+          <p class="location-card_info-item-title text-secondary-black">Target</p>
           <p class="location-card_info-item-value text-main">{{location.proxyPass.target}}</p>
         </div>
         <el-divider direction="vertical" class="location-card_info-item-divider"></el-divider>
         <div class="location-card_info-item">
-          <p class="location-card_info-item-title text-secondary-black">ChangeOrigin:</p>
+          <p class="location-card_info-item-title text-secondary-black">ChangeOrigin</p>
           <p :class="['location-card_info-item-value', 'text-main', location.proxyPass.changeOrigin ? 'text-success' : 'text-info']">{{(location.proxyPass.changeOrigin + '').toUpperCase()}}</p>
         </div>
       </template>
       <template v-if="location.type === 'mock'">
         <div class="location-card_info-item">
-          <p class="location-card_info-item-title text-secondary-black">MockData:</p>
-          <el-tooltip effect="light" :enterable="false" placement="top">
-            <p class="location-card_info-item-value text-main" style="cursor: pointer;" @click="viewData">View Data</p>
-            <pre slot="content">{{JSON.stringify(JSON.parse(location.mock.json), '', 2)}}</pre>
-          </el-tooltip>
+          <p class="location-card_info-item-title text-secondary-black">MockData</p>
+          <el-popover placement="top" trigger="click">
+            <p slot="reference" class="location-card_info-item-value text-main" style="cursor: pointer;" @click="viewData">View Data</p>
+            <pre>{{JSON.stringify(JSON.parse(location.mock.json), '', 2)}}</pre>
+          </el-popover>
         </div>
       </template>
       <template v-if="location.type === 'static'">
         <div class="location-card_info-item">
-          <p class="location-card_info-item-title text-secondary-black">Path:</p>
-          <el-tooltip effect="light" :content="location.static.path" :enterable="false" placement="top">
-            <p class="location-card_info-item-value text-main location-static-path">{{location.static.path}}</p>
-          </el-tooltip>
+          <p class="location-card_info-item-title text-secondary-black">Path</p>
+          <el-popover placement="top" trigger="click" :content="location.static.path">
+            <p slot="reference" class="location-card_info-item-value text-main location-static-path" style="cursor: pointer;">{{location.static.path}}</p>
+          </el-popover>
         </div>
       </template>
       <el-divider direction="vertical" class="location-card_info-item-divider"></el-divider>
       <div class="location-card_info-item">
-        <p class="location-card_info-item-title text-secondary-black">Delay:</p>
+        <p class="location-card_info-item-title text-secondary-black">Delay</p>
         <p class="location-card_info-item-value text-main">
           <span :class="location.delay + '' === '0' ? 'text-info' : 'text-warning'">{{location.delay}}ms</span>
         </p>
@@ -77,6 +82,10 @@ export default {
         server: {}
       }),
       type: Object
+    },
+    isNew: {
+      default: false,
+      type: Boolean
     }
   },
   data () {
@@ -118,7 +127,7 @@ export default {
   watch: {
   },
   components: {
-    LocationContent,
+    LocationContent
   }
 }
 </script>
@@ -126,6 +135,29 @@ export default {
 <style lang="scss">
   .location-card {
     height: 90px;
+    .move-icon-wrap {
+      position: relative;
+      width: 20px;
+      height: 20px;
+      text-align: center;
+      & > i {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .move-icon {
+        opacity: 0;
+      }
+    }
+    &:hover {
+      .move-icon {
+        opacity: 1;
+      }
+      .static-icon {
+        opacity: 0;
+      }
+    }
     .location-card_action-button {
       /*width: 36px;*/
       display: block;
@@ -140,7 +172,7 @@ export default {
       align-items: center;
     }
     &_url {
-      margin-left: 15px;
+      margin-left: 10px;
       font-weight: bold;
       flex: 1;
     }
