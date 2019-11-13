@@ -56,20 +56,41 @@
             <el-button slot="left" type="text" @click="saveServerConfig()" :disabled="isEdited">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
             <el-divider direction="vertical" slot="left"></el-divider>
             <el-button slot="left" @click="resetForm" :disabled="isEdited" type="text">Reset</el-button>
+            <el-popover
+              slot="right"
+              placement="top-end"
+              title="Filter"
+              width="300"
+              trigger="click">
+              <el-button slot="reference" type="text" :class="[isFilterChanged ? 'text-info-important' : 'text-main-important']" style="margin-right: 20px;">
+                <span>Filters</span>
+              </el-button>
+              <el-form :model="locationFilters">
+                <el-form-item label="Hide Closed">
+                  <el-switch v-model="locationFilters.hideClose"></el-switch>
+                </el-form-item>
+                <el-form-item label="Type">
+                  <el-select v-model="locationFilters.type" size="small">
+                    <el-option value="all" label="All">All</el-option>
+                    <el-option :value="item.value" :label="item.label" v-for="item in locationTypes" :key="item.value">{{item.label}}</el-option>
+                  </el-select>
+                </el-form-item>
+              </el-form>
+            </el-popover>
             <el-button icon="el-icon-plus" slot="right" type="text" @click="addLocation"></el-button>
           </action-bar>
           <grid-layout :layout.sync="locationLayout"
-                       :key="`grid-layout-${currentServer.id}`"
+                       :key="`grid-layout-${currentServer.id}-${layoutKeyCount}`"
                        :row-height="90"
-                       :is-draggable="locationMove"
+                       :is-draggable="!hiddenLocation.length"
                        :is-resizable="false"
                        :is-mirrored="false"
                        :vertical-compact="true"
                        @layout-updated="onLocationLayoutUpdated"
-                       v-if="showLocation && currentServer.server.locations && currentServer.server.locations.length || currentLocation"
+                       v-if="showLocation && (currentServer.server.locations && currentServer.server.locations.length || currentLocation)"
                        :col-num="1">
-            <grid-item v-for="location in locationLayout" :key="`location-grid-item-${location.i}`" :i="location.i" :x="location.x" :y="location.y" :w="location.w" :h="location.h">
-              <location-card v-if="location && location.item" :key="`location-card-${location.i}`" :current-server="currentServer" @delete="deleteLocation(location.i)" @edit="editLocation" @move="locationMove = true" @static="locationMove = false" @copy="copyLocation(location)" :location-id="location.i" :is-new="newLocation.has(location.i)"></location-card>
+            <grid-item v-for="location in locationLayout" :key="`location-grid-item-${location.i}`" :dragAllowFrom="location && location.item ? '.move-icon-wrap' : null" :i="location.i" :x="location.x" :y="location.y" :w="location.w" :h="location.h">
+              <location-card :hide="hiddenLocation.includes(location.i)" v-if="location && location.item" :is-draggable="!hiddenLocation.length" :key="`location-card-${location.i}`" :current-server="currentServer" @delete="deleteLocation(location.i)" @edit="editLocation" @copy="copyLocation(location)" :location-id="location.i" :is-new="newLocation.has(location.i)"></location-card>
             </grid-item>
 <!--            <grid-item :x="0" :y="currentServer.server.locations.length" :w="1" :h="1" i="add">-->
 <!--              <location-card name="add" v-if="currentLocation" @delete="currentLocation = null" ref="locationCardAdd" :is-add="true" :location="currentLocation" key="addLocation"></location-card>-->
@@ -111,7 +132,7 @@
       custom-class="location-edit-drawer"
       :append-to-body="true"
       direction="rtl">
-      <location-content v-model="currentLocation"></location-content>
+      <location-content v-model="currentLocation" :is-add="true"></location-content>
       <div class="location-edit-drawer_action-button tac">
         <el-button type="primary" @click="saveLocation">Save</el-button>
         <el-button plain @click="resetCurrentLocation">Reset</el-button>
@@ -125,12 +146,20 @@ import { defaultLocationOption, getId } from '../../../server/commonUtils/option
 import LocationCard from './locationCard'
 import LocationContent from './locationContent'
 import { mapGetters, mapActions } from 'vuex'
-import { merge } from 'lodash'
+import { merge, isEqual } from 'lodash'
 import cloneDeep from 'lodash.clonedeep'
 import PortTest from './portTest'
 import editor from '@/components/Common/jsonEditor.vue'
 import VueGridLayout from 'vue-grid-layout'
 import ActionBar from '@/components/Common/locationCardActionBar'
+import config from '@/config'
+
+const getDefaultLocationFilters = () => ({
+  hideClose: false,
+  type: 'all'
+})
+
+const defaultLocationFilters = getDefaultLocationFilters()
 
 export default {
   name: 'ServerContentItem',
@@ -157,8 +186,10 @@ export default {
       showAddLocation: false,
       locationLayout: [],
       showLocation: true,
-      locationMove: false,
-      newLocation: new Set()
+      newLocation: new Set(),
+      locationFilters: getDefaultLocationFilters(),
+      layoutKeyCount: 0,
+      locationTypes: config.locationTypes
     }
   },
   computed: {
@@ -169,6 +200,16 @@ export default {
     }),
     isEdited () {
       return !this.draftEditedList.includes(this.server.id) && !this.isAdd
+    },
+    hiddenLocation () {
+      return this.locationLayout.filter(item => {
+        const showClose = this.locationFilters.hideClose ? !item.item.isClose : true
+        const showType = this.locationFilters.type === 'all' || this.locationFilters.type === item.item.type
+        return !(showClose && showType)
+      }).map(item => item.i)
+    },
+    isFilterChanged () {
+      return isEqual(this.locationFilters, defaultLocationFilters)
     }
   },
   created () {
