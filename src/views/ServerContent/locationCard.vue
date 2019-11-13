@@ -24,6 +24,30 @@
           <p class="location-card_info-item-title text-secondary-black">ChangeOrigin</p>
           <p :class="['location-card_info-item-value', 'text-main', location.proxyPass.changeOrigin ? 'text-success' : 'text-info']">{{(location.proxyPass.changeOrigin + '').toUpperCase()}}</p>
         </div>
+        <template v-if="location.proxyPass.router && location.proxyPass.router.length">
+          <el-divider direction="vertical" class="location-card_info-item-divider"></el-divider>
+          <div class="location-card_info-item">
+            <p class="location-card_info-item-title text-secondary-black">Router</p>
+            <p class="location-card_info-item-value text-main">YES</p>
+          </div>
+        </template>
+        <template v-if="location.proxyPass.pathRewrite && location.proxyPass.pathRewrite.length">
+          <el-divider direction="vertical" class="location-card_info-item-divider"></el-divider>
+          <div class="location-card_info-item">
+            <p class="location-card_info-item-title text-secondary-black">PathRewrite</p>
+            <p class="location-card_info-item-value text-main">YES</p>
+          </div>
+        </template>
+        <template v-if="location.proxyPass.interceptors && ((location.proxyPass.interceptors.response && location.proxyPass.interceptors.response.length) || (location.proxyPass.interceptors.request && location.proxyPass.interceptors.request.length))">
+          <el-divider direction="vertical" class="location-card_info-item-divider"></el-divider>
+          <div class="location-card_info-item">
+            <p class="location-card_info-item-title text-secondary-black">Interceptors</p>
+            <p class="location-card_info-item-value text-main">
+              <el-tag size="mini" v-if="location.proxyPass.interceptors.response && location.proxyPass.interceptors.response.length">RES</el-tag>
+              <el-tag size="mini" v-if="location.proxyPass.interceptors.request && location.proxyPass.interceptors.request.length">REQ</el-tag>
+            </p>
+          </div>
+        </template>
       </template>
       <template v-if="location.type === 'mock'">
         <div class="location-card_info-item">
@@ -46,7 +70,7 @@
       <div class="location-card_info-item">
         <p class="location-card_info-item-title text-secondary-black">Delay</p>
         <p class="location-card_info-item-value text-main">
-          <span :class="location.delay + '' === '0' ? 'text-info' : 'text-warning'">{{location.delay}}ms</span>
+          <span :class="location.delay + '' === '0' ? 'text-info' : 'text-warning'">{{location.delay || 0}}ms</span>
         </p>
       </div>
     </div>
