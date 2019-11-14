@@ -1,14 +1,14 @@
 <template>
   <div class="location-content">
-    <el-form :ref="`location-${currentValue.id}`" :model="currentValue" label-width="100px">
-      <el-form-item label="Location">
+    <el-form :ref="`location-${currentValue.id}`" :model="formValidateData" label-width="100px">
+      <el-form-item label="Location" prop="url" required>
         <el-input v-model="currentValue.url" placeholder="Please input location url."></el-input>
       </el-form-item>
       <el-form-item v-if="isAdd">
         <span slot="label" class="text-danger">Close</span>
         <el-switch active-color="#ff4949" v-model="currentValue.isClose"></el-switch>
       </el-form-item>
-      <el-form-item label="Delay">
+      <el-form-item label="Delay" prop="delay" required>
         <el-input style="width: 100px;" placeholder="0" v-model="currentValue.delay">
           <span slot="suffix">ms</span>
         </el-input>
@@ -38,7 +38,7 @@
           </el-radio-group>
         </el-form-item>
         <template v-if="currentValue.mock.type === 'json'">
-          <el-form-item label="MockData">
+          <el-form-item label="MockData" prop="mock.json" required>
             <el-row :gutter="10" type="flex">
               <el-col>
                 <editor v-model="currentValue.mock.json" ref="mockJsonEditor"></editor>
@@ -55,12 +55,12 @@
           </el-form-item>
         </template>
         <template v-if="currentValue.mock.type === 'jsonFile'">
-          <el-form-item label="MockData">
+          <el-form-item label="MockData" prop="mock.jsonPath" required>
             <el-input v-model="currentValue.mock.jsonPath"></el-input>
           </el-form-item>
         </template>
         <template v-if="currentValue.mock.type === 'Function'">
-          <el-form-item label="MockData">
+          <el-form-item label="MockData" prop="mock.handler" required>
             <el-input type="textarea" v-model="currentValue.mock.handler"></el-input>
           </el-form-item>
         </template>
@@ -154,6 +154,7 @@ import { defaultLocationProxyPassOption, defaultLocationStaticOption, defaultLoc
 import InterceptorDialog from './interceptorDialog'
 import editor from '@/components/Common/jsonEditor.vue'
 import config from '@/config'
+import { traverseFlatObject } from '@/utils'
 export default {
   name: 'LocationContent',
   props: {
@@ -263,6 +264,12 @@ export default {
         return this.currentValue.mock.proxyPass
       } else {
         return this.currentValue.proxyPass
+      }
+    },
+    formValidateData () {
+      return {
+        ...traverseFlatObject({}, this.currentValue, ''),
+        ...traverseFlatObject({}, this.proxyPassScope, 'proxyPassScope')
       }
     }
   },
