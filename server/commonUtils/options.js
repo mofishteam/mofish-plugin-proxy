@@ -56,7 +56,9 @@ export const defaultInterceptorOption = () => ({
   id: getId('interceptor'),
   type: 'response',
   name: '',
-  handler: ''
+  handler: '',
+  codeType: 'generator',
+  generator: []
 })
 
 export const defaultLocationProxyPassOption = () => ({

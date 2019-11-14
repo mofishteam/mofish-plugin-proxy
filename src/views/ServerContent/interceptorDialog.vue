@@ -7,18 +7,30 @@
       <el-form-item label="Type">
         <el-select v-model="interceptorScope.type">
           <el-option label="Response" value="response"></el-option>
-          <el-option label="Request" value="request"></el-option>
+          <el-option label="Request(Not support yet)" value="request" :disabled="true"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="Handler">
-        <p>async function (body, headers) {</p>
+      <el-form-item class="tac" label-width="0px">
+        <el-switch v-model="interceptorScope.codeType"
+                   active-value="generator"
+                   active-text="Visual mode"
+                   inactive-text="Code mode"
+                   inactive-value="code"></el-switch>
       </el-form-item>
-      <el-form-item label="">
-        <el-input v-model="interceptorScope.handler" type="textarea" :rows="10"></el-input>
-      </el-form-item>
-      <el-form-item label="">
-        <p>}</p>
-      </el-form-item>
+      <template v-if="interceptorScope.codeType === 'code'">
+        <el-form-item label="Handler">
+          <p>async function (body, headers) {</p>
+        </el-form-item>
+        <el-form-item label="">
+          <el-input v-model="interceptorScope.handler" type="textarea" :rows="10"></el-input>
+        </el-form-item>
+        <el-form-item label="">
+          <p>}</p>
+        </el-form-item>
+      </template>
+      <template v-if="interceptorScope.codeType === 'generator'">
+        <function-generator v-model="interceptorScope.generator" @change="interceptorScope.handler = $event"></function-generator>
+      </template>
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="cancel">Cancel</el-button>
@@ -29,6 +41,7 @@
 
 <script>
 import { defaultInterceptorOption } from '../../../server/commonUtils/options'
+import FunctionGenerator from '@/components/Common/functionGenerator'
 import { merge } from 'lodash'
 export default {
   name: 'InterceptorDialog',
@@ -96,12 +109,23 @@ export default {
       if (val && !this.isAdd) {
         this.setTempInterceptorValue()
       }
+    },
+    interceptorScope (val) {
+      if (!val.codeType) {
+        val.codeType = 'generator'
+      }
+      if (!val.generator) {
+        val.generator = []
+      }
     }
   },
   computed: {
     interceptorScope () {
       return this.isAdd ? this.interceptor : this.tempInterceptor
     }
+  },
+  components: {
+    FunctionGenerator
   }
 }
 </script>
