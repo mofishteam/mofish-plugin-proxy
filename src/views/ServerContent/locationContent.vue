@@ -4,7 +4,7 @@
       <el-form-item label="Location">
         <el-input v-model="currentValue.url" placeholder="Please input location url."></el-input>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="isAdd">
         <span slot="label" class="text-danger">Close</span>
         <el-switch active-color="#ff4949" v-model="currentValue.isClose"></el-switch>
       </el-form-item>
@@ -15,9 +15,7 @@
       </el-form-item>
       <el-form-item label="Type">
         <el-radio-group v-model="currentValue.type" size="small">
-          <el-radio-button label="proxyPass">ProxyPass</el-radio-button>
-          <el-radio-button label="static">Static</el-radio-button>
-          <el-radio-button label="mock">Mock</el-radio-button>
+          <el-radio-button :label="item.value" v-for="item in locationTypes" :key="item.value">{{item.label}}</el-radio-button>
           <!--                      <el-radio-button label="alias"></el-radio-button>-->
         </el-radio-group>
       </el-form-item>
@@ -155,6 +153,7 @@
 import { defaultLocationProxyPassOption, defaultLocationStaticOption, defaultLocationMockOption } from '../../../server/commonUtils/options'
 import InterceptorDialog from './interceptorDialog'
 import editor from '@/components/Common/jsonEditor.vue'
+import config from '@/config'
 export default {
   name: 'LocationContent',
   props: {
@@ -174,7 +173,8 @@ export default {
       showAdvanced: false,
       showInterceptorDialog: false,
       isAddInterceptor: true,
-      currentEditInterceptorId: ''
+      currentEditInterceptorId: '',
+      locationTypes: config.locationTypes
     }
   },
   created () {

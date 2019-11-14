@@ -1,16 +1,16 @@
 <template>
-  <el-card class="location-card" shadow="hover" :body-style="{paddingTop: '5px', paddingBottom: '0'}" v-if="location">
+  <el-card :class="['location-card', {'is-draggable': isDraggable, hide}]" shadow="hover" :body-style="{paddingTop: '5px', paddingBottom: '0'}" v-if="location">
     <div class="location-card_title">
-      <span class="move-icon-wrap text-main" @mouseenter="$emit('move')" @mouseleave="$emit('static')">
+      <span class="move-icon-wrap text-main">
         <i class="el-icon-bottom-right static-icon"></i>
         <i class="el-icon-rank move-icon"></i>
       </span>
       <span class="location-card_url">{{location.url}}</span>
       <el-tag size="small" class="location-card_status-tag">{{location.type}}</el-tag>
       <el-tag size="small" v-show="isNew" type="success" class="location-card_status-tag">NEW</el-tag>
-      <el-tag size="small" v-show="location.isClose" type="danger" class="location-card_status-tag">CLOSED</el-tag>
       <el-button type="text" icon="el-icon-copy-document" class="location-card_action-button" @click="$emit('copy')"></el-button>
       <el-button type="text" icon="el-icon-edit-outline" class="location-card_action-button" @click="edit"></el-button>
+      <el-button type="text" icon="el-icon-switch-button" :class="['location-card_action-button', {'text-danger-important': location.isClose, 'text-success-important': !location.isClose}]" @click="location.isClose = !location.isClose"></el-button>
       <el-button type="text" icon="el-icon-delete" class="location-card_action-button text-danger-important" @click="deleteSelf"></el-button>
     </div>
     <div class="location-card_info">
@@ -54,7 +54,9 @@
           <p class="location-card_info-item-title text-secondary-black">MockData</p>
           <el-popover placement="top" trigger="click">
             <p slot="reference" class="location-card_info-item-value text-main" style="cursor: pointer;" @click="viewData">View Data</p>
-            <pre>{{JSON.stringify(JSON.parse(location.mock.json), '', 2)}}</pre>
+            <div class="location-card_info-item-tooltip">
+              <pre>{{JSON.stringify(JSON.parse(location.mock.json), '', 2)}}</pre>
+            </div>
           </el-popover>
         </div>
       </template>
@@ -62,7 +64,7 @@
         <div class="location-card_info-item">
           <p class="location-card_info-item-title text-secondary-black">Path</p>
           <el-popover placement="top" trigger="click" :content="location.static.path">
-            <p slot="reference" class="location-card_info-item-value text-main location-static-path" style="cursor: pointer;">{{location.static.path}}</p>
+            <p slot="reference" class="location-card_info-item-value text-main" style="cursor: pointer;">{{location.static.path}}</p>
           </el-popover>
         </div>
       </template>
@@ -108,6 +110,14 @@ export default {
       type: Object
     },
     isNew: {
+      default: false,
+      type: Boolean
+    },
+    isDraggable: {
+      default: true,
+      type: Boolean
+    },
+    hide: {
       default: false,
       type: Boolean
     }
@@ -159,7 +169,12 @@ export default {
 <style lang="scss">
   .location-card {
     height: 90px;
+    &.hide {
+      filter: grayscale(.9) opacity(.6) brightness(1.1);
+      border-color: #f7f7f7;
+    }
     .move-icon-wrap {
+      pointer-events: none;
       position: relative;
       width: 20px;
       height: 20px;
@@ -174,12 +189,17 @@ export default {
         opacity: 0;
       }
     }
-    &:hover {
-      .move-icon {
-        opacity: 1;
+    &.is-draggable {
+      .move-icon-wrap {
+        pointer-events: auto;
       }
-      .static-icon {
-        opacity: 0;
+      &:hover {
+        .move-icon {
+          opacity: 1;
+        }
+        .static-icon {
+          opacity: 0;
+        }
       }
     }
     .location-card_action-button {
@@ -199,6 +219,9 @@ export default {
       margin-left: 10px;
       font-weight: bold;
       flex: 1;
+      overflow:hidden; //超出的文本隐藏
+      text-overflow:ellipsis; //溢出用省略号显示
+      white-space:nowrap; //溢出不换行
     }
     &_info {
       display: flex;
@@ -219,6 +242,14 @@ export default {
         &-value {
           opacity: .8;
           transition: .3s;
+          max-width: 300px;
+          overflow:hidden; //超出的文本隐藏
+          text-overflow:ellipsis; //溢出用省略号显示
+          white-space:nowrap; //溢出不换行
+        }
+        &-tooltip {
+          max-height: calc(50vh - 20px);
+          overflow: scroll;
         }
         &:hover {
           .location-card_info-item-title {
@@ -230,12 +261,6 @@ export default {
           }
         }
       }
-    }
-    .location-static-path {
-      max-width: 200px;
-      overflow:hidden; //超出的文本隐藏
-      text-overflow:ellipsis; //溢出用省略号显示
-      white-space:nowrap; //溢出不换行
     }
   }
 </style>
