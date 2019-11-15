@@ -19,121 +19,124 @@
           <!--                      <el-radio-button label="alias"></el-radio-button>-->
         </el-radio-group>
       </el-form-item>
-      <template v-if="currentValue.type === 'mock'">
-        <el-form-item label="Method">
-          <el-radio-group v-model="currentValue.mock.method" size="small">
-            <el-radio-button label="all">ALL</el-radio-button>
-            <el-radio-button label="get">GET</el-radio-button>
-            <el-radio-button label="post">POST</el-radio-button>
-            <el-radio-button label="put">PUT</el-radio-button>
-            <el-radio-button label="delete">DELETE</el-radio-button>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="MockType">
-          <el-radio-group v-model="currentValue.mock.type" size="small">
-            <el-radio-button label="json">JSON</el-radio-button>
-            <!--            <el-radio-button label="jsonFile">JSONFile</el-radio-button>-->
-            <!--            <el-radio-button label="function">Function</el-radio-button>-->
-            <!--            <el-radio-button label="proxyPass">ProxyPass</el-radio-button>-->
-          </el-radio-group>
-        </el-form-item>
-        <template v-if="currentValue.mock.type === 'json'">
-          <el-form-item label="MockData" prop="mock.json" required>
-            <el-row :gutter="10" type="flex">
-              <el-col>
-                <editor v-model="currentValue.mock.json" ref="mockJsonEditor"></editor>
-              </el-col>
-              <el-col>
-                <el-tooltip effect="light" content="Zoom" placement="right" style="display: block;">
-                  <el-button icon="el-icon-full-screen" circle size="large" @click="$refs.mockJsonEditor.fullscreen()"></el-button>
-                </el-tooltip>
-                <el-tooltip effect="light" content="Format" placement="right" style="display: block; margin-left: 0; margin-top: 10px;">
-                  <el-button icon="el-icon-magic-stick" circle size="large" @click="currentValue.mock.json = $refs.mockJsonEditor.format(currentValue.mock.json)"></el-button>
-                </el-tooltip>
-              </el-col>
-            </el-row>
-          </el-form-item>
-        </template>
-        <template v-if="currentValue.mock.type === 'jsonFile'">
-          <el-form-item label="MockData" prop="mock.jsonPath" required>
-            <el-input v-model="currentValue.mock.jsonPath"></el-input>
-          </el-form-item>
-        </template>
-        <template v-if="currentValue.mock.type === 'Function'">
-          <el-form-item label="MockData" prop="mock.handler" required>
-            <el-input type="textarea" v-model="currentValue.mock.handler"></el-input>
-          </el-form-item>
-        </template>
-      </template>
-      <template v-if="currentValue.type === 'proxyPass' || (currentValue.type === 'mock' && currentValue.mock.type === 'proxyPass')">
-        <el-form-item label="Target">
-          <el-input v-model="proxyPassScope.target" placeholder="Please input the target of proxyPass."></el-input>
-        </el-form-item>
-        <el-form-item label="ChangeOrigin">
-          <el-switch v-model="proxyPassScope.changeOrigin"></el-switch>
-        </el-form-item>
-        <el-form-item label="WebSocket">
-          <el-switch v-model="proxyPassScope.ws"></el-switch>
-        </el-form-item>
-        <el-form-item label="PathRewrite">
-          <el-button icon="el-icon-plus" circle plain v-show="!proxyPassScope.pathRewrite.length" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
-          <el-row type="flex" :gutter="10" v-for="(pathRewriteRow, pathRewriteIndex) in proxyPassScope.pathRewrite" :key="pathRewriteIndex" style="margin-bottom: 5px;">
-            <el-col :span="9">
-              <el-input v-model="pathRewriteRow[0]"></el-input>
+    </el-form>
+    <el-form :ref="`location-${currentValue.id}-mock`" v-if="currentValue.type === 'mock'">
+      <el-form-item label="Method">
+        <el-radio-group v-model="currentValue.mock.method" size="small">
+          <el-radio-button label="all">ALL</el-radio-button>
+          <el-radio-button label="get">GET</el-radio-button>
+          <el-radio-button label="post">POST</el-radio-button>
+          <el-radio-button label="put">PUT</el-radio-button>
+          <el-radio-button label="delete">DELETE</el-radio-button>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="MockType">
+        <el-radio-group v-model="currentValue.mock.type" size="small">
+          <el-radio-button label="json">JSON</el-radio-button>
+          <!--            <el-radio-button label="jsonFile">JSONFile</el-radio-button>-->
+          <!--            <el-radio-button label="function">Function</el-radio-button>-->
+          <!--            <el-radio-button label="proxyPass">ProxyPass</el-radio-button>-->
+        </el-radio-group>
+      </el-form-item>
+      <template v-if="currentValue.mock.type === 'json'">
+        <el-form-item label="MockData" prop="mock.json" required>
+          <el-row :gutter="10" type="flex">
+            <el-col>
+              <editor v-model="currentValue.mock.json" ref="mockJsonEditor"></editor>
             </el-col>
-            <el-col :span="2" class="tac">
-              <span>-></span>
-            </el-col>
-            <el-col :span="9">
-              <el-input v-model="pathRewriteRow[1]"></el-input>
-            </el-col>
-            <el-col :span="3">
-              <el-button type="danger" icon="el-icon-delete" circle @click="deletePathRewrite(proxyPassScope.pathRewrite, pathRewriteIndex)"></el-button>
-              <el-button icon="el-icon-plus" circle plain v-show="pathRewriteIndex === proxyPassScope.pathRewrite.length - 1" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
+            <el-col>
+              <el-tooltip effect="light" content="Zoom" placement="right" style="display: block;">
+                <el-button icon="el-icon-full-screen" circle size="large" @click="$refs.mockJsonEditor.fullscreen()"></el-button>
+              </el-tooltip>
+              <el-tooltip effect="light" content="Format" placement="right" style="display: block; margin-left: 0; margin-top: 10px;">
+                <el-button icon="el-icon-magic-stick" circle size="large" @click="currentValue.mock.json = $refs.mockJsonEditor.format(currentValue.mock.json)"></el-button>
+              </el-tooltip>
             </el-col>
           </el-row>
         </el-form-item>
-        <el-form-item label="Router">
-          <el-button icon="el-icon-plus" circle plain v-show="!proxyPassScope.router.length" @click="addRouter(proxyPassScope.router)"></el-button>
-          <el-row type="flex" :gutter="10" v-for="(routerRow, routerIndex) in proxyPassScope.router" :key="routerIndex" style="margin-bottom: 5px;">
-            <el-col :span="9">
-              <el-input v-model="routerRow[0]"></el-input>
-            </el-col>
-            <el-col :span="2" class="tac">
-              <span>-></span>
-            </el-col>
-            <el-col :span="9">
-              <el-input v-model="routerRow[1]"></el-input>
-            </el-col>
-            <el-col :span="3">
-              <el-button type="danger" icon="el-icon-delete" circle @click="deleteRouter(proxyPassScope.router, routerIndex)"></el-button>
-              <el-button icon="el-icon-plus" circle plain v-show="routerIndex === proxyPassScope.router.length - 1" @click="addRouter(proxyPassScope.router)"></el-button>
-            </el-col>
-          </el-row>
-        </el-form-item>
-        <el-form-item label="Interceptor">
-          <div v-for="interceptor in proxyPassScope.interceptors.response.concat(proxyPassScope.interceptors.request).sort(interceptorSort)" :key="interceptor.id">
-            <el-popover trigger="hover" width="600" placement="right">
-              <div slot="reference" class="dib">
-                <span>{{ interceptor.name }}</span>
-                <el-tag :type="interceptor.type === 'request' ? 'success' : 'primary'" style="margin-left: 10px;">{{ interceptor.type === 'request' ? 'REQ' : 'RES' }}</el-tag>
-                <el-button type="text" icon="el-icon-edit-outline" style="margin-left: 10px;" @click="editInterceptor(interceptor.id, interceptor.type)"></el-button>
-                <el-button type="text" icon="el-icon-delete" @click="deleteInterceptor(interceptor.id, interceptor.type)"></el-button>
-              </div>
-              <pre>async function (body, headers) {<br>  {{ interceptor.handler }}<br>}</pre>
-            </el-popover>
-          </div>
-          <el-button icon="el-icon-plus" circle plain @click="addInterceptor(proxyPassScope.interceptors)"></el-button>
+      </template>
+      <template v-if="currentValue.mock.type === 'jsonFile'">
+        <el-form-item label="MockData" prop="mock.jsonPath" required>
+          <el-input v-model="currentValue.mock.jsonPath"></el-input>
         </el-form-item>
       </template>
-      <template v-if="currentValue.type === 'static'">
+      <template v-if="currentValue.mock.type === 'Function'">
+        <el-form-item label="MockData" prop="mock.handler" required>
+          <el-input type="textarea" v-model="currentValue.mock.handler"></el-input>
+        </el-form-item>
+      </template>
+    </el-form>
+    <el-form :ref="`location-${currentValue.id}-proxyPass`" v-if="currentValue.type === 'proxyPass' || (currentValue.type === 'mock' && currentValue.mock.type === 'proxyPass')">
+      {{formValidateData.url}}
+      <el-form-item label="Target">
+        <el-input v-model="proxyPassScope.target" placeholder="Please input the target of proxyPass."></el-input>
+      </el-form-item>
+      <el-form-item label="ChangeOrigin">
+        <el-switch v-model="proxyPassScope.changeOrigin"></el-switch>
+      </el-form-item>
+      <el-form-item label="WebSocket">
+        <el-switch v-model="proxyPassScope.ws"></el-switch>
+      </el-form-item>
+      <el-form-item label="PathRewrite">
+        <el-button icon="el-icon-plus" circle plain v-show="!proxyPassScope.pathRewrite.length" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
+        <el-row type="flex" :gutter="10" v-for="(pathRewriteRow, pathRewriteIndex) in proxyPassScope.pathRewrite" :key="pathRewriteIndex" style="margin-bottom: 5px;">
+          <el-col :span="9">
+            <el-input v-model="pathRewriteRow[0]"></el-input>
+          </el-col>
+          <el-col :span="2" class="tac">
+            <span>-></span>
+          </el-col>
+          <el-col :span="9">
+            <el-input v-model="pathRewriteRow[1]"></el-input>
+          </el-col>
+          <el-col :span="3">
+            <el-button type="danger" icon="el-icon-delete" circle @click="deletePathRewrite(proxyPassScope.pathRewrite, pathRewriteIndex)"></el-button>
+            <el-button icon="el-icon-plus" circle plain v-show="pathRewriteIndex === proxyPassScope.pathRewrite.length - 1" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
+          </el-col>
+        </el-row>
+      </el-form-item>
+      <el-form-item label="Router">
+        <el-button icon="el-icon-plus" circle plain v-show="!proxyPassScope.router.length" @click="addRouter(proxyPassScope.router)"></el-button>
+        <el-row type="flex" :gutter="10" v-for="(routerRow, routerIndex) in proxyPassScope.router" :key="routerIndex" style="margin-bottom: 5px;">
+          <el-col :span="9">
+            <el-input v-model="routerRow[0]"></el-input>
+          </el-col>
+          <el-col :span="2" class="tac">
+            <span>-></span>
+          </el-col>
+          <el-col :span="9">
+            <el-input v-model="routerRow[1]"></el-input>
+          </el-col>
+          <el-col :span="3">
+            <el-button type="danger" icon="el-icon-delete" circle @click="deleteRouter(proxyPassScope.router, routerIndex)"></el-button>
+            <el-button icon="el-icon-plus" circle plain v-show="routerIndex === proxyPassScope.router.length - 1" @click="addRouter(proxyPassScope.router)"></el-button>
+          </el-col>
+        </el-row>
+      </el-form-item>
+      <el-form-item label="Interceptor">
+        <div v-for="interceptor in proxyPassScope.interceptors.response.concat(proxyPassScope.interceptors.request).sort(interceptorSort)" :key="interceptor.id">
+          <el-popover trigger="hover" width="600" placement="right">
+            <div slot="reference" class="dib">
+              <span>{{ interceptor.name }}</span>
+              <el-tag :type="interceptor.type === 'request' ? 'success' : 'primary'" style="margin-left: 10px;">{{ interceptor.type === 'request' ? 'REQ' : 'RES' }}</el-tag>
+              <el-button type="text" icon="el-icon-edit-outline" style="margin-left: 10px;" @click="editInterceptor(interceptor.id, interceptor.type)"></el-button>
+              <el-button type="text" icon="el-icon-delete" @click="deleteInterceptor(interceptor.id, interceptor.type)"></el-button>
+            </div>
+            <pre>async function (body, headers) {<br>  {{ interceptor.handler }}<br>}</pre>
+          </el-popover>
+        </div>
+        <el-button icon="el-icon-plus" circle plain @click="addInterceptor(proxyPassScope.interceptors)"></el-button>
+      </el-form-item>
+    </el-form>
+    <el-form :ref="`location-${currentValue.id}-static`" v-if="currentValue.type === 'static'">
         <el-form-item label="Path">
           <el-input v-model="currentValue.static.path"></el-input>
         </el-form-item>
-      </template>
+      </el-form>
 <!--      <el-form-item label="Actions">-->
 <!--        <el-button type="danger" @click="deleteSelf" size="small">Delete</el-button>-->
 <!--      </el-form-item>-->
+    <el-form :ref="`location-${currentValue.id}-advanced`">
       <el-form-item label="ShowAdvanced">
         <el-switch v-model="showAdvanced"></el-switch>
       </el-form-item>
@@ -260,10 +263,11 @@ export default {
   },
   computed: {
     proxyPassScope () {
+      console.log('computed proxyPassScope')
       if (this.currentValue.type === 'mock' && this.currentValue.mock.type === 'proxyPass') {
-        return this.currentValue.mock.proxyPass
+        return this.currentValue.mock.proxyPass || {}
       } else {
-        return this.currentValue.proxyPass
+        return this.currentValue.proxyPass || {}
       }
     },
     formValidateData () {
