@@ -131,8 +131,9 @@
       size="500px"
       custom-class="location-edit-drawer"
       :append-to-body="true"
+      :destroy-on-close="true"
       direction="rtl">
-      <location-content v-model="currentLocation" :is-add="true"></location-content>
+      <location-content ref="addLocationContent" v-model="currentLocation" :is-add="true"></location-content>
       <div class="location-edit-drawer_action-button tac">
         <el-button type="primary" @click="saveLocation">Save</el-button>
         <el-button plain @click="resetCurrentLocation">Reset</el-button>
@@ -242,7 +243,6 @@ export default {
       }, 10000)
     },
     initLocationLayout () {
-      console.log('init')
       if (this.currentServer && this.currentServer.server && this.currentServer.server && this.currentServer.server.locations) {
         const isSame = this.currentServer.server.locations.reduce((sum, cur, idx) => {
           if (!sum) {
@@ -251,7 +251,6 @@ export default {
             return this.locationLayout[idx] && cur.id === this.locationLayout[idx].i
           }
         }, true)
-        console.log('isSame', isSame)
         if (!isSame) {
           const layouts = {}
           this.locationLayout.forEach(val => {
@@ -278,6 +277,7 @@ export default {
       }
     },
     resetCurrentLocation () {
+      this.$refs.addLocationContent && this.$refs.addLocationContent.clearValidate()
       this.currentLocation = defaultLocationOption()
     },
     editLocation (location) {
@@ -320,11 +320,14 @@ export default {
       this.currentServer.server.locations.splice(locationLayoutItem.y + 1, 0, newLocation)
       this.registerNewLocation(newId)
     },
-    saveLocation () {
+    async saveLocation () {
       // this.currentLocation.id = getId('location')
-      this.currentServer.server.locations.push(this.currentLocation)
-      this.registerNewLocation(this.currentLocation.id)
-      this.showAddLocation = false
+      const validateResult = await this.$refs.addLocationContent.validate()
+      if (validateResult) {
+        this.currentServer.server.locations.push(this.currentLocation)
+        this.registerNewLocation(this.currentLocation.id)
+        this.showAddLocation = false
+      }
       // this.currentLocation = null
       // if (this.locationShowList.includes('add')) {
       //   this.locationShowList.splice(this.locationShowList.indexOf('add'), 1)
@@ -395,11 +398,11 @@ export default {
       })
     },
     setSSLKeyFilePath (file) {
-      console.log(file)
+      // console.log(file)
     },
     getFilePath () {},
     onLayoutUpdate (layouts) {
-      console.log(layouts)
+      // console.log(layouts)
     },
     onLocationLayoutUpdated (layouts) {
       const locations = []
@@ -411,7 +414,6 @@ export default {
   },
   watch: {
     server (val) {
-      console.log('server change: ', val)
       // this.currentServer = this.cloneServer(val)
       // this.currentLocation = null
       this.locationShowList = []
@@ -419,7 +421,6 @@ export default {
     currentServer: {
       deep: true,
       handler (val) {
-        console.log('currentServerChanged')
         this.edited = true
         this.editDraftContent({ id: val.id, val })
         this.currentServerString = JSON.stringify(val, undefined, 4)

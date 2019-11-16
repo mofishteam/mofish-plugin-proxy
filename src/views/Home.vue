@@ -156,7 +156,6 @@ export default {
       ].filter(item => item)
     },
     setServer (id) {
-      console.log('setServer', id)
       this.setActiveServer(id)
     },
     resetSortList () {

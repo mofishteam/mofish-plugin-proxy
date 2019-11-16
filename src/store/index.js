@@ -168,16 +168,13 @@ export default new Vuex.Store({
       const tempServer = defaultServerOption()
       commit('ADD_DRAFT_CONTENT', { id: tempServer.id, val: tempServer })
       commit('ADD_DRAFT_ID', tempServer.id)
-      console.log('tempServer.id', tempServer.id)
       dispatch('setActiveServer', tempServer.id)
     },
     setActiveServer ({ commit }, val) {
-      console.log('id: ', val)
       commit('SET_CURRENT_SERVER_IS_ADD', false)
       if (typeof val === 'string') {
         commit('SET_CURRENT_SERVER_BY_ID', val)
       } else {
-        console.log('id: ', val)
         commit('SET_CURRENT_SERVER_BY_OBJECT', val)
       }
     },
@@ -338,7 +335,6 @@ export default new Vuex.Store({
     },
     getDraftEditedList (state) {
       const result = []
-      console.log('get draft edited list')
       for (const item of state.currentServerTabList) {
         const draft = state.currentServerDraftList[item.id]
         let server = state.servers.find(val => val.id === item.id)
@@ -349,7 +345,6 @@ export default new Vuex.Store({
           }
         } else {
           server = defaultServerOption()
-          console.log({ ...draft, id: '', name: '' }, { ...server, id: '', name: '' })
           if (!isEqual({ ...draft, id: '', name: '' }, { ...server, id: '', name: '' })) {
             result.push(item.id)
           }
@@ -358,7 +353,6 @@ export default new Vuex.Store({
       return result
     },
     getLocationMap (state) {
-      console.log(state.servers)
       return state.servers.reduce((sum, cur) => {
         sum[cur.id] = cur.server.locations.reduce((_sum, location) => {
           _sum[location.id] = location

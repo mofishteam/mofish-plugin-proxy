@@ -1,6 +1,6 @@
 <template>
   <div class="location-content">
-    <el-form :ref="`location-${currentValue.id}`" :model="formValidateData" label-width="100px">
+    <el-form :key="`location-${currentValue.id}-form`" :ref="`location-${currentValue.id}`" :model="formValidateData" label-width="100px">
       <el-form-item label="Location" prop="url" required>
         <el-input v-model="currentValue.url" placeholder="Please input location url."></el-input>
       </el-form-item>
@@ -20,7 +20,7 @@
         </el-radio-group>
       </el-form-item>
     </el-form>
-    <el-form :ref="`location-${currentValue.id}-mock`" v-if="currentValue.type === 'mock'">
+    <el-form :key="`location-${currentValue.id}-mock-form`" :ref="`location-${currentValue.id}-mock`" v-if="currentValue.type === 'mock'" label-width="100px" :model="currentValue.mock">
       <el-form-item label="Method">
         <el-radio-group v-model="currentValue.mock.method" size="small">
           <el-radio-button label="all">ALL</el-radio-button>
@@ -39,7 +39,7 @@
         </el-radio-group>
       </el-form-item>
       <template v-if="currentValue.mock.type === 'json'">
-        <el-form-item label="MockData" prop="mock.json" required>
+        <el-form-item label="MockData" prop="json" required>
           <el-row :gutter="10" type="flex">
             <el-col>
               <editor v-model="currentValue.mock.json" ref="mockJsonEditor"></editor>
@@ -66,9 +66,8 @@
         </el-form-item>
       </template>
     </el-form>
-    <el-form :ref="`location-${currentValue.id}-proxyPass`" v-if="currentValue.type === 'proxyPass' || (currentValue.type === 'mock' && currentValue.mock.type === 'proxyPass')">
-      {{formValidateData.url}}
-      <el-form-item label="Target">
+    <el-form :model="proxyPassScope" :key="`location-${currentValue.id}-proxyPass-form`" :ref="`location-${currentValue.id}-proxyPass`" v-if="currentValue.type === 'proxyPass' || (currentValue.type === 'mock' && currentValue.mock.type === 'proxyPass')" label-width="100px">
+      <el-form-item label="Target" prop="target" required>
         <el-input v-model="proxyPassScope.target" placeholder="Please input the target of proxyPass."></el-input>
       </el-form-item>
       <el-form-item label="ChangeOrigin">
@@ -128,15 +127,15 @@
         <el-button icon="el-icon-plus" circle plain @click="addInterceptor(proxyPassScope.interceptors)"></el-button>
       </el-form-item>
     </el-form>
-    <el-form :ref="`location-${currentValue.id}-static`" v-if="currentValue.type === 'static'">
-        <el-form-item label="Path">
-          <el-input v-model="currentValue.static.path"></el-input>
-        </el-form-item>
-      </el-form>
+    <el-form :key="`location-${currentValue.id}-static-form`" :ref="`location-${currentValue.id}-static`" v-if="currentValue.type === 'static'" label-width="100px" :model="currentValue.static">
+      <el-form-item label="Path" prop="path" required>
+        <el-input v-model="currentValue.static.path"></el-input>
+      </el-form-item>
+    </el-form>
 <!--      <el-form-item label="Actions">-->
 <!--        <el-button type="danger" @click="deleteSelf" size="small">Delete</el-button>-->
 <!--      </el-form-item>-->
-    <el-form :ref="`location-${currentValue.id}-advanced`">
+    <el-form :key="`location-${currentValue.id}-advanced-form`" :ref="`location-${currentValue.id}-advanced`" label-width="100px">
       <el-form-item label="ShowAdvanced">
         <el-switch v-model="showAdvanced"></el-switch>
       </el-form-item>
@@ -193,6 +192,14 @@ export default {
     //
     //   }
     // },
+    clearValidate () {
+      const refs = this.formRefs
+      for (const ref of refs) {
+        if (this.$refs[ref]) {
+          this.$refs[ref].clearValidate()
+        }
+      }
+    },
     deleteSelf () {
       this.$confirm('Are you sure to delete this Location?', 'Confirm', {
         cancelButtonText: 'Cancel',
@@ -207,7 +214,6 @@ export default {
       this.$set(this.currentValue, 'static', defaultLocationStaticOption())
     },
     onTypeChange (val, isInit) {
-      console.log(val)
       this.clearOptions()
       switch (val) {
         case 'proxyPass': this.$set(this.currentValue, 'proxyPass', defaultLocationProxyPassOption()); break
@@ -259,11 +265,31 @@ export default {
     editInterceptorInfo (interceptor) {
       const interceptorIndex = this.proxyPassScope.interceptors[interceptor.type].findIndex(item => item.id === interceptor.id)
       this.$set(this.proxyPassScope.interceptors[interceptor.type], interceptorIndex, interceptor)
+    },
+    validateSingle (formRef) {
+      return new Promise((resolve) => {
+        formRef.validate((result) => {
+          resolve(result)
+        })
+      })
+    },
+    async validate () {
+      for (const ref of this.formRefs) {
+        if (this.$refs[ref]) {
+          if (!await this.validateSingle(this.$refs[ref])) {
+            this.$message({
+              type: 'error',
+              message: 'Please complete the form first.'
+            })
+            return false
+          }
+        }
+      }
+      return true
     }
   },
   computed: {
     proxyPassScope () {
-      console.log('computed proxyPassScope')
       if (this.currentValue.type === 'mock' && this.currentValue.mock.type === 'proxyPass') {
         return this.currentValue.mock.proxyPass || {}
       } else {
@@ -275,6 +301,10 @@ export default {
         ...traverseFlatObject({}, this.currentValue, ''),
         ...traverseFlatObject({}, this.proxyPassScope, 'proxyPassScope')
       }
+    },
+    formRefs () {
+      const id = (this.currentValue && this.currentValue.id) || 0
+      return [`location-${id}`, `location-${id}-mock`, `location-${id}-proxyPass`, `location-${id}-static`]
     }
   },
   watch: {

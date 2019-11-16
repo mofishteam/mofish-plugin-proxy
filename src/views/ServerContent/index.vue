@@ -42,7 +42,6 @@ export default {
       for (const item of this.servers) {
         result[item.id] = item
       }
-      console.log(result)
       return result
     }
   },
