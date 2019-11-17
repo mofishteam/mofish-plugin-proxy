@@ -1,25 +1,25 @@
 <template>
   <section class="server-content-item" v-if="(currentServer && currentServer.id && currentServer.server && currentServer.name) || isAdd" :key="'server-' + currentServer.id">
-    <el-form ref="form" :model="currentServer" :label-width="displayMode === 'visual' ? '100px' : '100px'" style="max-width: 800px;">
+    <el-form ref="form" :model="validateModel" :label-width="displayMode === 'visual' ? '100px' : '100px'" :rules="rules" style="max-width: 800px;">
       <!--顶部信息和操作-->
       <div class="base-info-and-action-box">
         <!--顶部左侧基础信息-->
         <div class="base-info-box">
-          <el-form-item label="ServerName">
+          <el-form-item label="ServerName" prop="serverName" required>
             <el-input v-model="currentServer.server.name[0]" placeholder="Input server name and press enter to add."></el-input>
           </el-form-item>
           <el-form-item label="SSL">
             <el-switch v-model="currentServer.server.ssl"></el-switch>
           </el-form-item>
           <template v-if="currentServer.server.ssl && currentServer.server.sslOptions">
-            <el-form-item label="Key">
+            <el-form-item label="Key" prop="key" required>
               <el-input v-model="currentServer.server.sslOptions.key"></el-input>
             </el-form-item>
-            <el-form-item label="Cert">
+            <el-form-item label="Cert" prop="cert" required>
               <el-input v-model="currentServer.server.sslOptions.cert"></el-input>
             </el-form-item>
           </template>
-          <el-form-item label="Listen">
+          <el-form-item label="Listen" prop="listen" required>
             <el-input v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;">
               <port-test :current-id="currentServer.id" v-if="currentServer.server.listen" slot="append" :port="currentServer.server.listen"></port-test>
             </el-input>
@@ -28,10 +28,10 @@
         <!--顶部右侧灰色部分-->
         <div class="action-box">
           <el-form-item label-width="0px" class="tac">
-            <el-tooltip effect="light" :content="`Name of tab display: ${currentServer.name}${currentServer.name === server.name ? '' : ' (EDITED)'}`" placement="top">
+            <el-tooltip effect="light" :disabled="isAdd" :content="`Name of tab display: ${currentServer.name}${currentServer.name === server.name ? '' : ' (EDITED)'}`" placement="top">
               <span class="text-secondary-black server-name" :style="{paddingRight: currentServer.name === server.name ? '0' : '5px'}">
                 <el-badge is-dot :hidden="currentServer.name === server.name" style="line-height: 1.3; padding-right: 5px; width: 100%;">
-                  <p class="current-server-name-text">{{currentServer.name}}</p>
+                  <p class="current-server-name-text">{{currentServer.name || 'New Server'}}</p>
                 </el-badge>
               </span>
             </el-tooltip>
@@ -131,8 +131,9 @@
       size="500px"
       custom-class="location-edit-drawer"
       :append-to-body="true"
+      :destroy-on-close="true"
       direction="rtl">
-      <location-content v-model="currentLocation" :is-add="true"></location-content>
+      <location-content ref="addLocationContent" v-model="currentLocation" :is-add="true"></location-content>
       <div class="location-edit-drawer_action-button tac">
         <el-button type="primary" @click="saveLocation">Save</el-button>
         <el-button plain @click="resetCurrentLocation">Reset</el-button>
@@ -153,6 +154,7 @@ import editor from '@/components/Common/jsonEditor.vue'
 import VueGridLayout from 'vue-grid-layout'
 import ActionBar from '@/components/Common/locationCardActionBar'
 import config from '@/config'
+import getRules from './serverValidateRule'
 
 const getDefaultLocationFilters = () => ({
   hideClose: false,
@@ -189,7 +191,8 @@ export default {
       newLocation: new Set(),
       locationFilters: getDefaultLocationFilters(),
       layoutKeyCount: 0,
-      locationTypes: config.locationTypes
+      locationTypes: config.locationTypes,
+      rules: getRules(this)
     }
   },
   computed: {
@@ -210,6 +213,14 @@ export default {
     },
     isFilterChanged () {
       return isEqual(this.locationFilters, defaultLocationFilters)
+    },
+    validateModel () {
+      return {
+        serverName: this.currentServer.server.name[0],
+        key: this.currentServer.server.sslOptions.key,
+        cert: this.currentServer.server.sslOptions.cert,
+        listen: this.currentServer.server.listen
+      }
     }
   },
   created () {
@@ -232,7 +243,6 @@ export default {
       }, 10000)
     },
     initLocationLayout () {
-      console.log('init')
       if (this.currentServer && this.currentServer.server && this.currentServer.server && this.currentServer.server.locations) {
         const isSame = this.currentServer.server.locations.reduce((sum, cur, idx) => {
           if (!sum) {
@@ -241,7 +251,6 @@ export default {
             return this.locationLayout[idx] && cur.id === this.locationLayout[idx].i
           }
         }, true)
-        console.log('isSame', isSame)
         if (!isSame) {
           const layouts = {}
           this.locationLayout.forEach(val => {
@@ -268,6 +277,7 @@ export default {
       }
     },
     resetCurrentLocation () {
+      this.$refs.addLocationContent && this.$refs.addLocationContent.clearValidate()
       this.currentLocation = defaultLocationOption()
     },
     editLocation (location) {
@@ -291,8 +301,36 @@ export default {
       // if (this.currentLocation) {
       //   this.saveLocation()
       // }
-      await this.setActiveServer(this.currentServer.id)
-      await this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
+      this.$refs.form.validate(async valid => {
+        if (valid) {
+          if (!this.currentServer.name) {
+            const result = await this.$prompt('Input character for server tab name', 'Input server tab name', {
+              inputValue: '',
+              cancelButtonText: 'Cancel',
+              confirmButtonText: 'Confirm',
+              inputValidator: (val) => {
+                if (!val) {
+                  return 'Please input a name.'
+                } else {
+                  return true
+                }
+              }
+            })
+            if (result.action === 'confirm') {
+              this.currentServer.name = result.value
+            } else {
+              return Promise.reject(new Error('No Server Name'))
+            }
+          }
+          await this.setActiveServer(this.currentServer.id)
+          await this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
+        } else {
+          this.$message({
+            type: 'error',
+            message: 'Please complete the form first.'
+          })
+        }
+      })
     },
     copyLocation (locationLayoutItem) {
       const newId = getId('location')
@@ -301,11 +339,14 @@ export default {
       this.currentServer.server.locations.splice(locationLayoutItem.y + 1, 0, newLocation)
       this.registerNewLocation(newId)
     },
-    saveLocation () {
+    async saveLocation () {
       // this.currentLocation.id = getId('location')
-      this.currentServer.server.locations.push(this.currentLocation)
-      this.registerNewLocation(this.currentLocation.id)
-      this.showAddLocation = false
+      const validateResult = await this.$refs.addLocationContent.validate()
+      if (validateResult) {
+        this.currentServer.server.locations.push(this.currentLocation)
+        this.registerNewLocation(this.currentLocation.id)
+        this.showAddLocation = false
+      }
       // this.currentLocation = null
       // if (this.locationShowList.includes('add')) {
       //   this.locationShowList.splice(this.locationShowList.indexOf('add'), 1)
@@ -359,9 +400,16 @@ export default {
     },
     editServerTabName () {
       this.$prompt('Input character for server tab name', 'Edit server tab name', {
-        inputValue: this.currentServer.name,
+        inputValue: this.isAdd ? '' : this.currentServer.name,
         cancelButtonText: 'Cancel',
-        confirmButtonText: 'Confirm'
+        confirmButtonText: 'Confirm',
+        inputValidator: (val) => {
+          if (!val) {
+            return 'Please input a name.'
+          } else {
+            return true
+          }
+        }
       }).then(result => {
         if (result.action === 'confirm') {
           this.currentServer.name = result.value
@@ -369,11 +417,11 @@ export default {
       })
     },
     setSSLKeyFilePath (file) {
-      console.log(file)
+      // console.log(file)
     },
     getFilePath () {},
     onLayoutUpdate (layouts) {
-      console.log(layouts)
+      // console.log(layouts)
     },
     onLocationLayoutUpdated (layouts) {
       const locations = []
@@ -385,7 +433,6 @@ export default {
   },
   watch: {
     server (val) {
-      console.log('server change: ', val)
       // this.currentServer = this.cloneServer(val)
       // this.currentLocation = null
       this.locationShowList = []
@@ -393,7 +440,6 @@ export default {
     currentServer: {
       deep: true,
       handler (val) {
-        console.log('currentServerChanged')
         this.edited = true
         this.editDraftContent({ id: val.id, val })
         this.currentServerString = JSON.stringify(val, undefined, 4)

@@ -8,7 +8,7 @@ export const getId = (name) => {
 export const defaultServerOption = () => ({
   id: md5('server' + new Date().valueOf() + idCnt++),
   include: null,
-  name: getId('serverName'),
+  name: '',
   server: {
     name: ['0.0.0.0'],
     ssl: false,
