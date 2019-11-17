@@ -28,10 +28,10 @@
         <!--顶部右侧灰色部分-->
         <div class="action-box">
           <el-form-item label-width="0px" class="tac">
-            <el-tooltip effect="light" :content="`Name of tab display: ${currentServer.name}${currentServer.name === server.name ? '' : ' (EDITED)'}`" placement="top">
+            <el-tooltip effect="light" :disabled="isAdd" :content="`Name of tab display: ${currentServer.name}${currentServer.name === server.name ? '' : ' (EDITED)'}`" placement="top">
               <span class="text-secondary-black server-name" :style="{paddingRight: currentServer.name === server.name ? '0' : '5px'}">
                 <el-badge is-dot :hidden="currentServer.name === server.name" style="line-height: 1.3; padding-right: 5px; width: 100%;">
-                  <p class="current-server-name-text">{{currentServer.name}}</p>
+                  <p class="current-server-name-text">{{currentServer.name || 'New Server'}}</p>
                 </el-badge>
               </span>
             </el-tooltip>
@@ -303,6 +303,25 @@ export default {
       // }
       this.$refs.form.validate(async valid => {
         if (valid) {
+          if (!this.currentServer.name) {
+            const result = await this.$prompt('Input character for server tab name', 'Input server tab name', {
+              inputValue: '',
+              cancelButtonText: 'Cancel',
+              confirmButtonText: 'Confirm',
+              inputValidator: (val) => {
+                if (!val) {
+                  return 'Please input a name.'
+                } else {
+                  return true
+                }
+              }
+            })
+            if (result.action === 'confirm') {
+              this.currentServer.name = result.value
+            } else {
+              return Promise.reject(new Error('No Server Name'))
+            }
+          }
           await this.setActiveServer(this.currentServer.id)
           await this.saveServer(this.displayMode === 'visual' ? this.currentServer : JSON.parse(this.currentServerString))
         } else {
@@ -381,7 +400,7 @@ export default {
     },
     editServerTabName () {
       this.$prompt('Input character for server tab name', 'Edit server tab name', {
-        inputValue: this.currentServer.name,
+        inputValue: this.isAdd ? '' : this.currentServer.name,
         cancelButtonText: 'Cancel',
         confirmButtonText: 'Confirm',
         inputValidator: (val) => {
