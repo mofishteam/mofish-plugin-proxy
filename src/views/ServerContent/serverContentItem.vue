@@ -56,6 +56,7 @@
             <el-button slot="left" type="text" @click="saveServerConfig()" :disabled="isEdited">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
             <el-divider direction="vertical" slot="left"></el-divider>
             <el-button slot="left" @click="resetForm" :disabled="isEdited" type="text">Reset</el-button>
+<!--            <el-switch slot="right" v-model="collapseLocationCard"></el-switch>-->
             <el-popover
               slot="right"
               placement="top-end"
@@ -81,7 +82,7 @@
           </action-bar>
           <grid-layout :layout.sync="locationLayout"
                        :key="`grid-layout-${currentServer.id}-${layoutKeyCount}`"
-                       :row-height="90"
+                       :row-height="collapseLocationCard ? 50 : 90"
                        :is-draggable="!hiddenLocation.length"
                        :is-resizable="false"
                        :is-mirrored="false"
@@ -192,7 +193,8 @@ export default {
       locationFilters: getDefaultLocationFilters(),
       layoutKeyCount: 0,
       locationTypes: config.locationTypes,
-      rules: getRules(this)
+      rules: getRules(this),
+      collapseLocationCard: false
     }
   },
   computed: {
