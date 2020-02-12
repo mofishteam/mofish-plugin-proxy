@@ -358,6 +358,7 @@ export default {
       padding: 20px 20px 0 20px;
       width: 100%;
       height: 100vh;
+      min-width: 600px;
       overflow: scroll;
     }
     &-menu {

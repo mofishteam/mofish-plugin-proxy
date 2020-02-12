@@ -42,7 +42,7 @@
         <el-form-item label="MockData" prop="json" required>
           <el-row :gutter="10" type="flex">
             <el-col>
-              <editor v-model="currentValue.mock.json" ref="mockJsonEditor"></editor>
+              <editor v-model="currentValue.mock.json" ref="mockJsonEditor" width="300"></editor>
             </el-col>
             <el-col>
               <el-tooltip effect="light" content="Zoom" placement="right" style="display: block;">
