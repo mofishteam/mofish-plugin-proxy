@@ -20,7 +20,7 @@
             </el-form-item>
           </template>
           <el-form-item label="Listen" prop="listen" required>
-            <el-input v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;">
+            <el-input type="number" v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;">
               <port-test :current-id="currentServer.id" v-if="currentServer.server.listen" slot="append" :port="currentServer.server.listen"></port-test>
             </el-input>
           </el-form-item>
