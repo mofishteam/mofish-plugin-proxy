@@ -79,36 +79,36 @@
       <el-form-item label="PathRewrite">
         <el-button icon="el-icon-plus" circle plain v-show="!proxyPassScope.pathRewrite.length" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
         <el-row type="flex" :gutter="10" v-for="(pathRewriteRow, pathRewriteIndex) in proxyPassScope.pathRewrite" :key="pathRewriteIndex" style="margin-bottom: 5px;">
-          <el-col :span="9">
-            <el-input v-model="pathRewriteRow[0]"></el-input>
+          <el-col :span="8">
+            <el-input size="mini" v-model="pathRewriteRow[0]"></el-input>
           </el-col>
           <el-col :span="2" class="tac">
             <span>-></span>
           </el-col>
-          <el-col :span="9">
-            <el-input v-model="pathRewriteRow[1]"></el-input>
+          <el-col :span="8">
+            <el-input size="mini" v-model="pathRewriteRow[1]"></el-input>
           </el-col>
-          <el-col :span="3">
-            <el-button type="danger" icon="el-icon-delete" circle @click="deletePathRewrite(proxyPassScope.pathRewrite, pathRewriteIndex)"></el-button>
-            <el-button icon="el-icon-plus" circle plain v-show="pathRewriteIndex === proxyPassScope.pathRewrite.length - 1" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
+          <el-col :span="6">
+            <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="deletePathRewrite(proxyPassScope.pathRewrite, pathRewriteIndex)"></el-button>
+            <el-button size="mini" icon="el-icon-plus" circle plain v-show="pathRewriteIndex === proxyPassScope.pathRewrite.length - 1" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
           </el-col>
         </el-row>
       </el-form-item>
       <el-form-item label="Router">
         <el-button icon="el-icon-plus" circle plain v-show="!proxyPassScope.router.length" @click="addRouter(proxyPassScope.router)"></el-button>
         <el-row type="flex" :gutter="10" v-for="(routerRow, routerIndex) in proxyPassScope.router" :key="routerIndex" style="margin-bottom: 5px;">
-          <el-col :span="9">
-            <el-input v-model="routerRow[0]"></el-input>
+          <el-col :span="8">
+            <el-input size="mini" v-model="routerRow[0]"></el-input>
           </el-col>
           <el-col :span="2" class="tac">
             <span>-></span>
           </el-col>
-          <el-col :span="9">
-            <el-input v-model="routerRow[1]"></el-input>
+          <el-col :span="8">
+            <el-input size="mini" v-model="routerRow[1]"></el-input>
           </el-col>
-          <el-col :span="3">
-            <el-button type="danger" icon="el-icon-delete" circle @click="deleteRouter(proxyPassScope.router, routerIndex)"></el-button>
-            <el-button icon="el-icon-plus" circle plain v-show="routerIndex === proxyPassScope.router.length - 1" @click="addRouter(proxyPassScope.router)"></el-button>
+          <el-col :span="6">
+            <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="deleteRouter(proxyPassScope.router, routerIndex)"></el-button>
+            <el-button size="mini" icon="el-icon-plus" circle plain v-show="routerIndex === proxyPassScope.router.length - 1" @click="addRouter(proxyPassScope.router)"></el-button>
           </el-col>
         </el-row>
       </el-form-item>
