@@ -43,7 +43,7 @@
               </div>
               <template v-if="!data.isDir">
                 <el-menu-item :class="[{hover: node.showMenu}]" :index="`homeServers-${server.id}`" @click="setServer(server.id)" :key="server.id" v-for="server in getServerItem(data.id)">
-                  <el-button circle :type="closeList.includes(server.id) ? 'danger' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
+                  <el-button circle :type="closeList.includes(server.id) ? 'info' : 'success'" size="mini" style="margin-right: 6px; transform: scale(.6);"></el-button>
                   <span class="menu-label">
                   <span class="text-danger" v-show="draftEditedList.includes(server.id)" style="margin-right: 4px;">*</span>
                   <span>{{ server.name }}</span>
