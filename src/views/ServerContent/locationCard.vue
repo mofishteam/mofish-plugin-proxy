@@ -209,6 +209,7 @@ export default {
       margin-left: 10px;
     }
     &_status-tag {
+      cursor: default;
       margin-right: 5px;
     }
     &_title {
