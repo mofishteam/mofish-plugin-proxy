@@ -393,7 +393,7 @@ export default {
       return type !== 'inner'
     },
     switchServerStatus () {
-      this.$confirm(`Are you sure to ${this.closeList.includes(this.currentServer.id) ? 'RESUME' : 'CLOSE'} this Server?`, 'Confirm for switch server status', {
+      this.$confirm(`Are you sure to ${this.closeList.includes(this.currentServer.id) ? 'RESUME' : 'CLOSE'} this Server?`, 'Confirm for Switch server STATUS', {
         cancelButtonText: 'Cancel',
         confirmButtonText: 'Confirm'
       }).then(() => {
