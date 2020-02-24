@@ -5,12 +5,15 @@
       <div class="base-info-and-action-box">
         <!--顶部左侧基础信息-->
         <div class="base-info-box">
+<!--            Server Name，输入127.0.0.1   /   0.0.0.0 等-->
           <el-form-item label="ServerName" prop="serverName" required>
             <el-input v-model="currentServer.server.name[0]" placeholder="Input server name and press enter to add."></el-input>
           </el-form-item>
+<!--            证书-->
           <el-form-item label="SSL">
             <el-switch v-model="currentServer.server.ssl"></el-switch>
           </el-form-item>
+<!--            输入证书路径-->
           <template v-if="currentServer.server.ssl && currentServer.server.sslOptions">
             <el-form-item label="Key" prop="key" required>
               <el-input v-model="currentServer.server.sslOptions.key"></el-input>
@@ -19,8 +22,9 @@
               <el-input v-model="currentServer.server.sslOptions.cert"></el-input>
             </el-form-item>
           </template>
+<!--            监听端口-->
           <el-form-item label="Listen" prop="listen" required>
-            <el-input v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;">
+            <el-input type="number" v-model="currentServer.server.listen" placeholder="Input port for server to listen." style="width: 100%; max-width: 500px;">
               <port-test :current-id="currentServer.id" v-if="currentServer.server.listen" slot="append" :port="currentServer.server.listen"></port-test>
             </el-input>
           </el-form-item>
@@ -56,6 +60,8 @@
             <el-button slot="left" type="text" @click="saveServerConfig()" :disabled="isEdited">{{isAdd ? 'Add and Start' : 'Save And Restart'}}</el-button>
             <el-divider direction="vertical" slot="left"></el-divider>
             <el-button slot="left" @click="resetForm" :disabled="isEdited" type="text">Reset</el-button>
+<!--            <el-switch slot="right" v-model="collapseLocationCard"></el-switch>-->
+<!--              筛选下方的Location-->
             <el-popover
               slot="right"
               placement="top-end"
@@ -79,9 +85,10 @@
             </el-popover>
             <el-button icon="el-icon-plus" slot="right" type="text" @click="addLocation"></el-button>
           </action-bar>
+<!--            GridLayout 数据相应有问题，有机会换个组件-->
           <grid-layout :layout.sync="locationLayout"
                        :key="`grid-layout-${currentServer.id}-${layoutKeyCount}`"
-                       :row-height="90"
+                       :row-height="collapseLocationCard ? 50 : 90"
                        :is-draggable="!hiddenLocation.length"
                        :is-resizable="false"
                        :is-mirrored="false"
@@ -119,12 +126,7 @@
 <!--    <div class="server-content-item__empty text-placeholder" v-if="!currentServer || (!isAdd && !currentServer.name)">-->
 <!--      Click 'Add Server' button or chose a server-->
 <!--    </div>-->
-    <el-dialog
-      title="Sort Location"
-      :visible.sync="showSortLocation"
-      width="500px">
-      <el-tree v-if="currentServer && currentServer.server" :data="currentServer.server.locations" node-key="id" empty-text="No Locations." :props="{label: (data, node) => `${data.url} | ${data.type}`}" draggable :allow-drop="locationAllowDrop"></el-tree>
-    </el-dialog>
+<!--      location添加和编辑的抽屉-->
     <el-drawer
       title="Add Location"
       :visible.sync="showAddLocation"
@@ -179,7 +181,6 @@ export default {
       tempServerName: '',
       currentServer: this.cloneServer(this.server),
       currentLocation: defaultLocationOption(),
-      showSortLocation: false,
       isEdit: false,
       locationShowList: [],
       displayMode: 'visual',
@@ -192,7 +193,8 @@ export default {
       locationFilters: getDefaultLocationFilters(),
       layoutKeyCount: 0,
       locationTypes: config.locationTypes,
-      rules: getRules(this)
+      rules: getRules(this),
+      collapseLocationCard: false
     }
   },
   computed: {
@@ -347,10 +349,6 @@ export default {
         this.registerNewLocation(this.currentLocation.id)
         this.showAddLocation = false
       }
-      // this.currentLocation = null
-      // if (this.locationShowList.includes('add')) {
-      //   this.locationShowList.splice(this.locationShowList.indexOf('add'), 1)
-      // }
     },
     deleteLocation (location) {
       const result = this.currentServer.server.locations.find(val => {
@@ -387,11 +385,8 @@ export default {
       }
       return server
     },
-    locationAllowDrop (draggingNode, dropNode, type) {
-      return type !== 'inner'
-    },
     switchServerStatus () {
-      this.$confirm(`Are you sure to ${this.closeList.includes(this.currentServer.id) ? 'RESUME' : 'CLOSE'} this Server?`, 'Confirm for switch server status', {
+      this.$confirm(`Are you sure to ${this.closeList.includes(this.currentServer.id) ? 'RESUME' : 'CLOSE'} this Server?`, 'Confirm for Switch server STATUS', {
         cancelButtonText: 'Cancel',
         confirmButtonText: 'Confirm'
       }).then(() => {
@@ -416,13 +411,6 @@ export default {
         }
       })
     },
-    setSSLKeyFilePath (file) {
-      // console.log(file)
-    },
-    getFilePath () {},
-    onLayoutUpdate (layouts) {
-      // console.log(layouts)
-    },
     onLocationLayoutUpdated (layouts) {
       const locations = []
       layouts.forEach(item => {
@@ -433,8 +421,6 @@ export default {
   },
   watch: {
     server (val) {
-      // this.currentServer = this.cloneServer(val)
-      // this.currentLocation = null
       this.locationShowList = []
     },
     currentServer: {

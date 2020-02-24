@@ -72,7 +72,7 @@
       <div class="location-card_info-item">
         <p class="location-card_info-item-title text-secondary-black">Delay</p>
         <p class="location-card_info-item-value text-main">
-          <span :class="location.delay + '' === '0' ? 'text-info' : 'text-warning'">{{location.delay || 0}}ms</span>
+          <span :class="+location.delay ? 'text-info' : 'text-warning'">{{location.delay || 0}}ms</span>
         </p>
       </div>
     </div>
@@ -209,6 +209,7 @@ export default {
       margin-left: 10px;
     }
     &_status-tag {
+      cursor: default;
       margin-right: 5px;
     }
     &_title {

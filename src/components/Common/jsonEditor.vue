@@ -1,6 +1,6 @@
 <template>
   <div class="json-editor">
-    <editor v-model="currentValue" @init="editorInit" lang="json" theme="chrome" width="300" :height="height"></editor>
+    <editor v-model="currentValue" @init="editorInit" lang="json" theme="chrome" :width="width" :height="height"></editor>
     <el-dialog :append-to-body="true" :visible.sync="showDialog" :fullscreen="isFullscreen">
       <div slot="title">
         <span>Json data editor</span>
@@ -24,6 +24,9 @@ export default {
     value: {},
     height: {
       default: '100'
+    },
+    width: {
+      default: ''
     }
   },
   data () {

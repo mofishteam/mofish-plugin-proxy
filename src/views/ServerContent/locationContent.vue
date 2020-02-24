@@ -1,18 +1,22 @@
 <template>
   <div class="location-content">
     <el-form :key="`location-${currentValue.id}-form`" :ref="`location-${currentValue.id}`" :model="formValidateData" label-width="100px">
+<!--        URL-->
       <el-form-item label="Location" prop="url" required>
         <el-input v-model="currentValue.url" placeholder="Please input location url."></el-input>
       </el-form-item>
+<!--        是否关闭（添加时才展示，修改的话还不如在外面改，所以隐藏）-->
       <el-form-item v-if="isAdd">
         <span slot="label" class="text-danger">Close</span>
         <el-switch active-color="#ff4949" v-model="currentValue.isClose"></el-switch>
       </el-form-item>
+<!--        延迟时间（ms）-->
       <el-form-item label="Delay" prop="delay" required>
         <el-input style="width: 100px;" placeholder="0" v-model="currentValue.delay">
           <span slot="suffix">ms</span>
         </el-input>
       </el-form-item>
+<!--        Location类型-->
       <el-form-item label="Type">
         <el-radio-group v-model="currentValue.type" size="small">
           <el-radio-button :label="item.value" v-for="item in locationTypes" :key="item.value">{{item.label}}</el-radio-button>
@@ -20,7 +24,9 @@
         </el-radio-group>
       </el-form-item>
     </el-form>
+<!--      Type === 'mock'-->
     <el-form :key="`location-${currentValue.id}-mock-form`" :ref="`location-${currentValue.id}-mock`" v-if="currentValue.type === 'mock'" label-width="100px" :model="currentValue.mock">
+<!--        Location过滤的Method-->
       <el-form-item label="Method">
         <el-radio-group v-model="currentValue.mock.method" size="small">
           <el-radio-button label="all">ALL</el-radio-button>
@@ -30,6 +36,7 @@
           <el-radio-button label="delete">DELETE</el-radio-button>
         </el-radio-group>
       </el-form-item>
+<!--        Mock类型-->
       <el-form-item label="MockType">
         <el-radio-group v-model="currentValue.mock.type" size="small">
           <el-radio-button label="json">JSON</el-radio-button>
@@ -38,11 +45,12 @@
           <!--            <el-radio-button label="proxyPass">ProxyPass</el-radio-button>-->
         </el-radio-group>
       </el-form-item>
+<!--        MockType === 'json'-->
       <template v-if="currentValue.mock.type === 'json'">
         <el-form-item label="MockData" prop="json" required>
           <el-row :gutter="10" type="flex">
             <el-col>
-              <editor v-model="currentValue.mock.json" ref="mockJsonEditor"></editor>
+              <editor v-model="currentValue.mock.json" ref="mockJsonEditor" width="300"></editor>
             </el-col>
             <el-col>
               <el-tooltip effect="light" content="Zoom" placement="right" style="display: block;">
@@ -66,6 +74,7 @@
         </el-form-item>
       </template>
     </el-form>
+<!--      LocationType === 'proxyPass'-->
     <el-form :model="proxyPassScope" :key="`location-${currentValue.id}-proxyPass-form`" :ref="`location-${currentValue.id}-proxyPass`" v-if="currentValue.type === 'proxyPass' || (currentValue.type === 'mock' && currentValue.mock.type === 'proxyPass')" label-width="100px">
       <el-form-item label="Target" prop="target" required>
         <el-input v-model="proxyPassScope.target" placeholder="Please input the target of proxyPass."></el-input>
@@ -79,39 +88,40 @@
       <el-form-item label="PathRewrite">
         <el-button icon="el-icon-plus" circle plain v-show="!proxyPassScope.pathRewrite.length" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
         <el-row type="flex" :gutter="10" v-for="(pathRewriteRow, pathRewriteIndex) in proxyPassScope.pathRewrite" :key="pathRewriteIndex" style="margin-bottom: 5px;">
-          <el-col :span="9">
-            <el-input v-model="pathRewriteRow[0]"></el-input>
+          <el-col :span="8">
+            <el-input size="mini" v-model="pathRewriteRow[0]"></el-input>
           </el-col>
           <el-col :span="2" class="tac">
             <span>-></span>
           </el-col>
-          <el-col :span="9">
-            <el-input v-model="pathRewriteRow[1]"></el-input>
+          <el-col :span="8">
+            <el-input size="mini" v-model="pathRewriteRow[1]"></el-input>
           </el-col>
-          <el-col :span="3">
-            <el-button type="danger" icon="el-icon-delete" circle @click="deletePathRewrite(proxyPassScope.pathRewrite, pathRewriteIndex)"></el-button>
-            <el-button icon="el-icon-plus" circle plain v-show="pathRewriteIndex === proxyPassScope.pathRewrite.length - 1" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
+          <el-col :span="6">
+            <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="deletePathRewrite(proxyPassScope.pathRewrite, pathRewriteIndex)"></el-button>
+            <el-button size="mini" icon="el-icon-plus" circle plain v-show="pathRewriteIndex === proxyPassScope.pathRewrite.length - 1" @click="addPathRewrite(proxyPassScope.pathRewrite)"></el-button>
           </el-col>
         </el-row>
       </el-form-item>
       <el-form-item label="Router">
         <el-button icon="el-icon-plus" circle plain v-show="!proxyPassScope.router.length" @click="addRouter(proxyPassScope.router)"></el-button>
         <el-row type="flex" :gutter="10" v-for="(routerRow, routerIndex) in proxyPassScope.router" :key="routerIndex" style="margin-bottom: 5px;">
-          <el-col :span="9">
-            <el-input v-model="routerRow[0]"></el-input>
+          <el-col :span="8">
+            <el-input size="mini" v-model="routerRow[0]"></el-input>
           </el-col>
           <el-col :span="2" class="tac">
             <span>-></span>
           </el-col>
-          <el-col :span="9">
-            <el-input v-model="routerRow[1]"></el-input>
+          <el-col :span="8">
+            <el-input size="mini" v-model="routerRow[1]"></el-input>
           </el-col>
-          <el-col :span="3">
-            <el-button type="danger" icon="el-icon-delete" circle @click="deleteRouter(proxyPassScope.router, routerIndex)"></el-button>
-            <el-button icon="el-icon-plus" circle plain v-show="routerIndex === proxyPassScope.router.length - 1" @click="addRouter(proxyPassScope.router)"></el-button>
+          <el-col :span="6">
+            <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="deleteRouter(proxyPassScope.router, routerIndex)"></el-button>
+            <el-button size="mini" icon="el-icon-plus" circle plain v-show="routerIndex === proxyPassScope.router.length - 1" @click="addRouter(proxyPassScope.router)"></el-button>
           </el-col>
         </el-row>
       </el-form-item>
+<!--        拦截器-->
       <el-form-item label="Interceptor">
         <div v-for="interceptor in proxyPassScope.interceptors.response.concat(proxyPassScope.interceptors.request).sort(interceptorSort)" :key="interceptor.id">
           <el-popover trigger="hover" width="600" placement="right">
@@ -135,6 +145,7 @@
 <!--      <el-form-item label="Actions">-->
 <!--        <el-button type="danger" @click="deleteSelf" size="small">Delete</el-button>-->
 <!--      </el-form-item>-->
+<!--      高级ProxyPass设置-->
     <el-form :key="`location-${currentValue.id}-advanced-form`" :ref="`location-${currentValue.id}-advanced`" label-width="100px">
       <el-form-item label="ShowAdvanced">
         <el-switch v-model="showAdvanced"></el-switch>
@@ -147,6 +158,7 @@
         </template>
       </template>
     </el-form>
+<!--      拦截器的Dialog-->
     <interceptor-dialog v-model="showInterceptorDialog" :interceptors="proxyPassScope.interceptors" :is-add="isAddInterceptor" @change="updateInterceptors" :interceptor-id="currentEditInterceptorId" @edit="editInterceptorInfo"></interceptor-dialog>
   </div>
 </template>
@@ -297,6 +309,7 @@ export default {
       }
     },
     formValidateData () {
+      // 拍扁Object，用来给Form的prop用，Form的prop没法校验多级
       return {
         ...traverseFlatObject({}, this.currentValue, ''),
         ...traverseFlatObject({}, this.proxyPassScope, 'proxyPassScope')

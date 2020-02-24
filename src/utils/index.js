@@ -1,4 +1,5 @@
 export const traverseFlatObject = (result, obj, keyStr) => {
+  // 用来把一个Object拍扁
   if (obj instanceof Object && !(obj instanceof Array) && !(obj instanceof Function)) {
     const objKeys = Object.keys(obj)
     for (const k of objKeys) {
