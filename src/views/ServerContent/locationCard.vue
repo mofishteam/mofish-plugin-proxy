@@ -251,6 +251,7 @@ export default {
         &-tooltip {
           max-height: calc(50vh - 20px);
           overflow: scroll;
+          max-width: calc(100vw - 40px);
         }
         &:hover {
           .location-card_info-item-title {
