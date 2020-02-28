@@ -12,14 +12,25 @@
     "LICENSE"
   ],
   "scripts": {
+    "dev:electron": "nodemon --watch electron --watch server --exec \"npm run lint:electron && mkdir -p dist && babel server --presets env --plugins babel-plugin-syntax-object-rest-spread --out-dir ./dist-server && babel electron --presets env --plugins babel-plugin-syntax-object-rest-spread --out-dir ./dist-dev && ./node_modules/.bin/electron .\"",
+    "dev:both": "npm run serve & npm run dev:electron",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build:all": "npm run build && npm run build:server",
+    "build:electron": "electron-builder --win --x64",
+    "build:both": "npm run build && npm run build:electron",
     "lint": "vue-cli-service lint",
-    "build:server": "babel server --presets env --plugins=babel-plugin-syntax-object-rest-spread,transform-runtime --out-dir server-dist",
     "test:unit": "vue-cli-service test:unit",
     "publish": "npm run build:all && npm publish",
     "publish:beta": "npm run build:all && npm publish --tag=beta"
+  },
+  "build": {
+    "appId": "com.mofish_plugin_proxy.app",
+    "mac": {
+      "target": ["dmg","zip"]
+    },
+    "win": {
+      "target": ["nsis","zip"]
+    }
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
