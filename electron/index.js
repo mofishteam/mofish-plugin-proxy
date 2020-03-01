@@ -1,5 +1,5 @@
 const { app, BrowserWindow } = require('electron')
-require('../dist-server/index.js')
+require('../dist-server/proxy.js')
 
 function createWindow () {
   // 创建浏览器窗口

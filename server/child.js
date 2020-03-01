@@ -70,7 +70,7 @@ process.on('message', async (options) => {
               const oriWriteHead = res.writeHead
               const oriWrite = res.write
               const oriEnd = res.end
-              let jsonString = new Buffer('')
+              let jsonString = Buffer.from('')
               Object.assign(res, {
                 writeHead: () => {
                 },

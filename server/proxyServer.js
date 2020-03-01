@@ -67,7 +67,7 @@ export const closeChild = (id) => {
         resolve(true)
       })
       setTimeout(() => {
-        reject()
+        reject(new Error(''))
       }, 1000)
       childList[id].kill()
       delete childList[id]

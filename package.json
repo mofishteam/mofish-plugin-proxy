@@ -2,7 +2,7 @@
   "name": "mofish-plugin-proxy",
   "version": "0.7.2",
   "description": "A plugin for mofish tool to proxy requests and mock.",
-  "main": "index.js",
+  "main": "./dist-dev/dev.js",
   "private": false,
   "files": [
     "dist",
@@ -19,6 +19,8 @@
     "build:electron": "electron-builder --win --x64",
     "build:both": "npm run build && npm run build:electron",
     "lint": "vue-cli-service lint",
+    "lint:server": "eslint server",
+    "lint:electron": "npm run lint:server && eslint electron",
     "test:unit": "vue-cli-service test:unit",
     "publish": "npm run build:all && npm publish",
     "publish:beta": "npm run build:all && npm publish --tag=beta"
@@ -26,10 +28,16 @@
   "build": {
     "appId": "com.mofish_plugin_proxy.app",
     "mac": {
-      "target": ["dmg","zip"]
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
-      "target": ["nsis","zip"]
+      "target": [
+        "nsis",
+        "zip"
+      ]
     }
   },
   "dependencies": {
@@ -71,6 +79,10 @@
     "babel-plugin-syntax-object-rest-spread": "^6.13.0",
     "babel-preset-env": "^1.7.0",
     "chai": "^4.1.2",
+    "electron": "^8.0.2",
+    "electron-builder": "^22.3.2",
+    "electron-debug": "^3.0.1",
+    "electron-devtools-installer": "^2.2.4",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "fs-readdir-recursive": "^1.1.0",
