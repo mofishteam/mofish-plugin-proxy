@@ -1,4 +1,4 @@
-# mofish-plugin-proxy
+![banner picture](./docs/image/banner.png)
 
 A proxy plugin for Mofish Development Frame.
 
