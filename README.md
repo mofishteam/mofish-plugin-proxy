@@ -4,19 +4,19 @@
   <a href="https://raw.githubusercontent.com/mofishteam/mofish-plugin-proxy/master/LICENSE">
       <img src="https://img.shields.io/badge/license-MIT-333">
   </a>
-  <a href="https://raw.githubusercontent.com/mofishteam/mofish-plugin-proxy/master/LICENSE">
+  <a href="https://github.com/mofishteam/mofish-plugin-proxy">
       <img src="https://img.shields.io/badge/language-Javascript-orange">
   </a>
-  <a href="https://raw.githubusercontent.com/mofishteam/mofish-plugin-proxy/master/LICENSE">
+  <a href="https://github.com/mofishteam/mofish-plugin-proxy">
       <img src="https://img.shields.io/badge/platform-mac%20%7C%20win%20%7C%20linux-lightgrey">
   </a>
   <a href="https://codebeat.co/projects/github-com-mofishteam-mofish-plugin-proxy-master">
       <img alt="codebeat badge" src="https://codebeat.co/badges/fc41a013-d6b1-4d72-9353-166321a8f299" />
   </a>
-  <a href="https://raw.githubusercontent.com/mofishteam/mofish-plugin-proxy/master/LICENSE">
+  <a href="https://vuejs.org/">
       <img src="https://img.shields.io/badge/VUE-2.6-green">
   </a>
-  <a href="https://raw.githubusercontent.com/mofishteam/mofish-plugin-proxy/master/LICENSE">
+  <a href="https://koajs.com/">
       <img src="https://img.shields.io/badge/KOA-2.7-blue">
   </a>
 </p>
