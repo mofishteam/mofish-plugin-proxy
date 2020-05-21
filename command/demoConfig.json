@@ -1,0 +1,140 @@
+{
+  "settings": {},
+  "projects": {},
+  "allProject": [
+    {
+      "id": "d28b3d56893e8d1dd7ff6e2b671b0fc7",
+      "include": null,
+      "name": "test",
+      "server": {
+        "name": [
+          "0.0.0.0"
+        ],
+        "ssl": false,
+        "sslOptions": {
+          "key": "",
+          "cert": ""
+        },
+        "listen": 8080,
+        "locations": [
+          {
+            "id": "9f743af0939337492446a576f6324b00",
+            "isClose": false,
+            "delay": "1000",
+            "url": "/testapi",
+            "type": "proxyPass",
+            "proxyPass": {
+              "target": "https://www.github.com",
+              "changeOrigin": true,
+              "ws": true,
+              "router": [],
+              "pathRewrite": [
+                [
+                  "good",
+                  "aaa"
+                ]
+              ],
+              "interceptors": {
+                "response": [],
+                "request": []
+              },
+              "secure": true,
+              "forward": false,
+              "agent": false,
+              "ssl": {},
+              "xfwd": false,
+              "toProxy": false,
+              "prependPath": true,
+              "ignorePath": false,
+              "localAddress": "",
+              "preserveHeaderKeyCase": false,
+              "auth": "",
+              "hostRewrite": false,
+              "autoRewrite": false,
+              "protocolRewrite": false,
+              "cookieDomainRewrite": false,
+              "cookiePathRewrite": false,
+              "headers": {},
+              "proxyTimeout": false,
+              "timeout": 0,
+              "followRedirects": false,
+              "selfHandleResponse": false,
+              "buffer": false
+            },
+            "static": {
+              "path": "",
+              "maxage": 0,
+              "hidden": false,
+              "index": "index.html",
+              "defer": false,
+              "gzip": false,
+              "br": true,
+              "setHeaders": null,
+              "extensioins": null
+            },
+            "mock": {
+              "method": "all",
+              "type": "json",
+              "json": "",
+              "jsonPath": "",
+              "proxyPass": {
+                "target": "",
+                "changeOrigin": true,
+                "ws": true,
+                "router": [],
+                "pathRewrite": [],
+                "interceptors": {
+                  "response": [],
+                  "request": []
+                },
+                "secure": true,
+                "forward": false,
+                "agent": false,
+                "ssl": {},
+                "xfwd": false,
+                "toProxy": false,
+                "prependPath": true,
+                "ignorePath": false,
+                "localAddress": "",
+                "preserveHeaderKeyCase": false,
+                "auth": "",
+                "hostRewrite": false,
+                "autoRewrite": false,
+                "protocolRewrite": false,
+                "cookieDomainRewrite": false,
+                "cookiePathRewrite": false,
+                "headers": {},
+                "proxyTimeout": false,
+                "timeout": 0,
+                "followRedirects": false,
+                "selfHandleResponse": false,
+                "buffer": false
+              },
+              "body": null,
+              "header": {},
+              "status": 200,
+              "handler": null,
+              "interceptor": null
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "sortList": [
+    {
+      "id": "50690e21ce0cde76ba66884cf5036adc",
+      "isDir": true,
+      "children": [
+        {
+          "id": "d28b3d56893e8d1dd7ff6e2b671b0fc7",
+          "label": "test",
+          "isDir": false
+        }
+      ],
+      "label": "testdir",
+      "expanded": true
+    }
+  ],
+  "closeList": []
+}
