@@ -10,7 +10,8 @@ export default function CommandInputHandler (command) {
   if (command.config) {
     try {
       const config = JSON.parse(fs.readFileSync(command.config).toString())
-      new Core({ config })
+      const core = new Core({ config })
+      console.log(core)
     } catch (err) {
       console.error('Error when handling config file.')
       throw new Error(err)

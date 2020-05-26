@@ -2,13 +2,34 @@ const path = require('path')
 const merge = require('webpack-merge')
 const baseConfig = require('./webpack.conf.base')
 const shellConfig = require('./webpack.conf.shell')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const process = require('process')
 const isDev = process.env.mode === 'development'
+console.log(path.join(__dirname + '../dev-dist'))
 
-module.exports = merge(baseConfig, shellConfig, {
+const webpackConfig = merge(baseConfig, shellConfig, {
   entry: {
     command: isDev ? path.join(__dirname, '../command/demo.js') : path.join(__dirname, '../command/index.js')
   },
+  output: {
+    filename: '[name].js',
+    path: isDev ? path.join(__dirname, '../dev-dist') : path.join(__dirname, '../dist')
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(js)$/,
+        loader: 'eslint-loader',
+        exclude: /node_modules/,
+        enforce: 'pre'
+      }
+    ]
+  },
+  plugins: [
+    new CleanWebpackPlugin()
+  ],
   watch: isDev,
   mode: process.env.mode
 })
+
+module.exports = webpackConfig

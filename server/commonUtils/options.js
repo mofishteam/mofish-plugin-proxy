@@ -61,6 +61,7 @@ export const defaultInterceptorOption = () => ({
 })
 
 export const defaultLocationProxyPassOption = () => ({
+  method: 'all',
   // url string to be parsed with the url module
   target: '',
   // true/false, Default: false - changes the origin of the host header to the target URL

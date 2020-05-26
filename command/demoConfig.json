@@ -6,9 +6,11 @@
       "id": "d28b3d56893e8d1dd7ff6e2b671b0fc7",
       "include": null,
       "name": "test",
+      "type": "child",
       "server": {
         "name": [
-          "0.0.0.0"
+          "localhost",
+          "127.0.0.1"
         ],
         "ssl": false,
         "sslOptions": {
