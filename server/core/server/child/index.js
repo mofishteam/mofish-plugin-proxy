@@ -21,22 +21,26 @@ export default class ChildServer {
     this.init()
   }
   init () {
+    console.log('child init', `/port-${this.config.server.listen}`)
     // 新增端口监听，可通过this.httpServer.close()关闭监听
     this.httpServer = http.createServer(this.handler.callback()).listen(this.config.server.listen)
     const router = new Router()
     this.reloadLocations()
-    router.all(`/port-${this.config.server.listen}`, async (ctx, next) => {
+    router.all(new RegExp(`^/port-${this.config.server.listen}`), async (ctx, next) => {
+      console.log(ctx)
       const serverNameList = this.config.server.name
       // 0.0.0.0全通过，其他需要匹配域名，域名有Core那边传过来的
       if (serverNameList.includes('0.0.0.0') || serverNameList.includes(ctx.request.domain)) {
+        // 找到url匹配的Location
         let findLocation = false
+        console.log('locationList: ', this.locationList)
         for (const currentLocation of this.locationList) {
           findLocation = await currentLocation.getResponse(ctx)
           if (findLocation) {
             break
           }
         }
-        console.log(findLocation)
+        console.log('findLocation: ', findLocation)
       }
       await next()
     })
