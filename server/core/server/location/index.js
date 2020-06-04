@@ -17,8 +17,8 @@ export default class Location {
   }
   // 处理ctx，如果url匹配，则返回
   async getResponse (ctx) {
-    console.log(this.config.type, ctx.request.rawUrl)
-    if (this.matchUrl(ctx.request.rawUrl)) {
+    console.log(this.config.type, ctx.request.url)
+    if (this.matchUrl(ctx.request.url)) {
       switch (this.config.type) {
         case 'proxyPass': {
           const proxy = Proxy.createProxyServer(this.config.proxyPass)

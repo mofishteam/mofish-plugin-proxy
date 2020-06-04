@@ -22,19 +22,14 @@ export default class Core {
   }
   // 初始化Servers
   initServers () {
-    this.serverList = {
-      // 子进程模式
-      child: [],
-      // 中间人模式
-      mitm: []
-    }
+    this.serverList = []
     this.initHandler()
     this.serversConfig.map(serverConfig => {
       // 合并默认配置
       serverConfig = merge(defaultServerOption(), serverConfig)
       serverConfig.id = serverConfig.id || getId(`server-${serverConfig.type}`)
       const instance = getServerInstance({ config: serverConfig, handler: this.handler })
-      this.serverList[serverConfig.type].push(instance)
+      this.serverList.push(instance)
     })
   }
   // 初始化Koa对象
@@ -43,16 +38,15 @@ export default class Core {
     this.handler.use(async (ctx, next) => {
       const port = parseInt((((/:[\d]+($|\/)/).exec(ctx.request.header.host) || [80])[0] + '').replace(':', ''))
       const domain = ctx.request.header.host.replace(`:${port}`, '')
-      ctx.request.rawUrl = ctx.request.url
-      ctx.request.domain = domain
-      ctx.request.url = `/port-${port}${ctx.request.url}`
-      console.log(ctx.request.url, ctx.request.rawUrl)
+      for (const serverItem of this.serverList) {
+        await serverItem.request({ port, domain }, ctx)
+      }
       await next()
     })
   }
   setServerConfig (id, config = {}) {
-    if (config.type && this.serverList[config.type]) {
-      const server = this.serverList[config.type].find(item => item.id === config.id)
+    if (this.serverList) {
+      const server = this.serverList.find(item => item.id === config.id)
       server.setConfig(merge(defaultServerOption(), server.config, config))
     }
   }
@@ -62,7 +56,7 @@ export default class Core {
       const serverListItem = this.serverList[serverListIndex]
       serverListItem.destroy && serverListItem.destroy()
     }
-    this.serverList = {}
+    this.serverList = []
   }
   // 销毁所有资源
   destroyResources () {
