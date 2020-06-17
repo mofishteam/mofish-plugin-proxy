@@ -2,7 +2,8 @@ import proxyPass from './proxyPass'
 import Proxy from 'http-proxy'
 
 export default class Location {
-  constructor ({ config = {} }) {
+  constructor ({ config = {}, router }) {
+    this.router = router
     this.setConfig(config)
     this.init()
   }
@@ -29,4 +30,5 @@ export default class Location {
       return true
     }
   }
+  destroy () {}
 }
