@@ -27,6 +27,7 @@
             "type": "proxyPass",
             "proxyPass": {
               "target": "https://blog.anymelon.com",
+              "method": "get",
               "changeOrigin": true,
               "ws": true,
               "router": [],

@@ -3,7 +3,7 @@ export default function (ctx, config, proxy) {
     // console.log(ctx.res)
     proxy.web(ctx.req, ctx.res)
     proxy.on('proxyRes', (proxyRes, req, res) => {
-      console.log('proxyRes', proxyRes)
+      // console.log('proxyRes', proxyRes)
       resolve()
     })
     // console.log('res:', ctx.response)

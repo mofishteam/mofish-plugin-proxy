@@ -56,16 +56,16 @@ export default class ChildServer {
       for (const location of this.locationList) {
         location.destroy()
       }
-      this.locationList = []
     }
+    this.locationList = []
   }
   // 重置LocationList
   reloadLocations () {
     this.removeAllLocations()
     this.config.server.locations.map(locationConfig => {
-      this.locationList.push(new Location({ config: locationConfig, router: this.router }))
+      this.locationList.push(new Location({ config: locationConfig, serverConfig: this.config, router: this.router }))
     })
-    console.log(this.router.stack)
+    console.log(this.router.stack.length)
   }
   // 关闭Server
   close () {
@@ -74,7 +74,7 @@ export default class ChildServer {
   }
   destroyResources () {
     this.httpServer = null
-    this.locationList = []
+    this.removeAllLocations()
   }
   destroy () {
     this.close()
