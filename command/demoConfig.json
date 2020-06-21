@@ -24,19 +24,14 @@
             "isClose": false,
             "delay": "1000",
             "url": "/",
+            "method": "all",
             "type": "proxyPass",
             "proxyPass": {
-              "target": "https://blog.anymelon.com",
-              "method": "get",
+              "target": "http://test.anymelon.com",
               "changeOrigin": true,
               "ws": true,
               "router": [],
-              "pathRewrite": [
-                [
-                  "good",
-                  "aaa"
-                ]
-              ],
+              "pathRewrite": [],
               "interceptors": {
                 "response": [],
                 "request": []
@@ -76,7 +71,6 @@
               "extensioins": null
             },
             "mock": {
-              "method": "all",
               "type": "json",
               "json": "",
               "jsonPath": "",

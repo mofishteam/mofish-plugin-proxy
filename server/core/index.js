@@ -43,11 +43,13 @@ export default class Core {
     this.handler = new Koa()
     this.router = new Router()
     this.handler.use(async (ctx, next) => {
+      console.log('status before: ', ctx.status, 'url: ', ctx.request.url)
       const port = parseInt((((/:[\d]+($|\/)/).exec(ctx.request.header.host) || [80])[0] + '').replace(':', ''))
       const domain = ctx.request.header.host.replace(`:${port}`, '')
       ctx.request.rawUrl = ctx.request.url
       ctx.request.domain = domain
       ctx.request.url = `/port-${port}${ctx.request.url}`
+      console.log('url after: ', ctx.request.url, ctx.url)
       // console.log(ctx.request.url, ctx.request.rawUrl)
       await next()
     })

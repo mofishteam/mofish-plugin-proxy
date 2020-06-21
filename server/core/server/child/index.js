@@ -65,7 +65,7 @@ export default class ChildServer {
     this.config.server.locations.map(locationConfig => {
       this.locationList.push(new Location({ config: locationConfig, serverConfig: this.config, router: this.router }))
     })
-    console.log(this.router.stack.length)
+    console.log(this.router.stack)
   }
   // 关闭Server
   close () {
