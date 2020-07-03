@@ -35,11 +35,11 @@ export default class Location {
     //   await next()
     // })
     // fixme: 卡在不能一个 / 全匹配根目录，目前考虑config中输入 / ，然后router的url转为正则
-    this.router.all('/*', 'abc', async (ctx, next) => {
+    this.router.all('/*', async (ctx, next) => {
       ctx.request.url = ctx.request.rawUrl
       await next()
     })
-    this.router.get('/*/*', 'bcd', k2c(createProxyMiddleware({
+    this.router.get(`${this.config.url.replace(/\(\.\*\)$/, '').replace(/\/$/, '')}/(.*)`, k2c(createProxyMiddleware({
       ...this.config.proxyPass,
       pathRewrite: arrayToObject(this.config.proxyPass.pathRewrite)
     })))

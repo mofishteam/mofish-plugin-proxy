@@ -9,7 +9,7 @@ Commander.version(PackageJson.version)
 export default function CommandInputHandler (command) {
   if (command.config) {
     try {
-      const config = JSON.parse(fs.readFileSync(command.config).toString())
+      const config = typeof command.config === 'object' ? command.config : JSON.parse(fs.readFileSync(command.config).toString())
       const core = new Core({ config })
       console.log(core)
     } catch (err) {
