@@ -25,7 +25,7 @@
             "delay": "1000",
             "url": "/",
             "method": "all",
-            "type": "proxyPass",
+            "type": "static",
             "proxyPass": {
               "target": "http://confluence.qunhequnhe.com/",
               "changeOrigin": true,
@@ -60,7 +60,7 @@
               "buffer": false
             },
             "static": {
-              "path": "",
+              "path": "/Users/zhangxiao",
               "maxage": 0,
               "hidden": false,
               "index": "index.html",
