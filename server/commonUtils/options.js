@@ -122,11 +122,10 @@ export const defaultLocationProxyPassOption = () => ({
 })
 
 export const defaultLocationMockOption = () => ({
-  method: 'all',
   type: 'json',
   json: '',
   jsonPath: '',
-  proxyPass: defaultLocationProxyPassOption(),
+  // proxyPass: defaultLocationProxyPassOption(),
   body: null,
   header: {},
   status: 200,

@@ -25,7 +25,7 @@
             "delay": "1000",
             "url": "/",
             "method": "all",
-            "type": "static",
+            "type": "mock",
             "proxyPass": {
               "target": "http://confluence.qunhequnhe.com/",
               "changeOrigin": true,
@@ -65,7 +65,7 @@
               "hidden": false,
               "index": "index.html",
               "defer": false,
-              "gzip": false,
+              "gzip": true,
               "br": true,
               "setHeaders": null,
               "extensioins": null
@@ -74,44 +74,15 @@
               "type": "json",
               "json": "",
               "jsonPath": "",
-              "proxyPass": {
-                "target": "",
-                "changeOrigin": true,
-                "ws": true,
-                "router": [],
-                "pathRewrite": [],
-                "interceptors": {
-                  "response": [],
-                  "request": []
-                },
-                "secure": true,
-                "forward": false,
-                "agent": false,
-                "ssl": {},
-                "xfwd": false,
-                "toProxy": false,
-                "prependPath": true,
-                "ignorePath": false,
-                "localAddress": "",
-                "preserveHeaderKeyCase": false,
-                "auth": "",
-                "hostRewrite": false,
-                "autoRewrite": false,
-                "protocolRewrite": false,
-                "cookieDomainRewrite": false,
-                "cookiePathRewrite": false,
-                "headers": {},
-                "proxyTimeout": false,
-                "timeout": 0,
-                "followRedirects": false,
-                "selfHandleResponse": false,
-                "buffer": false
+              "body": {
+                "a": 1
               },
-              "body": null,
-              "header": {},
+              "header": {
+                "x-test": "Hello"
+              },
               "status": 200,
               "handler": null,
-              "interceptor": null
+              "interceptor": "ctx.set({interceptorTest: 1})"
             }
           },
           {
@@ -120,7 +91,7 @@
             "delay": "1000",
             "url": "/test/",
             "method": "all",
-            "type": "proxyPass",
+            "type": "mock",
             "proxyPass": {
               "target": "http://localhost:7000/",
               "changeOrigin": true,
@@ -169,44 +140,15 @@
               "type": "json",
               "json": "",
               "jsonPath": "",
-              "proxyPass": {
-                "target": "",
-                "changeOrigin": true,
-                "ws": true,
-                "router": [],
-                "pathRewrite": [],
-                "interceptors": {
-                  "response": [],
-                  "request": []
-                },
-                "secure": true,
-                "forward": false,
-                "agent": false,
-                "ssl": {},
-                "xfwd": false,
-                "toProxy": false,
-                "prependPath": true,
-                "ignorePath": false,
-                "localAddress": "",
-                "preserveHeaderKeyCase": false,
-                "auth": "",
-                "hostRewrite": false,
-                "autoRewrite": false,
-                "protocolRewrite": false,
-                "cookieDomainRewrite": false,
-                "cookiePathRewrite": false,
-                "headers": {},
-                "proxyTimeout": false,
-                "timeout": 0,
-                "followRedirects": false,
-                "selfHandleResponse": false,
-                "buffer": false
+              "body": {
+                "test-a": 1
               },
-              "body": null,
-              "header": {},
+              "header": {
+                "x-test": "Hello2"
+              },
               "status": 200,
               "handler": null,
-              "interceptor": null
+              "interceptor": "ctx.set({interceptorTest2: 1})"
             }
           }
         ]

@@ -21,6 +21,8 @@ export default class Location {
   }
   setConfig (config) {
     this.config = config
+    this.method = (this.config[this.config.type].method || 'all').toLowerCase()
+    this.routerUrl = `${this.config.url.replace(/\(\.\*\)$/, '').replace(/\/$/, '')}/(.*)`
   }
   init () {
     this.router = new Router()
@@ -30,6 +32,7 @@ export default class Location {
       ctx.request.url = ctx.request.rawUrl
       await next()
     })
+    // 根据不同type添加不同的router
     this.setResponse()
     // 使用use方法挂载到根路由，在销毁时通过this.rootRouter.stack实现解挂
     this.rootRouter.use(`/port-${this.serverConfig.server.listen}`, this.router.routes(), this.router.allowedMethods())
@@ -37,23 +40,42 @@ export default class Location {
   // 使用proxyPass
   useProxyPass (router) {
     // 把config中用户填写的method都改为小写
-    const method = (this.config[this.config.type].method || 'all').toLowerCase()
     // router方法第一个参数强制给url添加/(.*)来实现通配（含 / 与否都可匹配）
     // createProxyMiddleware接受参数与httpProxy库基本相同（应该就是一个封装），使用k2c将这个express中间件转换为koa中间件
     // TODO: interceptor，timeout的实现
-    router[method](`${this.config.url.replace(/\(\.\*\)$/, '').replace(/\/$/, '')}/(.*)`, k2c(createProxyMiddleware({
+    router[this.method](this.routerUrl, k2c(createProxyMiddleware({
       ...this.config.proxyPass,
       pathRewrite: arrayToObject(this.config.proxyPass.pathRewrite)
     })))
   }
   // 使用StaticServer
   useStatic (router) {
-    router.get(Static(this.config.static.path, this.config.static))
+    router[this.method](this.routerUrl, Static(this.config.static.path, this.config.static))
+  }
+  // 使用mockServer
+  useMock (router) {
+    router[this.method](this.routerUrl, async (ctx, next) => {
+      ctx.body = this.config.mock.body
+      // 设置Headers
+      if (this.config.mock.header) {
+        ctx.set(this.config.mock.header)
+      }
+      // 设置Status
+      if (!this.config.mock.status || this.config.mock.status !== 200) {
+        ctx.status = this.config.mock.status
+      }
+      // 设置Interceptor
+      if (this.config.mock.interceptor) {
+        (new Function('ctx', this.config.mock.interceptor))(ctx)
+      }
+      // await next()
+    })
   }
   setResponse () {
     switch (this.config.type) {
       case 'proxyPass': this.useProxyPass(this.router); break
       case 'static': this.useStatic(this.router); break
+      case 'mock': this.useMock(this.router); break
       default: return false
     }
   }

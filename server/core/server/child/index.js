@@ -63,7 +63,7 @@ export default class ChildServer {
   reloadLocations () {
     this.removeAllLocations()
     // 反过来让后面的细则覆盖前面的通配
-    this.config.server.locations.reverse().map(locationConfig => {
+    this.config.server.locations.map(locationConfig => {
       this.locationList.push(new Location({ config: locationConfig, serverConfig: this.config, router: this.router }))
     })
     console.log(this.router.stack)
