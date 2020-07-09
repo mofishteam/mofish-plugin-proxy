@@ -25,8 +25,14 @@
             "delay": "1000",
             "url": "/",
             "method": "all",
-            "type": "static",
-            "interceptors": ["ctx.set({interceptorTest: 1}); console.log('123')"],
+            "type": "proxyPass",
+            "interceptors": [{
+              "stage": "before",
+              "handler": "ctx.set({interceptorTest: 1}); console.log('before')"
+            }, {
+              "stage": "after",
+              "handler": "ctx.set({interceptorTest: 1}); console.log('after')"
+            }],
             "proxyPass": {
               "target": "http://confluence.qunhequnhe.com/",
               "changeOrigin": true,

@@ -1,5 +1,4 @@
 import k2c from 'koa2-connect'
-import Router from 'koa-router'
 import Static from 'koa-static'
 import { createProxyMiddleware } from 'http-proxy-middleware'
 
@@ -13,8 +12,7 @@ const arrayToObject = (arr) => {
 }
 
 export default class Location {
-  constructor ({ config = {}, serverConfig = {}, router }) {
-    this.rootRouter = router
+  constructor ({ config = {}, serverConfig = {} }) {
     this.serverConfig = serverConfig
     this.setConfig(config)
     this.init()
@@ -22,48 +20,66 @@ export default class Location {
   setConfig (config) {
     this.config = config
     this.method = (this.config[this.config.type].method || 'all').toLowerCase()
-    this.routerUrl = `${this.config.url.replace(/\(\.\*\)$/, '').replace(/\/$/, '')}/(.*)`
   }
   init () {
-    this.router = new Router()
-    // 进入Location规则之后把url改回标准形式（去除/port-xxxx）
-    this.router[this.method]('/*', async (ctx, next) => {
-      // rawUrl：在core中定义为最原始的进入路由的url，在后面ctx.request.url被处理，加上了/port-xxxx
-      ctx.request.url = ctx.request.rawUrl
-      await next()
-    })
-    this.router[this.method](this.routerUrl, async (ctx, next) => {
-      // 设置Interceptor
-      if (this.config.interceptors) {
-        for (const interceptor of this.config.interceptors) {
-          await (new Function('ctx', interceptor))(ctx)
-        }
-      }
-      await next()
-    })
+    // this.router[this.method](this.routerUrl, async (ctx, next) => {
+    //   // 设置Interceptor
+    //   if (this.config.interceptors) {
+    //     for (const interceptor of this.config.interceptors) {
+    //       await (new Function('ctx', interceptor))(ctx)
+    //     }
+    //   }
+    //   await next()
+    // })
     // 根据不同type添加不同的router
     this.setResponse()
     // 使用use方法挂载到根路由，在销毁时通过this.rootRouter.stack实现解挂
-    this.rootRouter.use(`/port-${this.serverConfig.server.listen}`, this.router.routes(), this.router.allowedMethods())
+    // this.rootRouter.use(`/port-${this.serverConfig.server.listen}`, this.router.routes(), this.router.allowedMethods())
+  }
+  match (ctx) {
+    return true
+  }
+  async action (ctx, next) {
+    await this.resHandler(ctx, next)
+  }
+  setResHandler (middleware) {
+    const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
+    this.resHandler = async (ctx, next) => {
+      if (this.config.interceptors) {
+        for (const interceptor of this.config.interceptors) {
+          if (interceptor.stage === 'before') {
+            await (new AsyncFunction('ctx', interceptor.handler))(ctx)
+          }
+        }
+      }
+      await middleware(ctx, next)
+      if (this.config.interceptors) {
+        for (const interceptor of this.config.interceptors) {
+          if (interceptor.stage === 'after') {
+            await (new AsyncFunction('ctx', interceptor.handler))(ctx)
+          }
+        }
+      }
+    }
   }
   // 使用proxyPass
-  useProxyPass (router) {
+  useProxyPass () {
     // 把config中用户填写的method都改为小写
     // router方法第一个参数强制给url添加/(.*)来实现通配（含 / 与否都可匹配）
     // createProxyMiddleware接受参数与httpProxy库基本相同（应该就是一个封装），使用k2c将这个express中间件转换为koa中间件
     // TODO: interceptor，timeout的实现
-    router[this.method](this.routerUrl, k2c(createProxyMiddleware({
+    this.setResHandler(k2c(createProxyMiddleware({
       ...this.config.proxyPass,
       pathRewrite: arrayToObject(this.config.proxyPass.pathRewrite)
     })))
   }
   // 使用StaticServer
-  useStatic (router) {
-    router[this.method](this.routerUrl, Static(this.config.static.path, this.config.static))
+  useStatic () {
+    this.setResHandler(Static(this.config.static.path, this.config.static))
   }
   // 使用mockServer
-  useMock (router) {
-    router[this.method](this.routerUrl, async (ctx, next) => {
+  useMock () {
+    this.setResHandler(async (ctx, next) => {
       ctx.body = this.config.mock.body
       // 设置Headers
       if (this.config.mock.header) {
@@ -78,9 +94,9 @@ export default class Location {
   }
   setResponse () {
     switch (this.config.type) {
-      case 'proxyPass': this.useProxyPass(this.router); break
-      case 'static': this.useStatic(this.router); break
-      case 'mock': this.useMock(this.router); break
+      case 'proxyPass': this.useProxyPass(); break
+      case 'static': this.useStatic(); break
+      case 'mock': this.useMock(); break
       default: return false
     }
   }
