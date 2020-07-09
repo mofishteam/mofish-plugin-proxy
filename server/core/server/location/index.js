@@ -27,9 +27,18 @@ export default class Location {
   init () {
     this.router = new Router()
     // 进入Location规则之后把url改回标准形式（去除/port-xxxx）
-    this.router.all('/*', async (ctx, next) => {
+    this.router[this.method]('/*', async (ctx, next) => {
       // rawUrl：在core中定义为最原始的进入路由的url，在后面ctx.request.url被处理，加上了/port-xxxx
       ctx.request.url = ctx.request.rawUrl
+      await next()
+    })
+    this.router[this.method](this.routerUrl, async (ctx, next) => {
+      // 设置Interceptor
+      if (this.config.interceptors) {
+        for (const interceptor of this.config.interceptors) {
+          await (new Function('ctx', interceptor))(ctx)
+        }
+      }
       await next()
     })
     // 根据不同type添加不同的router
@@ -64,11 +73,7 @@ export default class Location {
       if (!this.config.mock.status || this.config.mock.status !== 200) {
         ctx.status = this.config.mock.status
       }
-      // 设置Interceptor
-      if (this.config.mock.interceptor) {
-        (new Function('ctx', this.config.mock.interceptor))(ctx)
-      }
-      // await next()
+      await next()
     })
   }
   setResponse () {
