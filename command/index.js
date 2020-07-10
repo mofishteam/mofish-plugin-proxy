@@ -1,20 +1,23 @@
-import Commander from 'commander'
+import { program } from 'commander'
 import PackageJson from '../package'
-import Core from '../server/core'
-import fs from 'fs'
+import ipcClientGenerator from '../ipc/client'
+import enterCommandMode from './commandMode'
 
-Commander.version(PackageJson.version)
-  .option('-c, --config', 'Path of config file.')
+// program.command('command')
+//   .description('Command mode.')
+//   .action(() => {
+//     console.log('command')
+//   })
 
-export default function CommandInputHandler (command) {
-  if (command.config) {
-    try {
-      const config = typeof command.config === 'object' ? command.config : JSON.parse(fs.readFileSync(command.config).toString())
-      const core = new Core({ config })
-      console.log(core)
-    } catch (err) {
-      console.error('Error when handling config file.')
-      throw new Error(err)
-    }
-  }
+const ipcClientSend = null
+
+const connectCore = async () => {
+  return ipcClientSend || await ipcClientGenerator()
 }
+
+program.version(PackageJson.version)
+  .option('-c, --config', 'Path of config file.')
+  .option('--command', 'Command mode.', async () => {
+    await enterCommandMode(connectCore)
+  })
+  .parse(process.argv)

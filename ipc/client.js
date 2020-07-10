@@ -1,10 +1,10 @@
-const ipc = require('node-ipc')
+import ipc from 'node-ipc'
 
 ipc.config.id = 'mofishPluginProxyClient'
 ipc.config.retry = 1500
 let count = 0
 
-module.exports.default = () => new Promise(resolve => {
+export default () => new Promise(resolve => {
   ipc.connectTo(
     'mofishPluginProxy',
     () => {

@@ -1,4 +1,4 @@
-import ipcServerGenerator from '../ipc/server'
+import ipcServerGenerator from '../../ipc/server'
 
 export default async function (core) {
   const ipcServer = await ipcServerGenerator()

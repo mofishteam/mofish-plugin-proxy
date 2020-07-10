@@ -17,7 +17,8 @@ const tryMkdir = (dirPath) => new Promise(resolve => {
 })
 
 const tryMkdirLoop = async (dirPath) => {
-  const splitPath = dirPath.replace(/\/[\s\S]+\.json$/, '').replace(/^\//, '').split('/')
+  const splitPath = dirPath.replace(/\/[^/]*?\.json$/, '').replace(/^\//, '').split('/')
+  console.log(splitPath, dirPath, dirPath.replace(/\/[\s\S]*?\.json$/, ''))
   let tempPath = ''
   for (const pathItem of splitPath) {
     tempPath += '/' + pathItem
@@ -29,6 +30,7 @@ const start = async (configPath = DEFAULT_CONFIG_PATH) => {
   fs.stat(configPath, async (err, stat) => {
     // 没有config文件或者未初始化
     if (err) {
+      console.log(err)
       await tryMkdirLoop(configPath)
       await new Promise(resolve => {
         fs.writeFile(configPath, JSON.stringify(defaultConfig), (err) => {
@@ -41,12 +43,12 @@ const start = async (configPath = DEFAULT_CONFIG_PATH) => {
       })
     }
     // 正式读取配置文件
-    const config = require(configPath)
-    console.log(config)
+    console.log(configPath)
+    const config = JSON.parse(fs.readFileSync(configPath).toString())
     // 启动核心功能
     const core = new Core({ config })
     // 对外暴露Socket提供连接
-    connect(core)
+    await connect(core)
   })
 }
 
