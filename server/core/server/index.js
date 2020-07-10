@@ -1,10 +1,22 @@
 import http from 'http'
 import Location from './location'
+import UrlHandler from '../../utils/urlHandler'
 
 export default class Server {
   constructor ({ config = {}, handler }) {
     this.handler = handler
     this.setConfig(config)
+    this.initUrlHandler()
+  }
+  initUrlHandler () {
+    this.urlHandler = new UrlHandler(
+      this.locationList.map((location) => {
+        return {
+          url: location.config.url,
+          callback: () => location
+        }
+      })
+    )
   }
   setConfig (config) {
     this.config = config
@@ -30,12 +42,9 @@ export default class Server {
   }
   async action (ctx, next) {
     console.log('server action', ctx.url)
-    for (const location of this.locationList) {
-      if (location.match(ctx)) {
-        await location.action(ctx, next)
-        break
-      }
-    }
+    const handlerResult = this.urlHandler.match(ctx.url)
+    const location = handlerResult.callback()
+    await location.action(ctx, next)
   }
   // 单纯splice或者单纯push会造成顺序错乱，暂时采用全删重置的方法
   removeAllLocations () {

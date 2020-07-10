@@ -36,9 +36,6 @@ export default class Location {
     // 使用use方法挂载到根路由，在销毁时通过this.rootRouter.stack实现解挂
     // this.rootRouter.use(`/port-${this.serverConfig.server.listen}`, this.router.routes(), this.router.allowedMethods())
   }
-  match (ctx) {
-    return true
-  }
   async action (ctx, next) {
     await this.resHandler(ctx, next)
   }

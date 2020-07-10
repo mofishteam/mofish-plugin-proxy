@@ -34,7 +34,7 @@
               "handler": "ctx.set({interceptorTest: 1}); console.log('after')"
             }],
             "proxyPass": {
-              "target": "http://confluence.qunhequnhe.com/",
+              "target": "https://blog.anymelon.com/",
               "changeOrigin": true,
               "ws": true,
               "router": [],
@@ -91,12 +91,12 @@
             "id": "9f743af0939337492446a576f6324b01",
             "isClose": false,
             "delay": "1000",
-            "url": "/test/",
+            "url": "~ /[\\s\\S]+",
             "method": "all",
-            "type": "static",
+            "type": "proxyPass",
             "interceptors": ["ctx.set({interceptorTest: 1}); console.log('345')"],
             "proxyPass": {
-              "target": "http://localhost:7000/",
+              "target": "https://cloud.anymelon.com/",
               "changeOrigin": true,
               "ws": true,
               "router": [],
