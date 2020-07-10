@@ -1,6 +1,9 @@
 import commandInputHandler from './index'
+// import '../ipc/client'
 // import path from 'path'
 
-commandInputHandler({
-  config: require('./demoConfig.json')
-})
+(async () => {
+  commandInputHandler({
+    config: require('./demoConfig.json')
+  })
+})()

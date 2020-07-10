@@ -55,8 +55,7 @@ export const defaultLocationStaticOption = () => ({
 
 export const defaultInterceptorOption = () => ({
   id: getId('interceptor'),
-  type: 'response',
-  name: '',
+  stage: 'after',
   handler: ''
 })
 

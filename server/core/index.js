@@ -10,11 +10,17 @@ export default class Core {
     this.config = {}
     this.setConfig(config)
   }
-  // 设置Config
-  setConfig (config) {
+  /*
+  * 设置Config
+  * @param config 配置JSON
+  * @param silence 是否触发重载
+  * */
+  setConfig (config, silence = false) {
     this.config = merge(this.config, config)
     this.serversConfig = this.config.allProject
-    this.reload()
+    if (!silence) {
+      this.reload()
+    }
   }
   // 重启Core
   reload () {
