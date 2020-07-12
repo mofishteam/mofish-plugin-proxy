@@ -2,6 +2,7 @@ import Core from './core'
 import fs from 'fs'
 import defaultConfig from './commonUtils/default.json'
 import connect from './connect'
+import 'colors'
 import os from 'os'
 import path from 'path'
 const HOME_DIR = os.homedir()
@@ -46,7 +47,7 @@ const start = async (configPath = DEFAULT_CONFIG_PATH) => {
     console.log(configPath)
     const config = JSON.parse(fs.readFileSync(configPath).toString())
     // 启动核心功能
-    const core = new Core({ config })
+    const core = new Core({ config, configPath })
     // 对外暴露Socket提供连接
     await connect(core)
   })

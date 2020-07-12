@@ -2,6 +2,7 @@ const ipc = require('node-ipc')
 
 ipc.config.id = 'mofishPluginProxy'
 ipc.config.retry = 1500
+ipc.config.silent = true
 
 const generator = () => new Promise(resolve => {
   ipc.serve(() => {

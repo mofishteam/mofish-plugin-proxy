@@ -1,9 +1,11 @@
 import http from 'http'
 import Location from './location'
 import UrlHandler from '../../utils/urlHandler'
+import { getId } from '../../commonUtils/options'
 
 export default class Server {
   constructor ({ config = {}, handler }) {
+    this.id = config.id || getId('server')
     this.handler = handler
     this.setConfig(config)
     this.initUrlHandler()
@@ -18,16 +20,18 @@ export default class Server {
       })
     )
   }
-  setConfig (config) {
+  setConfig (config, silence = false) {
     this.config = config
     if (this.config.close) {
       this.close()
     } else {
-      this.reload()
+      if (!silence) {
+        this.reload()
+      }
     }
   }
   reload () {
-    this.destroyResources()
+    this.close()
     this.init()
   }
   init () {
@@ -60,7 +64,7 @@ export default class Server {
     this.removeAllLocations()
     // 反过来让后面的细则覆盖前面的通配
     this.config.server.locations.forEach(locationConfig => {
-      this.locationList.push(new Location({ config: locationConfig, serverConfig: this.config }))
+      this.locationList.push(new Location({ config: locationConfig, serverConfig: this.config, id: locationConfig.id }))
     })
   }
   // 关闭Server

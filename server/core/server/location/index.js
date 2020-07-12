@@ -12,7 +12,8 @@ const arrayToObject = (arr) => {
 }
 
 export default class Location {
-  constructor ({ config = {}, serverConfig = {} }) {
+  constructor ({ config = {}, serverConfig = {}, id }) {
+    this.id = id
     this.serverConfig = serverConfig
     this.setConfig(config)
     this.init()

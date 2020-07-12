@@ -1,13 +1,9 @@
 import { program } from 'commander'
 import PackageJson from '../package'
 import ipcClientGenerator from '../ipc/client'
-import enterCommandMode from './commandMode'
-
-// program.command('command')
-//   .description('Command mode.')
-//   .action(() => {
-//     console.log('command')
-//   })
+import enterRawMsgMode from './rawMsgMode'
+import 'colors'
+// import commandList from './commandList'
 
 const ipcClientSend = null
 
@@ -15,9 +11,36 @@ const connectCore = async () => {
   return ipcClientSend || await ipcClientGenerator()
 }
 
-program.version(PackageJson.version)
-  .option('-c, --config', 'Path of config file.')
-  .option('--command', 'Command mode.', async () => {
-    await enterCommandMode(connectCore)
+program.name('mpp')
+  .usage('[global options] command')
+
+program
+  .command('config <path>')
+  .description('Path of config file.')
+  .action(async (p) => {
+    console.log(p)
   })
+
+// 原始ipc消息模式
+program
+  .command('raw-msg [msg]')
+  .description('Send raw message to mofishd.')
+  .action(async (msg) => {
+    await enterRawMsgMode(connectCore, msg)
+  })
+
+program.command('list')
+  .description('List Servers or Locations.')
+  .action((type, id) => {
+    console.log(type, id)
+    // commandList()
+  })
+
+program.command('test')
+  .option('-a')
+  .action(() => {
+    console.log('test')
+  })
+
+program.version(PackageJson.version)
   .parse(process.argv)

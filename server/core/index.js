@@ -3,11 +3,14 @@ import Koa from 'koa'
 import Server from './server/index'
 import { defaultServerOption, getId } from '../commonUtils/options'
 import urlParser from 'url-parse'
+import fs from 'fs'
+// import cloneDeep from 'lodash.clonedeep'
 
 // 核心类，用来收集Server和下发配置
 export default class Core {
-  constructor ({ config = {} }) {
+  constructor ({ config = {}, configPath }) {
     this.config = {}
+    this.configPath = configPath
     this.setConfig(config)
   }
   /*
@@ -16,11 +19,78 @@ export default class Core {
   * @param silence 是否触发重载
   * */
   setConfig (config, silence = false) {
+    // this.rawConfig = cloneDeep(this.config)
     this.config = merge(this.config, config)
     this.serversConfig = this.config.allProject
     if (!silence) {
       this.reload()
     }
+  }
+  // 将config保存到文件
+  saveConfig () {
+    return new Promise(resolve => {
+      fs.writeFile(this.configPath, JSON.stringify(this.config), (err) => {
+        if (err) {
+          console.error(err)
+        } else {
+          resolve()
+        }
+      })
+    })
+  }
+  // 获取合并后的config
+  getMergedConfig () {
+    return this.config
+  }
+  // 获取合并前的config
+  // getRawConfig () {
+  //   return this.rawConfig
+  // }
+  // 合并某个server的配置
+  mergeServerConfig (id, data) {
+    const serverResult = this.getServer(id)
+    const serverConfig = serverResult.config
+    const serverInstance = serverResult.instance
+    this.getServerConfigList().map(item => {
+      if (item.id === id) {
+        console.log(merge(serverConfig, data))
+        return merge(serverConfig, data)
+      } else {
+        return item
+      }
+    })
+    serverInstance.setConfig(this.getServer(id).config, true)
+  }
+  // 获取所有的server
+  getServerConfigList () {
+    return this.config.allProject || []
+  }
+  // 获取某个server
+  getServer (id) {
+    const serverConfig = this.getServerConfigList().find(item => item.id === id)
+    const serverInstance = this.serverList.find(item => item.id === id)
+    return serverConfig && serverInstance ? {
+      config: serverConfig,
+      instance: serverInstance
+    } : null
+  }
+  getLocationConfigList () {
+    return this.getServerConfigList().reduce((locationList, current) => {
+      locationList.push(...current.server.locations)
+      return locationList
+    }, [])
+  }
+  // 获取其中一个Location
+  getLocation (id) {
+    const locationConfig = this.getLocationConfigList().find(item => item.id === id)
+    const locationInstance = this.serverList.reduce((locationList, current) => {
+      locationList.push(...current.locationList)
+      return locationList
+    }, []).find(item => item.id === id)
+    return locationConfig && locationInstance ? {
+      config: locationConfig,
+      instance: locationInstance
+    } : null
   }
   // 重启Core
   reload () {
