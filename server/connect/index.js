@@ -17,5 +17,4 @@ export default async function (core) {
       case 'set': serviceSet({ params, reply, core }); break
     }
   })
-  console.log(core)
 }

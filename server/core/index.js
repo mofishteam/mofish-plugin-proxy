@@ -61,6 +61,20 @@ export default class Core {
     })
     serverInstance.setConfig(this.getServer(id).config, true)
   }
+  // 合并Location的配置
+  mergeLocationConfig (id, data) {
+    const locationResult = this.getLocation(id)
+    const locationConfig = locationResult.config
+    const locationInstance = locationResult.instance
+    this.getLocationConfigList().map(item => {
+      if (item.id === id) {
+        return merge(locationConfig, data)
+      } else {
+        return item
+      }
+    })
+    locationInstance.setConfig(this.getLocation(id).config)
+  }
   // 获取所有的server
   getServerConfigList () {
     return this.config.allProject || []

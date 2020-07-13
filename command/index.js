@@ -3,7 +3,7 @@ import PackageJson from '../package'
 import ipcClientGenerator from '../ipc/client'
 import enterRawMsgMode from './rawMsgMode'
 import 'colors'
-// import commandList from './commandList'
+import commandList from './commandList'
 
 const ipcClientSend = null
 
@@ -29,11 +29,11 @@ program
     await enterRawMsgMode(connectCore, msg)
   })
 
-program.command('list')
+program
+  .command('list [type]')
   .description('List Servers or Locations.')
-  .action((type, id) => {
-    console.log(type, id)
-    // commandList()
+  .action(async (type = 'server', typeId, command) => {
+    await commandList(connectCore, type, typeId)
   })
 
 program.command('test')

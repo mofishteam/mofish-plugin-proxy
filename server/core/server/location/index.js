@@ -16,11 +16,11 @@ export default class Location {
     this.id = id
     this.serverConfig = serverConfig
     this.setConfig(config)
-    this.init()
   }
   setConfig (config) {
     this.config = config
     this.method = (this.config[this.config.type].method || 'all').toLowerCase()
+    this.init()
   }
   init () {
     // this.router[this.method](this.routerUrl, async (ctx, next) => {

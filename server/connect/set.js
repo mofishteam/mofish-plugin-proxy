@@ -4,5 +4,9 @@ export default async function ({ core, params, reply }) {
       await core.saveConfig()
       reply({ type: 'success', data: core.getServer(params.id).config })
       break
+    case 'location': core.mergeLocationConfig(params.id, params.change)
+      await core.saveConfig()
+      reply({ type: 'success', data: core.getLocation(params.id).config })
+      break
   }
 }
