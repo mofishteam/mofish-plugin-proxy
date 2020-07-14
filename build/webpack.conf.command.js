@@ -9,8 +9,9 @@ console.log(path.join(__dirname + '../dev-dist'))
 
 const webpackConfig = merge(baseConfig, shellConfig, {
   entry: {
-    core: path.join(__dirname, '../server/index.js'),
-    command: path.join(__dirname, '../command/index.js')
+    core: path.resolve(__dirname, '../server/index.js'),
+    command: path.resolve(__dirname, '../command/index.js'),
+    electron: isDev ? path.resolve(__dirname, '../electron/dev.js') : path.resolve(__dirname, '../electron/index.js')
   },
   output: {
     filename: '[name].js',

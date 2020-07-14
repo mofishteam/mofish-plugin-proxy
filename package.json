@@ -2,7 +2,7 @@
   "name": "mofish-plugin-proxy",
   "version": "0.7.2",
   "description": "A plugin for mofish tool to proxy requests and mock.",
-  "main": "./dist-dev/dev.js",
+  "main": "./dev-dist/electron.js",
   "private": false,
   "files": [
     "dist",
@@ -12,9 +12,10 @@
     "LICENSE"
   ],
   "scripts": {
-    "dev:electron": "nodemon --watch electron --watch server --exec \"npm run lint:electron && mkdir -p dist && babel server --presets env --plugins babel-plugin-syntax-object-rest-spread --out-dir ./dist-server && babel electron --presets env --plugins babel-plugin-syntax-object-rest-spread --out-dir ./dist-dev && ./node_modules/.bin/electron .\"",
-    "dev:both": "npm run serve & npm run dev:electron",
-    "dev:command": "cross-env mode=\"development\" webpack --config ./build/webpack.conf.command.js --mode development",
+    "dev:electron-bk": "nodemon --watch electron --watch server --exec \"npm run lint:electron && mkdir -p dist && babel server --presets env --plugins babel-plugin-syntax-object-rest-spread --out-dir ./dist-server && babel electron --presets env --plugins babel-plugin-syntax-object-rest-spread --out-dir ./dist-dev && ./node_modules/.bin/electron .\"",
+    "dev:electron": "nodemon --watch dev-dist --exec \"electron ./\"",
+    "dev:frontend": "npm run serve & npm run dev:electron",
+    "dev": "cross-env mode=\"development\" webpack --config ./build/webpack.conf.command.js --mode development",
     "build:command": "cross-env mode=\"production\" webpack --config ./build/webpack.conf.command.js --mode production",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
