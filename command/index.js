@@ -2,6 +2,7 @@ import { program } from 'commander'
 import PackageJson from '../package'
 import ipcClientGenerator from '../ipc/client'
 import enterRawMsgMode from './rawMsgMode'
+import reload from './reload'
 import 'colors'
 import commandList from './commandList'
 
@@ -37,10 +38,10 @@ program
     await commandList(connectCore, type, typeId)
   })
 
-program.command('test')
-  .option('-a')
-  .action(() => {
-    console.log('test')
+program.command('reload [type]')
+  .description('Reload Mofishd Process.')
+  .action((type = 'core') => {
+    reload(type)
   })
 
 program.version(PackageJson.version)
