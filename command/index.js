@@ -32,7 +32,8 @@ program
 program
   .command('list [type]')
   .description('List Servers or Locations.')
-  .action(async (type = 'server', typeId, command) => {
+  .option('--server-id', 'List Locations by Server-id.')
+  .action(async (type = 'server', command, typeId = '') => {
     await commandList(connectCore, type, typeId)
   })
 
