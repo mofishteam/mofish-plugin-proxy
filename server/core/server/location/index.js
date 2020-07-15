@@ -37,6 +37,9 @@ export default class Location {
     // 使用use方法挂载到根路由，在销毁时通过this.rootRouter.stack实现解挂
     // this.rootRouter.use(`/port-${this.serverConfig.server.listen}`, this.router.routes(), this.router.allowedMethods())
   }
+  reload () {
+    this.init()
+  }
   async action (ctx, next) {
     await this.resHandler(ctx, next)
   }
@@ -98,6 +101,5 @@ export default class Location {
       default: return false
     }
   }
-  // TODO: 从 this.rootRouter.stack 中去除 this.router 中的路由
   destroy () {}
 }

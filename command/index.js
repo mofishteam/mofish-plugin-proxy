@@ -38,10 +38,10 @@ program
     await commandList(connectCore, type, typeId)
   })
 
-program.command('reload [type]')
+program.command('reload [type] [typeId]')
   .description('Reload Mofishd Process.')
-  .action((type = 'core') => {
-    reload(type)
+  .action((type = 'core', typeId = '') => {
+    reload(connectCore, type, typeId)
   })
 
 program.version(PackageJson.version)

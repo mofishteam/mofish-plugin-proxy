@@ -1,6 +1,7 @@
 import ipcServerGenerator from '../../ipc/server'
 import serviceGet from './get'
 import serviceSet from './set'
+import serviceReload from './reload'
 
 export default async function (core) {
   const ipcServer = await ipcServerGenerator()
@@ -15,6 +16,7 @@ export default async function (core) {
     switch (dataObj.type) {
       case 'get': serviceGet({ params, reply, core }); break
       case 'set': serviceSet({ params, reply, core }); break
+      case 'reload': serviceReload({ params, reply, core }); break
     }
   })
 }
