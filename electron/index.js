@@ -13,8 +13,11 @@ function createWindow () {
   let win = new BrowserWindow({
     width: 1000,
     height: 600,
-    // 隐藏顶部标题栏
-    titleBarStyle: 'hidden',
+    title: 'Mofish',
+    backgroundColor: 'transparent',
+    transparent: true,
+    frame: false,
+    titleBarStyle: 'hiddenInset',
     webPreferences: {
       nodeIntegration: true
     }
