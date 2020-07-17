@@ -1,3 +1,5 @@
+// 注册Service
+import './service/menu'
 const { app, BrowserWindow } = require('electron')
 // require('@babel/polyfill')
 // require('../dist-server/proxy.js')

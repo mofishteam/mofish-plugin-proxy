@@ -51,6 +51,7 @@
     "colors": "^1.4.0",
     "commander": "^5.1.0",
     "core-js": "^2.6.5",
+    "electron-store": "^5.2.0",
     "element-ui": "^2.11.1",
     "http-proxy": "^1.18.1",
     "http-proxy-middleware": "^1.0.4",

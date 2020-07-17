@@ -16,57 +16,36 @@
 
 <script>
 import MenuList from './MenuList'
+import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'LeftMenu',
   data () {
     return {
-      width: 300,
-      menus: [{
-        name: 'Recently',
-        id: '12312334',
-        isFolder: true,
-        canRename: false,
-        children: [{
-          id: '1234353456',
-          name: 'ABC ABCA BABDSBA',
-          isFolder: false,
-          canRename: true
-        }, {
-          id: '124346567234',
-          name: 'ABC ABCA BABDSBA',
-          isFolder: false,
-          canRename: true
-        }, {
-          id: '23434k5345',
-          name: 'ABC ABCA BABDSBA',
-          isFolder: false,
-          canRename: true
-        }, {
-          id: '234,m234,mn234',
-          name: 'ABC ABCA BABDSBA',
-          isFolder: false,
-          canRename: true
-        }]
-      }, {
-        id: '234,m234n',
-        name: 'Default',
-        isFolder: true,
-        canRename: false,
-        children: [{
-          id: '23,4234n5bn46',
-          name: 'ABC ABCA BABDSBA',
-          isFolder: false,
-          canRename: true
-        }, {
-          id: '234m45n34b563',
-          name: 'ABC ABCA BABDSBASDFSDFSDFSDFSDF',
-          isFolder: false,
-          canRename: true
-        }]
-      }]
+      width: 300
     }
   },
-  methods: {},
+  methods: {
+    ...mapActions({
+      refreshMenu: 'refreshMenu',
+      setMenu: 'setMenu'
+    })
+  },
+  created () {
+    this.refreshMenu()
+  },
+  computed: {
+    ...mapGetters({
+      menuList: 'getMenu'
+    }),
+    menus: {
+      set (value) {
+        this.setMenu(value || [])
+      },
+      get () {
+        return this.menuList
+      }
+    }
+  },
   components: {
     MenuList
   }
