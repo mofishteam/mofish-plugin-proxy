@@ -7,8 +7,10 @@ import 'element-ui/lib/theme-chalk/index.css'
 import router from './router'
 import store from './store/index'
 import eventBus from './store/eventBus'
+import Icon from '@/components/global/Icon'
 
 Vue.use(ElementUI)
+Vue.component('Icon', Icon)
 Vue.prototype.$loading = ElementUI.Loading
 
 Vue.prototype.$bus = eventBus

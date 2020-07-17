@@ -9,7 +9,7 @@
 
 <script>
 import eventBus from '@/store/eventBus'
-import LeftMenu from '@/components/layout/LeftMenu.vue'
+import LeftMenu from '@/components/layout/LeftMenu'
 import TopTab from '@/components/layout/TopTab.vue'
 const onKeyDown = (evt) => {
   if (evt.key === 's' && (evt.ctrlKey || evt.metaKey)) {

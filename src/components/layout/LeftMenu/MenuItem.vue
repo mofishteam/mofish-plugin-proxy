@@ -1,0 +1,104 @@
+<template>
+  <li class="menu-item">
+    <div class="menu-item-label">
+      <icon :type="folderOpen ? 'icon-folder-opened' : 'icon-folder'"></icon>
+      <span>{{menuInfo.name}}</span>
+      <el-button circle icon="el-icon-more" class="menu-item-more-icon" type="text"></el-button>
+    </div>
+    <ul class="sub-menu-list" v-show="folderOpen">
+      <li class="sub-menu-item" v-for="child in menuInfo.children" :key="child.id">
+        <span>{{child.name}}</span>
+        <el-button circle icon="el-icon-more" class="menu-item-more-icon" type="text"></el-button>
+      </li>
+    </ul>
+  </li>
+</template>
+
+<script>
+export default {
+  name: 'LeftMenuItem',
+  props: {
+    menuInfo: {
+      type: Object,
+      default: () => ({
+        children: []
+      })
+    }
+  },
+  data () {
+    return {
+      folderOpen: false
+    }
+  },
+  methods: {}
+}
+</script>
+
+<style lang="scss">
+  @import "~@/assets/style/base.scss";
+  $right-operation-whitespace: 50px;
+  .menu-item {
+    .menu-item-label {
+      padding: $main-padding calc(#{$main-padding} / 5 * 3);
+      border-radius: $main-border-radius;
+      display: flex;
+      align-items: center;
+      overflow:hidden; //超出的文本隐藏
+      text-overflow:ellipsis; //溢出用省略号显示
+      white-space:nowrap; //溢出不换行
+      position: relative;
+      &:hover {
+        padding: $main-padding $right-operation-whitespace $main-padding calc(#{$main-padding} / 5 * 3);
+        background-color: darken($main-color, 5%);
+        color: $main-white;
+        .menu-item-more-icon {
+          opacity: 1;
+        }
+      }
+    }
+    .common-icon {
+      font-size: 24px;
+      margin-right: 6px;
+    }
+    & + .menu-item {
+    }
+    &.active {
+      .menu-item-label {
+        background-color: darken($main-color, 5%);
+        color: $main-white;
+      }
+    }
+  }
+  .sub-menu-list {
+    padding: 0 0 0 $main-padding;
+    margin-bottom: $main-padding;
+    .sub-menu-item {
+      padding: $main-padding/2;
+      overflow:hidden; //超出的文本隐藏
+      text-overflow:ellipsis; //溢出用省略号显示
+      white-space:nowrap; //溢出不换行
+      position: relative;
+      &:hover {
+        background-color: $main-color;
+        color: $main-white;
+        border-radius: $main-border-radius;
+        padding: $main-padding/2 $right-operation-whitespace $main-padding/2 $main-padding/2;
+        .menu-item-more-icon {
+          opacity: 1;
+        }
+      }
+      & + .sub-menu-item {
+      }
+    }
+  }
+  .menu-item-more-icon {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $main-white!important;
+    font-size: 22px!important;
+    opacity: 0;
+    transition: 0s all;
+  }
+</style>

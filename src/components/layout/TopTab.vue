@@ -18,8 +18,10 @@ export default {
 </script>
 
 <style lang="scss">
+  @import "~@/assets/style/base.scss";
   .top-tab {
     flex: 1;
     -webkit-app-region: drag;
+    background-color: lighten($main-color, 36%);
   }
 </style>
