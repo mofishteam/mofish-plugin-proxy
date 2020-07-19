@@ -1,4 +1,5 @@
 import { getMenu, setMenu } from '@/api/menu'
+import { getConfig } from '@/api/config'
 import md5 from 'md5'
 let count = 0
 const randomId = () => {
@@ -36,9 +37,10 @@ export default {
       commit('SET_CONFIG', menu)
     },
     refreshMenu ({ commit }) {
-      getMenu().then(res => {
-        if (res && res.length) {
-          commit('SET_CONFIG', res)
+      getMenu().then(async res => {
+        if (res.data && res.data.length) {
+          console.log(res.data)
+          commit('SET_CONFIG', res.data)
         } else {
           const newMenu = [{
             name: 'Recently',
@@ -51,7 +53,9 @@ export default {
             name: 'Default',
             isFolder: true,
             canModify: false,
-            children: []
+            children: (await getConfig() || []).map(item => ({
+              id: item.id
+            }))
           }]
           commit('SET_CONFIG', newMenu)
           commit('SAVE_CONFIG', newMenu)
@@ -62,6 +66,13 @@ export default {
   getters: {
     getMenu (state) {
       return state.menu
+    },
+    // return <id>[]
+    getMenuServers (state) {
+      return state.menu.reduce((sum, cur) => {
+        sum.push(...cur.children.map(item => item.id))
+        return sum
+      }, [])
     }
   }
 }

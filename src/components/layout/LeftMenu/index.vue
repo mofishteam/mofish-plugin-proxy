@@ -35,14 +35,30 @@ export default {
   },
   computed: {
     ...mapGetters({
-      menuList: 'getMenu'
+      menuList: 'getMenu',
+      menuServers: 'getMenuServers',
+      serverList: 'getServerList'
     }),
     menus: {
       set (value) {
         this.setMenu(value || [])
       },
       get () {
-        return this.menuList
+        const result = this.menuList
+        console.log(result)
+        const defaultMenu = result.find(item => item.name === 'Default')
+        if (defaultMenu) {
+          const defaultServers = this.serverList.reduce((sum, cur) => {
+            if (!this.menuServers.includes(cur.id)) {
+              sum.push({ id: cur.id })
+            }
+            return sum
+          }, [])
+          defaultMenu.children.push(...defaultServers)
+          return result
+        } else {
+          return []
+        }
       }
     }
   },

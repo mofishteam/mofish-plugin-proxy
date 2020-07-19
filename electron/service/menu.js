@@ -5,7 +5,7 @@ const electronStore = new ElectronStore()
 const menu = electronStore.get('menu')
 
 register('getMenu', (data) => {
-  return menu || []
+  return { data: menu || [] }
 })
 
 register('setMenu', (data) => {

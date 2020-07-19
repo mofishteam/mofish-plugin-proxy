@@ -1,9 +1,9 @@
 <template>
   <li class="menu-item">
-    <div class="menu-item-label">
+    <div class="menu-item-label" @click="folderOpen = !folderOpen">
       <icon :type="folderOpen ? 'icon-folder-opened' : 'icon-folder'"></icon>
       <span>{{menuInfo.name}}</span>
-      <el-button circle icon="el-icon-more" class="menu-item-more-icon" type="text"></el-button>
+      <el-button circle icon="el-icon-more" class="menu-item-more-icon" type="text" v-if="menuInfo.canModify"></el-button>
     </div>
     <ul class="sub-menu-list" v-show="folderOpen">
       <li class="sub-menu-item" v-for="child in menuInfo.children" :key="child.id">
@@ -11,6 +11,10 @@
         <el-button circle icon="el-icon-more" class="menu-item-more-icon" type="text"></el-button>
       </li>
     </ul>
+    <div class="menu-item-empty" v-show="folderOpen && !menuInfo.children.length">
+      <icon type="icon-document-delete"></icon>
+      <span>Empty</span>
+    </div>
   </li>
 </template>
 
@@ -100,5 +104,13 @@ export default {
     font-size: 22px!important;
     opacity: 0;
     transition: 0s all;
+  }
+  .menu-item-empty {
+    text-align: center;
+    color: $placeholder-text-color;
+    margin-bottom: $main-padding;
+    & > * {
+      vertical-align: middle!important;
+    }
   }
 </style>

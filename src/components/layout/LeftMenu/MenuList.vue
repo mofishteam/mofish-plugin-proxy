@@ -22,5 +22,6 @@ export default {
 
 <style lang="scss">
   .menu-list {
+    -webkit-app-region: no-drag;
   }
 </style>

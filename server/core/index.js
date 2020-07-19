@@ -3,14 +3,14 @@ import Koa from 'koa'
 import Server from './server/index'
 import { defaultServerOption, getId } from '../commonUtils/options'
 import urlParser from 'url-parse'
-import fs from 'fs'
 // import cloneDeep from 'lodash.clonedeep'
 
 // 核心类，用来收集Server和下发配置
 export default class Core {
-  constructor ({ config = {}, configPath }) {
+  constructor ({ config = {}, configPath, utils }) {
     this.config = {}
     this.configPath = configPath
+    this.utils = utils
     this.setConfig(config)
   }
   /*
@@ -27,16 +27,8 @@ export default class Core {
     }
   }
   // 将config保存到文件
-  saveConfig () {
-    return new Promise(resolve => {
-      fs.writeFile(this.configPath, JSON.stringify(this.config), (err) => {
-        if (err) {
-          console.error(err)
-        } else {
-          resolve()
-        }
-      })
-    })
+  async saveConfig () {
+    return this.utils.writeFile(this.configPath, JSON.stringify(this.config))
   }
   // 获取合并后的config
   getMergedConfig () {

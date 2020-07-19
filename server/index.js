@@ -5,49 +5,22 @@ import connect from './connect'
 import 'colors'
 import os from 'os'
 import path from 'path'
+import { writeFile } from './utils/writeFile'
 const HOME_DIR = os.homedir()
 const DEFAULT_CONFIG_PATH = path.join(HOME_DIR, '.mofish-plugin-proxy/config.json')
-
-const tryMkdir = (dirPath) => new Promise(resolve => {
-  fs.stat(dirPath, (err) => {
-    if (err) {
-      fs.mkdirSync(dirPath)
-    }
-    resolve()
-  })
-})
-
-const tryMkdirLoop = async (dirPath) => {
-  const splitPath = dirPath.replace(/\/[^/]*?\.json$/, '').replace(/^\//, '').split('/')
-  console.log(splitPath, dirPath, dirPath.replace(/\/[\s\S]*?\.json$/, ''))
-  let tempPath = ''
-  for (const pathItem of splitPath) {
-    tempPath += '/' + pathItem
-    await tryMkdir(tempPath)
-  }
-}
 
 const start = async (configPath = DEFAULT_CONFIG_PATH) => {
   fs.stat(configPath, async (err, stat) => {
     // 没有config文件或者未初始化
     if (err) {
       console.log(err)
-      await tryMkdirLoop(configPath)
-      await new Promise(resolve => {
-        fs.writeFile(configPath, JSON.stringify(defaultConfig), (err) => {
-          if (err) {
-            console.error(err)
-          } else {
-            resolve()
-          }
-        })
-      })
+      await writeFile(configPath, JSON.stringify(defaultConfig))
     }
     // 正式读取配置文件
     console.log(configPath)
     const config = JSON.parse(fs.readFileSync(configPath).toString())
     // 启动核心功能
-    const core = new Core({ config, configPath })
+    const core = new Core({ config, configPath, utils: { writeFile } })
     // 对外暴露Socket提供连接
     await connect(core)
   })
