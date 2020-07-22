@@ -17,7 +17,6 @@ const start = async (configPath = DEFAULT_CONFIG_PATH) => {
       await writeFile(configPath, JSON.stringify(defaultConfig))
     }
     // 正式读取配置文件
-    console.log(configPath)
     const config = JSON.parse(fs.readFileSync(configPath).toString())
     // 启动核心功能
     const core = new Core({ config, configPath, utils: { writeFile } })
