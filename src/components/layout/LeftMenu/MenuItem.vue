@@ -7,7 +7,7 @@
     </div>
     <ul class="sub-menu-list" v-show="folderOpen">
       <li class="sub-menu-item" v-for="child in menuInfo.children" :key="child.id">
-        <span>{{child.name}}</span>
+        <span>{{serverIdList[child.id].name}}</span>
         <el-button circle icon="el-icon-more" class="menu-item-more-icon" type="text"></el-button>
       </li>
     </ul>
@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'LeftMenuItem',
   props: {
@@ -33,6 +34,11 @@ export default {
     return {
       folderOpen: false
     }
+  },
+  computed: {
+    ...mapGetters({
+      serverIdList: 'getIdOrderedServerList'
+    })
   },
   methods: {}
 }

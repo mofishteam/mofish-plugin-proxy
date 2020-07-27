@@ -46,8 +46,10 @@ export default {
       get () {
         const result = this.menuList
         console.log(result)
+        // 找到没有被分配的Default文件夹
         const defaultMenu = result.find(item => item.name === 'Default')
         if (defaultMenu) {
+          // 从ServerList中找到没有被分配文件夹的Server
           const defaultServers = this.serverList.reduce((sum, cur) => {
             if (!this.menuServers.includes(cur.id)) {
               sum.push({ id: cur.id })

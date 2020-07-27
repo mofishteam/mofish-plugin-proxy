@@ -1,5 +1,6 @@
 <template>
   <ul class="menu-list">
+<!--    文件夹-->
     <menu-item v-for="item in menus" :key="item.id" :menu-info="item"></menu-item>
   </ul>
 </template>

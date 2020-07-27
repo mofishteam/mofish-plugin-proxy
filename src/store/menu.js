@@ -12,12 +12,12 @@ export default {
   },
   mutations: {
     // 向磁盘保存config
-    SAVE_CONFIG (state) {
+    SAVE_MENU_CONFIG (state) {
       setMenu(state.menu)
     },
     ADD_FOLDER (state, item) {
       state.menu.push(item)
-      // commit('SAVE_CONFIG')
+      // commit('SAVE_MENU_CONFIG')
     },
     MODIFY_FOLDER (state, item) {},
     DELETE_FOLDER () {},
@@ -27,20 +27,21 @@ export default {
     DELETE_SERVER () {},
     ORDER_SERVER () {},
     MOVE_SERVER () {},
-    SET_CONFIG (state, config) {
-      console.log(state)
+    SET_MENU_CONFIG (state, config) {
+      console.log('SET_MENU_CONFIG: ', state)
       state.menu = config
     }
   },
   actions: {
     setMenu ({ commit }, menu) {
-      commit('SET_CONFIG', menu)
+      commit('SET_MENU_CONFIG', menu)
     },
     refreshMenu ({ commit }) {
+      // 已保存会导致Default为空
       getMenu().then(async res => {
         if (res.data && res.data.length) {
           console.log(res.data)
-          commit('SET_CONFIG', res.data)
+          commit('SET_MENU_CONFIG', res.data)
         } else {
           const newMenu = [{
             name: 'Recently',
@@ -57,8 +58,8 @@ export default {
               id: item.id
             }))
           }]
-          commit('SET_CONFIG', newMenu)
-          commit('SAVE_CONFIG', newMenu)
+          commit('SET_MENU_CONFIG', newMenu)
+          commit('SAVE_MENU_CONFIG', newMenu)
         }
       })
     }
