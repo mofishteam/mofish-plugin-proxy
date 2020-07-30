@@ -10,7 +10,7 @@
 <script>
 import eventBus from '@/store/eventBus'
 import LeftMenu from '@/components/layout/LeftMenu'
-import TopTab from '@/components/layout/TopTab.vue'
+import TopTab from '@/components/layout/TopTab/Index.vue'
 import { mapActions } from 'vuex'
 const onKeyDown = (evt) => {
   if (evt.key === 's' && (evt.ctrlKey || evt.metaKey)) {

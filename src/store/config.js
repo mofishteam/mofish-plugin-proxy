@@ -26,6 +26,7 @@ export default {
     refreshConfig ({ commit }) {
       console.log('refreshConfig')
       getConfig().then(res => {
+        console.log('getConfig', res)
         commit('SET_CONFIG', res.data)
       })
     }

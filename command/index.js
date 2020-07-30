@@ -6,10 +6,10 @@ import reload from './reload'
 import 'colors'
 import commandList from './commandList'
 
-const ipcClientSend = null
+let ipcClientSend = null
 
 const connectCore = async () => {
-  return ipcClientSend || await ipcClientGenerator()
+  return ipcClientSend || (ipcClientSend = await ipcClientGenerator())
 }
 
 program.name('mpp')

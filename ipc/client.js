@@ -6,6 +6,7 @@ ipc.config.silent = true
 let count = 0
 
 export default () => new Promise(resolve => {
+  console.log(ipc)
   ipc.connectTo(
     'mofishPluginProxy',
     () => {

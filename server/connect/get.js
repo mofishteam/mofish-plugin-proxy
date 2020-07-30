@@ -2,6 +2,7 @@ export default function ({ core, params, reply }) {
   let result = null
   let cantFindErrorDefault = { type: 'error', message: `Can't find ${params.name}${params.id ? ' of id ' + '"' + params.id + '"' : ''}` }
   const wrapResult = (data) => {
+    console.log('wrapResult', data)
     if (data) {
       return { type: 'success', data }
     } else {
