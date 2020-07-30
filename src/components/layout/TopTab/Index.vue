@@ -13,7 +13,7 @@
         </clipPath>
       </defs>
     </svg>
-    <ul class="top-tab-wrap">
+    <ul class="top-tab_wrap">
       <tab-item></tab-item>
       <tab-item></tab-item>
     </ul>
@@ -42,8 +42,8 @@ export default {
   .top-tab {
     flex: 1;
     -webkit-app-region: drag;
-    background-color: lighten($main-color, 36%);
-    .top-tab-wrap {
+    background-color: $third-level-border-color;
+    .top-tab_wrap {
       height: 34px;
       padding: 8px 3px 4px;
       display: flex;
