@@ -41,17 +41,29 @@ export default class Core {
   // 合并某个server的配置
   mergeServerConfig (id, data) {
     const serverResult = this.getServer(id)
-    const serverConfig = serverResult.config
-    const serverInstance = serverResult.instance
-    this.getServerConfigList().map(item => {
-      if (item.id === id) {
-        console.log(merge(serverConfig, data))
-        return merge(serverConfig, data)
-      } else {
-        return item
+    // 找到server则修改
+    if (serverResult) {
+      const serverConfig = serverResult.config
+      const serverInstance = serverResult.instance
+      console.log('serverInstance', serverInstance)
+      this.getServerConfigList().map(item => {
+        if (item.id === id) {
+          console.log(merge(serverConfig, data))
+          return merge(serverConfig, data)
+        } else {
+          return item
+        }
+      })
+      serverInstance.setConfig(this.getServer(id).config, true)
+    } else {
+      // 找不到server则添加
+      const serverConfigList = this.getServerConfigList()
+      const newServer = this.initServerItem(data)
+      if (newServer) {
+        const mergedConfig = newServer.config
+        serverConfigList.push(mergedConfig)
       }
-    })
-    serverInstance.setConfig(this.getServer(id).config, true)
+    }
   }
   // 合并Location的配置
   mergeLocationConfig (id, data) {
@@ -73,6 +85,7 @@ export default class Core {
   }
   // 获取某个server
   getServer (id) {
+    if (!id) return null
     const serverConfig = this.getServerConfigList().find(item => item.id === id)
     const serverInstance = this.serverList.find(item => item.id === id)
     return serverConfig && serverInstance ? {
@@ -88,6 +101,7 @@ export default class Core {
   }
   // 获取其中一个Location
   getLocation (id) {
+    if (!id) return null
     const locationConfig = this.getLocationConfigList().find(item => item.id === id)
     const locationInstance = this.serverList.reduce((locationList, current) => {
       locationList.push(...current.locationList)
@@ -108,12 +122,21 @@ export default class Core {
     this.serverList = []
     this.initHandler()
     this.serversConfig.map(serverConfig => {
-      // 合并默认配置
-      serverConfig = merge(defaultServerOption(), serverConfig)
-      serverConfig.id = serverConfig.id || getId(`server-${serverConfig.type}`)
-      const instance = new Server({ config: serverConfig, handler: this.handler })
-      this.serverList.push(instance)
+      this.initServerItem(serverConfig)
     })
+  }
+  // 初始化单个Server
+  initServerItem (serverConfig) {
+    if (!this.getServer(serverConfig.id)) return null
+    // 合并默认配置
+    serverConfig = merge(defaultServerOption(), serverConfig)
+    serverConfig.id = serverConfig.id || getId(`server-${serverConfig.type}`)
+    const instance = new Server({ config: serverConfig, handler: this.handler })
+    this.serverList.push(instance)
+    return {
+      config: serverConfig,
+      instance
+    }
   }
   // 初始化Koa对象
   initHandler () {
