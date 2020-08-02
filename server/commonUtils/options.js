@@ -1,11 +1,12 @@
 import md5 from 'md5'
+import merge from 'lodash.merge'
 let idCnt = 0
 
 export const getId = (name) => {
   return md5(name + new Date().valueOf() + idCnt++)
 }
 
-export const defaultServerOption = () => ({
+export const defaultServerOption = (config) => merge({
   id: md5('server' + new Date().valueOf() + idCnt++),
   include: null,
   type: 'mitm', // Man-In-The-Middle
@@ -20,9 +21,9 @@ export const defaultServerOption = () => ({
     listen: 8080,
     locations: []
   }
-})
+}, config)
 
-export const defaultLocationOption = () => ({
+export const defaultLocationOption = (config) => merge({
   id: getId('location'),
   isClose: false,
   delay: 0,
@@ -31,9 +32,9 @@ export const defaultLocationOption = () => ({
   proxyPass: defaultLocationProxyPassOption(),
   static: defaultLocationStaticOption(),
   mock: defaultLocationMockOption()
-})
+}, config)
 
-export const defaultLocationStaticOption = () => ({
+export const defaultLocationStaticOption = (config) => merge({
   path: '',
   // Browser cache max-age in milliseconds. defaults to 0
   maxage: 0,
@@ -51,15 +52,15 @@ export const defaultLocationStaticOption = () => ({
   setHeaders: null,
   // Try to match extensions from passed array to search for file when no extension is sufficed in URL. First found is served. (defaults to false)
   extensioins: null
-})
+}, config)
 
-export const defaultInterceptorOption = () => ({
+export const defaultInterceptorOption = (config) => merge({
   id: getId('interceptor'),
   stage: 'after',
   handler: ''
-})
+}, config)
 
-export const defaultLocationProxyPassOption = () => ({
+export const defaultLocationProxyPassOption = (config) => merge({
   method: 'all',
   // url string to be parsed with the url module
   target: '',
@@ -120,7 +121,7 @@ export const defaultLocationProxyPassOption = () => ({
   buffer: false
 })
 
-export const defaultLocationMockOption = () => ({
+export const defaultLocationMockOption = (config) => merge({
   type: 'json',
   json: '',
   jsonPath: '',
@@ -130,4 +131,4 @@ export const defaultLocationMockOption = () => ({
   status: 200,
   handler: null,
   interceptor: null
-})
+}, config)

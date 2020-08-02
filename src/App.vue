@@ -1,5 +1,5 @@
 <template>
-  <div id="app" style="-webkit-app-region: drag">
+  <div id="app">
     <left-menu></left-menu>
     <top-tab>
       <router-view/>

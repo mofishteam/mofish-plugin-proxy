@@ -6,9 +6,9 @@
       <el-button circle icon="el-icon-more" class="menu-item-more-icon" type="text" v-if="menuInfo.canModify"></el-button>
     </div>
     <ul class="sub-menu-list" v-show="folderOpen">
-      <li class="sub-menu-item" v-for="child in menuInfo.children" :key="child.id">
+      <li class="sub-menu-item" v-for="child in menuInfo.children" :key="child.id" @click="setCurrentDraft(child.id)">
         <span>{{serverIdList[child.id].name}}</span>
-        <el-button circle icon="el-icon-more" class="menu-item-more-icon" type="text"></el-button>
+        <el-button @click.stop circle icon="el-icon-more" class="menu-item-more-icon" type="text"></el-button>
       </li>
     </ul>
     <div class="menu-item-empty" v-show="folderOpen && !menuInfo.children.length">
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'LeftMenuItem',
   props: {
@@ -40,7 +40,11 @@ export default {
       serverIdList: 'getIdOrderedServerList'
     })
   },
-  methods: {}
+  methods: {
+    ...mapActions({
+      setCurrentDraft: 'setCurrentDraft'
+    })
+  }
 }
 </script>
 
