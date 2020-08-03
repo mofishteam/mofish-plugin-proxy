@@ -16,5 +16,10 @@ export default {
 </script>
 
 <style lang="scss">
-  .server-content {}
+  @import "~@/assets/style/base.scss";
+  .server-content {
+    width: 100%;
+    height: calc(100vh - #{$title-bar-height});
+    background-color: $main-white;
+  }
 </style>

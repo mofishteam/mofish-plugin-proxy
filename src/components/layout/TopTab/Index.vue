@@ -63,19 +63,23 @@ export default {
     }
     .top-tab_list {
       height: $top-tab-height;
-      padding: 8px 40px 4px 20px;
+      padding: calc(#{$title-bar-height} - #{$top-tab-height}) 40px 0 20px;
       display: flex;
     }
     .top-tab_add-btn {
-      height: $top-tab-height;
-      width: $top-tab-height;
+      height: calc(#{$top-tab-height} - 4px);
+      width: calc(#{$top-tab-height} - 4px);
       border-radius: 50%;
       background-color: rgba($main-white, 0);
       text-align: center;
-      line-height: $top-tab-height;
+      line-height: calc(#{$top-tab-height} - 4px);
       text-shadow: 0 0 2px rgba($main-text-color, 1);
       margin-left: $main-button-gap;
       transition: all .3s;
+      margin-top: 2px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       &:hover {
         background-color: rgba($main-white, .6);
       }

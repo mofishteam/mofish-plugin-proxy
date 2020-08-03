@@ -66,6 +66,7 @@ export default {
       -webkit-background-clip: text;
       color: transparent;
       white-space: nowrap;
+      pointer-events: none;
     }
     &_close-btn {
       position: absolute;
