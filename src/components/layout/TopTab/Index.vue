@@ -13,12 +13,14 @@
         </clipPath>
       </defs>
     </svg>
-    <ul class="top-tab_wrap">
-      <tab-item v-for="draft in draftList" :key="draft.id" :draft="draft" @click="setCurrentDraft(draft.id)"></tab-item>
-      <li class="top-tab_add-btn" @click="addNewDraft()">
-        <icon type="icon-plus"></icon>
-      </li>
-    </ul>
+    <div class="top-tab_wrap">
+      <ul class="top-tab_list">
+        <tab-item v-for="draft in draftList" :key="draft.id" :draft="draft" @click="setCurrentDraft(draft.id)"></tab-item>
+        <li class="top-tab_add-btn" @click="addNewDraft()">
+          <icon type="icon-plus"></icon>
+        </li>
+      </ul>
+    </div>
     <slot></slot>
   </div>
 </template>
@@ -58,8 +60,10 @@ export default {
     /*-webkit-app-region: drag;*/
     background-color: $third-level-border-color;
     .top-tab_wrap {
+    }
+    .top-tab_list {
       height: $top-tab-height;
-      padding: 8px 80px 4px 20px;
+      padding: 8px 40px 4px 20px;
       display: flex;
     }
     .top-tab_add-btn {

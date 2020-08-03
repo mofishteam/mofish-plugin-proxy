@@ -11,6 +11,12 @@ export default {
     ADD_DRAFT (state, draft) {
       state.draft.push(draft)
     },
+    MODIFY_DRAFT (state, draft) {
+      const { id } = draft
+      const index = state.draft.findIndex(item => item.id === id)
+      state.draft[index] = draft
+      draft.modified = true
+    },
     DELETE_DRAFT (state, id) {
       const draftIndex = state.draft.findIndex(draft => draft.id === id)
       if (draftIndex !== -1) {
@@ -32,7 +38,7 @@ export default {
       console.log(currentDraft, state.draft, state.currentDraft)
       if (!currentDraft) {
         if (state.draft.length) {
-          state.currentDraft = state.draft[0].id
+          state.currentDraft = state.draft[state.draft.length - 1].id
         } else {
           state.currentDraft = null
         }
@@ -45,13 +51,16 @@ export default {
       console.log('deleteDraft')
       commit('RESET_CURRENT_DRAFT')
     },
-    setCurrentDraft ({ commit, state, getters }, id) {
+    setCurrentDraft ({ commit, state, getters, rootState }, id) {
       console.log(getters)
       const serverItem = getters.getServerList.find(server => server.id === id)
       if (!state.draft.find(draft => draft.id === id) && serverItem) {
         commit('ADD_DRAFT', cloneDeep(serverItem))
       }
       commit('SET_CURRENT_DRAFT', id)
+      // $router().push({
+      //   path: '/server'
+      // })
     },
     addNewDraft ({ commit, state }) {
       const id = getId('server-from-draft')
@@ -62,6 +71,9 @@ export default {
       commit('SET_UNNAMED_DRAFT', id)
       commit('ADD_DRAFT', config)
       commit('SET_CURRENT_DRAFT', id)
+    },
+    modifyDraft ({ commit, state }, draft) {
+      commit('MODIFY_DRAFT', draft)
     }
   },
   getters: {

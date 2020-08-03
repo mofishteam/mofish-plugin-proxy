@@ -6,7 +6,7 @@
       <el-button circle icon="el-icon-more" class="menu-item-more-icon" type="text" v-if="menuInfo.canModify"></el-button>
     </div>
     <ul class="sub-menu-list" v-show="folderOpen">
-      <li class="sub-menu-item" v-for="child in menuInfo.children" :key="child.id" @click="setCurrentDraft(child.id)">
+      <li class="sub-menu-item" v-for="child in menuInfo.children" :key="child.id" @click="onMenuItemClick(child.id)">
         <span>{{serverIdList[child.id].name}}</span>
         <el-button @click.stop circle icon="el-icon-more" class="menu-item-more-icon" type="text"></el-button>
       </li>
@@ -43,7 +43,13 @@ export default {
   methods: {
     ...mapActions({
       setCurrentDraft: 'setCurrentDraft'
-    })
+    }),
+    onMenuItemClick (id) {
+      this.setCurrentDraft(id)
+      this.$router.push({
+        name: 'server'
+      })
+    }
   }
 }
 </script>

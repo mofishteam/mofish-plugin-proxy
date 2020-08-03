@@ -1,0 +1,38 @@
+<template>
+  <div class="server-view">
+    <server-content :content.sync="draft" :key="draft.id"/>
+  </div>
+</template>
+
+<script>
+import { mapGetters, mapActions } from 'vuex'
+import ServerContent from '@/components/ServerContent'
+export default {
+  name: 'ServerView',
+  methods: {
+    ...mapActions({
+      modifyDraft: 'modifyDraft'
+    })
+  },
+  computed: {
+    ...mapGetters({
+      currentDraft: 'getCurrentDraft'
+    }),
+    draft: {
+      set (value) {
+        this.modifyDraft(value)
+      },
+      get () {
+        return this.currentDraft
+      }
+    }
+  },
+  components: {
+    ServerContent
+  }
+}
+</script>
+
+<style lang="scss">
+  .server-view {}
+</style>
