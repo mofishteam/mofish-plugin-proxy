@@ -1,5 +1,5 @@
 <template>
-  <li :class="['top-tab-item', { active }]" @click="$emit('click', $event)">
+  <li :class="['top-tab-item', { active }]" @click="$emit('click', $event)" v-if="draft">
     <svg class="top-tab-item_background">
       <g>
         <svg width="52%" height="100%">
@@ -13,8 +13,8 @@
         </svg>
       </g>
     </svg>
-    <span class="top-tab-item_title">{{ draft.name }}</span>
-    <div class="top-tab-item_close-btn" @click="deleteDraft(currentDraftId)">
+    <span class="top-tab-item_title">{{ idOrderedServerList[draft.id] ? idOrderedServerList[draft.id].name : 'New Tab' }}</span>
+    <div class="top-tab-item_close-btn" @click="deleteDraft(draft.id)">
       <icon type="icon-close"></icon>
     </div>
   </li>
@@ -32,7 +32,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      currentDraftId: 'getCurrentDraftId'
+      currentDraftId: 'getCurrentDraftId',
+      idOrderedServerList: 'getIdOrderedServerList'
     }),
     active () {
       return this.draft && (this.draft.id === this.currentDraftId)

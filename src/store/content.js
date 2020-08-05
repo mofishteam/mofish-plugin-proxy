@@ -65,7 +65,6 @@ export default {
     addNewDraft ({ commit, state }) {
       const id = getId('server-from-draft')
       const config = defaultServerOption({
-        name: 'New Tab',
         id
       })
       commit('SET_UNNAMED_DRAFT', id)

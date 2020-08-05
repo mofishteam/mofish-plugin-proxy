@@ -1,6 +1,6 @@
 <template>
   <div class="server-view">
-    <server-content :content.sync="draft" :key="draft.id"/>
+    <server-content :content.sync="draft" :key="draft.id" v-if="draft"/>
   </div>
 </template>
 
