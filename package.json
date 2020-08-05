@@ -55,6 +55,7 @@
     "core-js": "^2.6.5",
     "electron-store": "^5.2.0",
     "element-ui": "^2.11.1",
+    "get-port": "^5.1.1",
     "http-proxy": "^1.18.1",
     "http-proxy-middleware": "^1.0.4",
     "inquirer": "^7.3.0",

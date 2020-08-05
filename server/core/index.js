@@ -13,6 +13,24 @@ export default class Core {
     this.utils = utils
     this.setConfig(config)
   }
+  // 所有端口集合
+  get portList () {
+    const serverConfigList = this.getServerConfigList() || []
+    return serverConfigList.reduce((sum, cur) => {
+      if (cur.server && cur.server.listen) {
+        sum.push(cur.server)
+      }
+      return sum
+    }, [])
+  }
+  // 去重后的portList
+  get uniqPortList () {
+    return [...new Set(this.portList)]
+  }
+  // 是否有重复的port
+  get hasConflictPort () {
+    return this.portList.length !== this.uniqPortList.length
+  }
   /*
   * 设置Config
   * @param config 配置JSON
@@ -56,9 +74,12 @@ export default class Core {
       })
       serverInstance.setConfig(this.getServer(id).config, true)
     } else {
+      console.log('not find')
       // 找不到server则添加
       const serverConfigList = this.getServerConfigList()
+      console.log('config: ', serverConfigList)
       const newServer = this.initServerItem(data)
+      console.log(newServer)
       if (newServer) {
         const mergedConfig = newServer.config
         serverConfigList.push(mergedConfig)
@@ -85,9 +106,11 @@ export default class Core {
   }
   // 获取某个server
   getServer (id) {
+    console.log('id', id)
     if (!id) return null
     const serverConfig = this.getServerConfigList().find(item => item.id === id)
     const serverInstance = this.serverList.find(item => item.id === id)
+    console.log(serverConfig, serverInstance)
     return serverConfig && serverInstance ? {
       config: serverConfig,
       instance: serverInstance
@@ -127,7 +150,8 @@ export default class Core {
   }
   // 初始化单个Server
   initServerItem (serverConfig) {
-    if (!this.getServer(serverConfig.id)) return null
+    console.log('serverConfig.id ', serverConfig.id)
+    // if (!this.getServer(serverConfig.id)) return null
     // 合并默认配置
     serverConfig = merge(defaultServerOption(), serverConfig)
     serverConfig.id = serverConfig.id || getId(`server-${serverConfig.type}`)
