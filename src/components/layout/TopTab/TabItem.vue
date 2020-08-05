@@ -1,5 +1,5 @@
 <template>
-  <li class="top-tab-item">
+  <li :class="['top-tab-item', { active }]" @click="$emit('click', $event)" v-if="draft">
     <svg class="top-tab-item_background">
       <g>
         <svg width="52%" height="100%">
@@ -13,26 +13,100 @@
         </svg>
       </g>
     </svg>
+    <span class="top-tab-item_title">{{ idOrderedServerList[draft.id] ? idOrderedServerList[draft.id].name : 'New Tab' }}</span>
+    <div class="top-tab-item_close-btn" @click="deleteDraft(draft.id)">
+      <icon type="icon-close"></icon>
+    </div>
   </li>
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex'
 export default {
-  name: 'TopItem'
+  name: 'TopItem',
+  props: {
+    draft: {
+      type: Object,
+      default: null
+    }
+  },
+  computed: {
+    ...mapGetters({
+      currentDraftId: 'getCurrentDraftId',
+      idOrderedServerList: 'getIdOrderedServerList'
+    }),
+    active () {
+      return this.draft && (this.draft.id === this.currentDraftId)
+    }
+  },
+  methods: {
+    ...mapActions({
+      deleteDraft: 'deleteDraft'
+    })
+  }
 }
 </script>
 
 <style lang="scss">
+  @import "~@/assets/style/base.scss";
   .top-tab-item {
     position: relative;
+    flex: 1;
+    justify-content: center;
+    max-width: 200px;
+    min-width: 40px;
+    &_title {
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      right: 30px;
+      transform: translateY(-50%);
+      font-size: 12px;
+      background: linear-gradient(90deg, $main-text-color 0, $main-text-color calc(100% - 20px), #00000000 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    &_close-btn {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      font-weight: bold;
+      font-size: 12px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:hover {
+        background-color: $first-level-border-color;
+      }
+    }
     &_background {
-      fill: #fff;
+      fill: $main-white;
+      opacity: 0;
       transition: all .3s;
-      width: calc(100% + 8px);
       height: 100%;
       position: absolute;
       top: 0;
-      left: -4px;
+      left: -9px;
+      width: calc(100% + 19px);
+      pointer-events: none;
+    }
+    &:hover {
+      .top-tab-item_background {
+        opacity: .6;
+      }
+    }
+    &.active {
+      z-index: 2;
+      .top-tab-item_background {
+        opacity: 1;
+      }
     }
   }
 </style>

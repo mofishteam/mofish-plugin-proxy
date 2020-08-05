@@ -1,5 +1,5 @@
 <template>
-  <div class="left-menu" :style="{width: width + 'px'}">
+  <div class="left-menu" :style="{width: width + 'px', minWidth: width + 'px'}">
     <div class="operation-group">
       <el-tooltip content="Add Folder">
         <el-button type="text" icon="el-icon-folder-add"></el-button>

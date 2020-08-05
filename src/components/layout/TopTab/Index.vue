@@ -13,15 +13,20 @@
         </clipPath>
       </defs>
     </svg>
-    <ul class="top-tab_wrap">
-      <tab-item></tab-item>
-      <tab-item></tab-item>
-    </ul>
+    <div class="top-tab_wrap">
+      <ul class="top-tab_list">
+        <tab-item v-for="draft in draftList" :key="draft.id" :draft="draft" @click="setCurrentDraft(draft.id)"></tab-item>
+        <li class="top-tab_add-btn" @click="addNewDraft()">
+          <icon type="icon-plus"></icon>
+        </li>
+      </ul>
+    </div>
     <slot></slot>
   </div>
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex'
 import TabItem from './TabItem'
 export default {
   name: 'TopTab',
@@ -30,7 +35,17 @@ export default {
       active: 0
     }
   },
-  methods: {},
+  computed: {
+    ...mapGetters({
+      draftList: 'getDraftList'
+    })
+  },
+  methods: {
+    ...mapActions({
+      addNewDraft: 'addNewDraft',
+      setCurrentDraft: 'setCurrentDraft'
+    })
+  },
   components: {
     TabItem
   }
@@ -39,14 +54,38 @@ export default {
 
 <style lang="scss">
   @import "~@/assets/style/base.scss";
+  $top-tab-height: 34px;
   .top-tab {
     flex: 1;
-    -webkit-app-region: drag;
+    /*-webkit-app-region: drag;*/
     background-color: $third-level-border-color;
     .top-tab_wrap {
-      height: 34px;
-      padding: 8px 3px 4px;
+    }
+    .top-tab_list {
+      height: $top-tab-height;
+      padding: calc(#{$title-bar-height} - #{$top-tab-height}) 40px 0 20px;
       display: flex;
+    }
+    .top-tab_add-btn {
+      height: calc(#{$top-tab-height} - 4px);
+      width: calc(#{$top-tab-height} - 4px);
+      border-radius: 50%;
+      background-color: rgba($main-white, 0);
+      text-align: center;
+      line-height: calc(#{$top-tab-height} - 4px);
+      text-shadow: 0 0 2px rgba($main-text-color, 1);
+      margin-left: $main-button-gap;
+      transition: all .3s;
+      margin-top: 2px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      &:hover {
+        background-color: rgba($main-white, .6);
+      }
+      &:active {
+        background-color: rgba($main-white, 1);
+      }
     }
   }
 </style>

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import Menu from './menu'
 import Config from './config'
+import Content from './content'
 
 Vue.use(Vuex)
 
@@ -12,6 +13,7 @@ export default new Vuex.Store({
   getters: {},
   modules: [
     Menu,
-    Config
+    Config,
+    Content
   ]
 })

@@ -1,14 +1,14 @@
 <template>
-  <li class="menu-item">
+  <li :class="['menu-item']">
     <div class="menu-item-label" @click="folderOpen = !folderOpen">
       <icon :type="folderOpen ? 'icon-folder-opened' : 'icon-folder'"></icon>
       <span>{{menuInfo.name}}</span>
       <el-button circle icon="el-icon-more" class="menu-item-more-icon" type="text" v-if="menuInfo.canModify"></el-button>
     </div>
     <ul class="sub-menu-list" v-show="folderOpen">
-      <li class="sub-menu-item" v-for="child in menuInfo.children" :key="child.id">
+      <li :class="['sub-menu-item', {active: currentDraftId === child.id}]" v-for="child in menuInfo.children" :key="child.id" @click="onMenuItemClick(child.id)">
         <span>{{serverIdList[child.id].name}}</span>
-        <el-button circle icon="el-icon-more" class="menu-item-more-icon" type="text"></el-button>
+        <el-button @click.stop circle icon="el-icon-more" class="menu-item-more-icon" type="text"></el-button>
       </li>
     </ul>
     <div class="menu-item-empty" v-show="folderOpen && !menuInfo.children.length">
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'LeftMenuItem',
   props: {
@@ -37,10 +37,21 @@ export default {
   },
   computed: {
     ...mapGetters({
+      currentDraftId: 'getCurrentDraftId',
       serverIdList: 'getIdOrderedServerList'
     })
   },
-  methods: {}
+  methods: {
+    ...mapActions({
+      setCurrentDraft: 'setCurrentDraft'
+    }),
+    onMenuItemClick (id) {
+      this.setCurrentDraft(id)
+      this.$router.push({
+        name: 'server'
+      })
+    }
+  }
 }
 </script>
 
@@ -88,6 +99,9 @@ export default {
       text-overflow:ellipsis; //溢出用省略号显示
       white-space:nowrap; //溢出不换行
       position: relative;
+      &.active {
+        color: $main-color;
+      }
       &:hover {
         background-color: $main-color;
         color: $main-white;

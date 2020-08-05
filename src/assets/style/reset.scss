@@ -1,3 +1,5 @@
+@import "./base";
+
 html, body, * {
   margin: 0;
   padding: 0;
@@ -14,4 +16,57 @@ li {
 
 .el-button {
   cursor: default!important;
+}
+
+[class^=el-] {
+  &.el-form-item__label {
+    line-height: 30px;
+    padding-bottom: 4px;
+  }
+  &.el-form-item {
+    margin-bottom: 14px;
+  }
+  &.el-input__inner {
+    background-color: rgba($main-white, 0.6);
+    border: 1px solid transparent;
+  }
+  &.el-form-item--medium {
+    .el-form-item__label {
+      line-height: 28px;
+      padding-bottom: 4px;
+    }
+  }
+  &.el-radio-group {
+    background-color: $third-level-border-color;
+    padding: 4px;
+    border-radius: 8px;
+    cursor: default;
+    -webkit-user-select: none;
+    user-select: none;
+    * {
+      cursor: default;
+    }
+    .el-radio-button {
+      .el-radio-button__inner {
+        background-color: transparent;
+        border-color: transparent;
+        border-radius: 4px;
+        box-shadow: none;
+      }
+    }
+    .el-radio-button__orig-radio:checked+.el-radio-button__inner {
+      background-color: $main-white;
+      color: $main-text-color;
+      border-color: transparent;
+    }
+  }
+  &.el-button {
+    background-color: $main-white;
+    border-color: $main-white;
+    &:hover, &.active, &:focus {
+      background-color: $sixth-level-border-color;
+      border-color: $sixth-level-border-color;
+      color: $main-text-color;
+    }
+  }
 }
