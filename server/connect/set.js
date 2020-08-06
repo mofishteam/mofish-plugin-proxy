@@ -1,4 +1,4 @@
-import {getId} from "../commonUtils/options";
+import { getId } from '../commonUtils/options'
 
 export default async function ({ core, params, reply }) {
   const id = params.id || (params.change && params.change.id) || getId(`server-${params.change.type}`)
