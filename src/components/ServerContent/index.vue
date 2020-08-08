@@ -1,9 +1,19 @@
 <template>
   <section class="server-content" v-if="content">
     <div class="server-content_left">
-      <card>
-        123
+      <card class="location-toolbar-card">
+        <div class="location-toolbar">
+          <p class="location-toolbar_title">Locations</p>
+          <div class="flex-spring"></div>
+          <div class="location-toolbar_list-right">
+            <el-button type="text" icon="el-icon-search" class="toolbar-item"></el-button>
+            <el-button type="text" icon="el-icon-plus" class="toolbar-item"></el-button>
+          </div>
+        </div>
       </card>
+      <ul class="location-list">
+        <location-card :location="location" class="location-item" v-for="location in content.server.locations" :key="location.id"></location-card>
+      </ul>
     </div>
     <div class="server-content_right">
       <card>
@@ -57,6 +67,7 @@
 </template>
 
 <script>
+import LocationCard from './Location'
 export default {
   name: 'ServerContent',
   props: {
@@ -65,6 +76,9 @@ export default {
       type: Object,
       sync: true
     }
+  },
+  components: {
+    LocationCard
   }
 }
 </script>
@@ -76,6 +90,7 @@ export default {
     height: calc(100vh - #{$title-bar-height});
     background-color: $main-white;
     display: flex;
+    color: $common-text-color;
     & > * {
       flex: 1;
       width: 50%;
@@ -87,6 +102,22 @@ export default {
     }
     .server-content_right {
       padding: $main-padding $main-padding $main-padding $main-padding / 2;
+    }
+    .location-toolbar-card {
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+    .location-toolbar {
+      display: flex;
+      .location-toolbar_title {
+        align-self: center;
+      }
+      .toolbar-item {
+        width: 30px;
+      }
+    }
+    .location-list {
+      margin-top: $main-padding;
     }
   }
 </style>

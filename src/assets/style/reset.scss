@@ -60,7 +60,7 @@ li {
       border-color: transparent;
     }
   }
-  &.el-button {
+  &.el-button--default {
     background-color: $main-white;
     border-color: $main-white;
     &:hover, &.active, &:focus {

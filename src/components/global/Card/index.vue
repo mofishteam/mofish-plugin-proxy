@@ -1,12 +1,18 @@
 <template>
-  <div class="card">
+  <component :is="tag" class="card">
     <slot></slot>
-  </div>
+  </component>
 </template>
 
 <script>
 export default {
-  name: 'Card'
+  name: 'Card',
+  props: {
+    tag: {
+      type: String,
+      default: 'div'
+    }
+  }
 }
 </script>
 
@@ -16,5 +22,8 @@ export default {
     background-color: $fifth-level-border-color;
     border-radius: $main-border-radius;
     padding: $main-padding;
+    & + .card {
+      margin-top: $main-padding;
+    }
   }
 </style>
