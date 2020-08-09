@@ -1,4 +1,5 @@
 import cloneDeep from 'lodash.clonedeep'
+import isEqual from 'lodash.isequal'
 import { getId, defaultServerOption } from '../../server/commonUtils/options'
 
 export default {
@@ -84,6 +85,16 @@ export default {
     },
     getCurrentDraft (state) {
       return state.draft.find(draft => draft.id === state.currentDraft)
+    },
+    getIsCurrentModified (state, getters) {
+      const draft = getters.getCurrentDraft
+      return !isEqual(getters.getIdOrderedServerList[draft.id], draft)
+    },
+    getModifiedList (state, getters) {
+      return getters.getDraftList.reduce((sum, cur) => {
+        sum[cur.id] = !isEqual(cur, getters.getIdOrderedServerList[cur.id])
+        return sum
+      }, {})
     }
   }
 }

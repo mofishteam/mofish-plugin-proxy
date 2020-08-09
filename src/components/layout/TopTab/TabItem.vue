@@ -13,7 +13,10 @@
         </svg>
       </g>
     </svg>
-    <span class="top-tab-item_title">{{ idOrderedServerList[draft.id] ? idOrderedServerList[draft.id].name : 'New Tab' }}</span>
+    <span class="top-tab-item_title">
+      <span class="modified-icon text-danger" v-show="modified">*</span>
+      <span>{{ idOrderedServerList[draft.id] ? idOrderedServerList[draft.id].name : 'New Tab' }}</span>
+    </span>
     <div class="top-tab-item_close-btn" @click="deleteDraft(draft.id)">
       <icon type="icon-close"></icon>
     </div>
@@ -28,6 +31,10 @@ export default {
     draft: {
       type: Object,
       default: null
+    },
+    modified: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -68,6 +75,12 @@ export default {
       color: transparent;
       white-space: nowrap;
       pointer-events: none;
+      display: flex;
+      align-items: center;
+      .modified-icon {
+        font-size: 14px;
+        margin-right: 4px;
+      }
     }
     &_close-btn {
       position: absolute;

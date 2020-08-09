@@ -34,5 +34,8 @@ export default {
 </script>
 
 <style lang="scss">
-  .server-view {}
+  @import "~@/assets/style/base.scss";
+  .server-view {
+    width: 100%;
+  }
 </style>

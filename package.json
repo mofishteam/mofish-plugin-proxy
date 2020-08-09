@@ -80,6 +80,7 @@
     "vue-grid-layout": "^2.3.4",
     "vue-router": "^3.0.3",
     "vue2-ace-editor": "^0.0.15",
+    "vuedraggable": "^2.24.0",
     "vuex": "^3.0.1",
     "vuex-router-sync": "^5.0.0"
   },

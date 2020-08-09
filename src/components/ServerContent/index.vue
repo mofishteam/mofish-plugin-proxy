@@ -12,7 +12,11 @@
         </div>
       </card>
       <ul class="location-list">
-        <location-card :location="location" class="location-item" v-for="location in content.server.locations" :key="location.id"></location-card>
+        <draggable v-model="content.server.locations" handle=".location-content_icon">
+          <transition-group>
+            <location-card :location="location" class="location-item" v-for="location in content.server.locations" :key="location.id"></location-card>
+          </transition-group>
+        </draggable>
       </ul>
     </div>
     <div class="server-content_right">
@@ -58,7 +62,7 @@
             </el-form-item>
           </template>
           <el-form-item label=" ">
-            <el-button class="full-width">Save</el-button>
+            <el-button class="full-width" :disabled="!isCurrentModified">Save</el-button>
           </el-form-item>
         </el-form>
       </card>
@@ -67,7 +71,9 @@
 </template>
 
 <script>
+import draggable from 'vuedraggable'
 import LocationCard from './Location'
+import { mapGetters } from 'vuex'
 export default {
   name: 'ServerContent',
   props: {
@@ -77,8 +83,14 @@ export default {
       sync: true
     }
   },
+  computed: {
+    ...mapGetters({
+      isCurrentModified: 'getIsCurrentModified'
+    })
+  },
   components: {
-    LocationCard
+    LocationCard,
+    draggable
   }
 }
 </script>

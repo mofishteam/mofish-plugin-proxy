@@ -15,7 +15,7 @@
     </svg>
     <div class="top-tab_wrap">
       <ul class="top-tab_list">
-        <tab-item v-for="draft in draftList" :key="draft.id" :draft="draft" @click="setCurrentDraft(draft.id)"></tab-item>
+        <tab-item v-for="draft in draftList" :key="draft.id" :draft="draft" @click="setCurrentDraft(draft.id)" :modified="modifiedList[draft.id]"></tab-item>
         <li class="top-tab_add-btn" @click="addNewDraft()">
           <icon type="icon-plus"></icon>
         </li>
@@ -37,7 +37,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      draftList: 'getDraftList'
+      draftList: 'getDraftList',
+      modifiedList: 'getModifiedList'
     })
   },
   methods: {
@@ -59,6 +60,7 @@ export default {
     flex: 1;
     /*-webkit-app-region: drag;*/
     background-color: $third-level-border-color;
+    width: calc(100% - #{$left-menu-width} - 1px);
     .top-tab_wrap {
     }
     .top-tab_list {
