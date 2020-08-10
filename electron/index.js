@@ -18,9 +18,6 @@ function createWindow () {
     width: 1000,
     height: 600,
     title: 'Mofish',
-    backgroundColor: 'transparent',
-    transparent: true,
-    frame: false,
     titleBarStyle: 'hiddenInset',
     webPreferences: {
       nodeIntegration: true

@@ -20,13 +20,29 @@ export default {
 </script>
 
 <style lang="scss">
+  @import "~@/assets/style/base.scss";
   .location-card {
+    padding-top: $main-padding / 2;
+    padding-bottom: $main-padding / 2;
     &:hover {
       .move-icon {
         display: block;
       }
       .arrow-icon {
         display: none;
+      }
+      .operation-button {
+        display: block;
+      }
+      .location-content_detail {
+        overflow: scroll;
+        color: $main-text-color;
+        &-item {
+          opacity: 1;
+        }
+        &-label {
+          transform: scale(1.1);
+        }
       }
     }
   }

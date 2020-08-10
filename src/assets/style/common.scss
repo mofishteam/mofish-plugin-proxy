@@ -128,3 +128,11 @@
 .flex-spring {
   flex: 1;
 }
+
+.overflow-gradient-text {
+  background: linear-gradient(90deg, $main-text-color 0, $main-text-color calc(100% - 20px), #00000000 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  white-space: nowrap;
+}
