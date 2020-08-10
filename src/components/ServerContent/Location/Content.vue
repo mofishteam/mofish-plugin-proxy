@@ -24,6 +24,9 @@
         </li>
       </ul>
     </div>
+    <div class="hidden-config">
+      ${LocationConfigStart}{{location}}${LocationConfigEnd}
+    </div>
   </div>
 </template>
 
@@ -89,6 +92,9 @@ export default {
           font-size: 12px;
         }
       }
+    }
+    .hidden-config {
+      display: none;
     }
   }
 </style>
