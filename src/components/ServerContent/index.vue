@@ -56,6 +56,38 @@
               <el-radio-button :label="false">OFF</el-radio-button>
             </el-radio-group>
           </el-form-item>
+          <template v-if="content.server.ssl">
+            <el-form-item label="Private KEY">
+              <el-upload
+                :class="['upload-demo', 'row-upload', {'hide-uploader': content.server.sslOptions.key}]"
+                drag
+                action=""
+                :before-upload="setCertKeyFile">
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">Drag Cert here or <em>Click To Select File</em></div>
+                <div class="el-upload__tip" slot="tip">Only Cert file can be used, and this is only a file address.</div>
+              </el-upload>
+              <p class="ssl-result" v-show="content.server.sslOptions.key">
+                <span class="file-name">{{content.server.sslOptions.key}}</span>
+                <el-button type="text" icon="el-icon-close" @click="content.server.sslOptions.key = ''"></el-button>
+              </p>
+            </el-form-item>
+            <el-form-item label="Public KEY">
+              <el-upload
+                :class="['upload-demo', 'row-upload', {'hide-uploader': content.server.sslOptions.cert}]"
+                drag
+                action=""
+                :before-upload="setCertFile">
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">Drag Cert here or <em>Click To Select File</em></div>
+                <div class="el-upload__tip" slot="tip">Only Cert file can be used, and this is only a file address.</div>
+              </el-upload>
+              <p class="ssl-result" v-show="content.server.sslOptions.cert">
+                <span class="file-name">{{content.server.sslOptions.cert}}</span>
+                <el-button type="text" icon="el-icon-close" @click="content.server.sslOptions.cert = ''"></el-button>
+              </p>
+            </el-form-item>
+          </template>
           <template v-if="content.type === 'child'">
             <el-form-item label="Listen">
               <el-input type="number" v-model="content.server.listen"></el-input>
@@ -87,6 +119,14 @@ export default {
     ...mapGetters({
       isCurrentModified: 'getIsCurrentModified'
     })
+  },
+  methods: {
+    setCertKeyFile (file) {
+      this.content.server.sslOptions.key = file.path
+    },
+    setCertFile (file) {
+      this.content.server.sslOptions.cert = file.path
+    }
   },
   components: {
     LocationCard,
@@ -130,6 +170,13 @@ export default {
     }
     .location-list {
       margin-top: $main-padding;
+    }
+    .ssl-result {
+      display: flex;
+      align-items: center;
+      .file-name {
+        flex: 1;
+      }
     }
   }
 </style>

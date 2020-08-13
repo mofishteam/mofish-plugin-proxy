@@ -14,6 +14,8 @@ export default {
     SAVE_CONFIG (state) {
       setConfig(state.config)
     },
+    // 单重启SERVER
+    RELOAD_SERVER () {},
     SET_CONFIG (state, config) {
       console.log(state)
       state.config = config

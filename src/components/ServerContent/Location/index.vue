@@ -22,8 +22,7 @@ export default {
 <style lang="scss">
   @import "~@/assets/style/base.scss";
   .location-card {
-    padding-top: $main-padding / 2;
-    padding-bottom: $main-padding / 2;
+    padding-top: $main-padding / 2!important;
     &:hover {
       .move-icon {
         display: block;

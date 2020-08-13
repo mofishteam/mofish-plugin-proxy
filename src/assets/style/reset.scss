@@ -70,3 +70,32 @@ li {
     }
   }
 }
+
+.upload-demo {
+  .el-upload {
+    width: 100%;
+    .el-upload-dragger {
+      width: 100%;
+    }
+  }
+  &.row-upload {
+    .el-icon-upload {
+      margin: 0 $main-padding / 4;
+      font-size: 50px;
+    }
+    .el-upload-dragger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 70px;
+    }
+  }
+  &.hide-uploader {
+    .el-upload {
+      display: none;
+    }
+    .el-upload__tip {
+      display: none;
+    }
+  }
+}

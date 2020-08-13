@@ -1,4 +1,6 @@
 import http from 'http'
+import https from 'https'
+import fs from 'fs'
 import Location from './location'
 import UrlHandler from '../../utils/urlHandler'
 import { getId } from '../../commonUtils/options'
@@ -35,8 +37,12 @@ export default class Server {
     this.init()
   }
   init () {
+    const options = this.config.server.ssl ? {
+      key: fs.readFileSync(this.config.server.sslOptions.key, 'utf8'),
+      cert: fs.readFileSync(this.config.server.sslOptions.cert, 'utf8')
+    } : {}
     // 新增端口监听，可通过this.httpServer.close()关闭监听
-    this.httpServer = http.createServer(this.handler.callback()).listen(this.config.server.listen)
+    this.httpServer = (this.config.server.ssl ? https : http).createServer(options, this.handler.callback()).listen(this.config.server.listen)
     this.reloadLocations()
     console.log('Server is listening ' + this.config.server.listen)
   }
