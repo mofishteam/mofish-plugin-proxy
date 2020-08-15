@@ -94,7 +94,14 @@
             </el-form-item>
           </template>
           <el-form-item label=" ">
-            <el-button class="full-width" :disabled="!isCurrentModified">Save</el-button>
+            <el-dropdown class="full-width" type="primary" @command="onChangeSubmitMode">
+              <el-button class="full-width" :disabled="!isCurrentModified">{{submitMode}}</el-button>
+              <el-dropdown-menu slot="dropdown" :disabled="!isCurrentModified">
+                <el-dropdown-item command="Save">Save Only</el-dropdown-item>
+                <el-dropdown-item command="Save and Reload">Save and Reload</el-dropdown-item>
+                <el-dropdown-item command="Reload">Reload Only</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </el-form-item>
         </el-form>
       </card>
@@ -108,6 +115,11 @@ import LocationCard from './Location'
 import { mapGetters } from 'vuex'
 export default {
   name: 'ServerContent',
+  data () {
+    return {
+      submitMode: 'Save'
+    }
+  },
   props: {
     content: {
       default: null,
@@ -126,6 +138,9 @@ export default {
     },
     setCertFile (file) {
       this.content.server.sslOptions.cert = file.path
+    },
+    onChangeSubmitMode (command) {
+      this.submitMode = command
     }
   },
   components: {
