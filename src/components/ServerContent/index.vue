@@ -93,15 +93,15 @@
               <el-input type="number" v-model="content.server.listen"></el-input>
             </el-form-item>
           </template>
+          <el-form-item label="Save Mode">
+            <el-select class="full-width" v-model="submitMode">
+              <el-option value="Save">Save Only</el-option>
+              <el-option value="Save and Reload">Save and Reload</el-option>
+              <el-option value="Reload">Reload Only</el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item label=" ">
-            <el-dropdown class="full-width" type="primary" @command="onChangeSubmitMode">
-              <el-button class="full-width" :disabled="!isCurrentModified">{{submitMode}}</el-button>
-              <el-dropdown-menu slot="dropdown" :disabled="!isCurrentModified">
-                <el-dropdown-item command="Save">Save Only</el-dropdown-item>
-                <el-dropdown-item command="Save and Reload">Save and Reload</el-dropdown-item>
-                <el-dropdown-item command="Reload">Reload Only</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
+            <el-button class="full-width" :disabled="!isCurrentModified" @click="save">{{submitMode}}</el-button>
           </el-form-item>
         </el-form>
       </card>
@@ -112,12 +112,12 @@
 <script>
 import draggable from 'vuedraggable'
 import LocationCard from './Location'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'ServerContent',
   data () {
     return {
-      submitMode: 'Save'
+      submitMode: 'Save and Reload'
     }
   },
   props: {
@@ -133,14 +133,22 @@ export default {
     })
   },
   methods: {
+    ...mapActions({
+      saveConfig: 'saveConfig',
+      setServer: 'setServer'
+    }),
     setCertKeyFile (file) {
       this.content.server.sslOptions.key = file.path
     },
     setCertFile (file) {
       this.content.server.sslOptions.cert = file.path
     },
-    onChangeSubmitMode (command) {
-      this.submitMode = command
+    save () {
+      this.setServer(this.content)
+      // this.saveConfig({
+      //   type: 'server',
+      //   id: ''
+      // })
     }
   },
   components: {

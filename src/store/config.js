@@ -1,4 +1,5 @@
 import { getConfig, setConfig } from '@/api/config'
+import { reload } from '@/api/reload'
 // import md5 from 'md5'
 // let count = 0
 // const randomId = () => {
@@ -11,19 +12,42 @@ export default {
   },
   mutations: {
     // 向磁盘保存config
-    SAVE_CONFIG (state) {
-      setConfig(state.config)
-    },
+    // SAVE_CONFIG (state) {
+    //
+    // },
     // 单重启SERVER
-    RELOAD_SERVER () {},
+    // RELOAD_SERVER (state, { type, id }) {
+    //
+    // },
     SET_CONFIG (state, config) {
       console.log(state)
       state.config = config
+    },
+    SET_SERVER (state, server) {
+      const index = state.config.findIndex(item => item.id === server.id)
+      state.config[index] = server
     }
   },
   actions: {
+    async saveConfig ({ state, dispatch }, { type, id, isReload = true, isSave = true }) {
+      if (isSave) {
+        await setConfig(state.config)
+      }
+      if (isReload) {
+        await dispatch('reload', { type, id })
+      }
+    },
+    async reload ({ state }, { type, id }) {
+      return reload({
+        name: type,
+        id
+      })
+    },
     setConfig ({ commit }, data) {
       commit('SET_CONFIG', data)
+    },
+    setServer ({ commit }, data) {
+      commit('SET_SERVER', data)
     },
     refreshConfig ({ commit }) {
       console.log('refreshConfig')

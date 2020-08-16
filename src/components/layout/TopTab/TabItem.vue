@@ -62,6 +62,17 @@ export default {
     justify-content: center;
     max-width: 200px;
     min-width: 40px;
+    &:not(.active):not(:hover) + .top-tab-item:not(.active):not(:hover) {
+      &:before {
+        content: '';
+        position: absolute;
+        top: 6px;
+        bottom: 6px;
+        left: 0;
+        width: 1px;
+        background-color: $first-level-border-color;
+      }
+    }
     &_title {
       position: absolute;
       top: 50%;
