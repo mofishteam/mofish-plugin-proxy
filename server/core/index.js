@@ -66,15 +66,17 @@ export default class Core {
       console.log('serverInstance', serverInstance)
       this.getServerConfigList().map(item => {
         if (item.id === id) {
-          console.log(merge(serverConfig, data))
-          return merge(serverConfig, data)
+          return Object.keys(data).reduce((result, cur) => {
+            result[cur] = data[cur]
+            return result
+          }, serverConfig)
         } else {
           return item
         }
       })
       serverInstance.setConfig(this.getServer(id).config, true)
     } else {
-      console.log('not find')
+      console.log('not found')
       // 找不到server则添加
       const serverConfigList = this.getServerConfigList()
       console.log('config: ', serverConfigList)
@@ -136,8 +138,8 @@ export default class Core {
     } : null
   }
   // 重启Core
-  reload () {
-    this.destroyResources()
+  async reload () {
+    await this.destroyResources()
     this.initServers()
   }
   // 初始化Servers
@@ -153,8 +155,12 @@ export default class Core {
     console.log('serverConfig.id ', serverConfig.id)
     // if (!this.getServer(serverConfig.id)) return null
     // 合并默认配置
-    serverConfig = merge(defaultServerOption(), serverConfig)
-    serverConfig.id = serverConfig.id || getId(`server-${serverConfig.type}`)
+    try {
+      serverConfig = merge(defaultServerOption(), serverConfig)
+      serverConfig.id = serverConfig.id || getId(`server-${serverConfig.type}`)
+    } catch (err) {
+      console.log(err)
+    }
     const instance = new Server({ config: serverConfig, handler: this.handler })
     this.serverList.push(instance)
     return {
@@ -186,20 +192,20 @@ export default class Core {
     }
   }
   // 销毁Servers
-  destroyServers () {
+  async destroyServers () {
     for (const serverListIndex in this.serverList) {
       const serverListItem = this.serverList[serverListIndex]
-      serverListItem.destroy && serverListItem.destroy()
+      serverListItem.destroy && await serverListItem.destroy()
     }
     this.serverList = []
   }
   // 销毁所有资源
-  destroyResources () {
-    this.destroyServers()
+  async destroyResources () {
+    await this.destroyServers()
     this.handler = null
   }
   // 销毁Core
-  destroy () {
-    this.destroyResources()
+  async destroy () {
+    await this.destroyResources()
   }
 }

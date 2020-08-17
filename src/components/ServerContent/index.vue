@@ -50,6 +50,11 @@
               </el-option>
             </el-select>
           </el-form-item>
+          <template v-if="content.type === 'child'">
+            <el-form-item label="Listen">
+              <el-input type="number" v-model="content.server.listen"></el-input>
+            </el-form-item>
+          </template>
           <el-form-item label="SSL">
             <el-radio-group v-model="content.server.ssl" size="small">
               <el-radio-button :label="true">ON</el-radio-button>
@@ -86,11 +91,6 @@
                 <span class="file-name">{{content.server.sslOptions.cert}}</span>
                 <el-button type="text" icon="el-icon-close" @click="content.server.sslOptions.cert = ''"></el-button>
               </p>
-            </el-form-item>
-          </template>
-          <template v-if="content.type === 'child'">
-            <el-form-item label="Listen">
-              <el-input type="number" v-model="content.server.listen"></el-input>
             </el-form-item>
           </template>
           <el-form-item label="Save Mode">

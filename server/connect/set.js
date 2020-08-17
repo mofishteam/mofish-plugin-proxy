@@ -5,8 +5,12 @@ export default async function ({ core, params, reply }) {
   switch (params.name) {
     case 'server': core.mergeServerConfig(id, params.change)
       await core.saveConfig()
-      console.log(params, core.getServer(id))
-      reply({ type: 'success', data: core.getServer(id).config })
+      console.log(params, core.getServer(id), 'id: ', id)
+      if (core.getServer(id)) {
+        reply({ type: 'success', data: core.getServer(id).config })
+      } else {
+        reply({ type: 'error', message: `Cannot find Server of id ${id}.` })
+      }
       break
     case 'location': core.mergeLocationConfig(id, params.change)
       await core.saveConfig()

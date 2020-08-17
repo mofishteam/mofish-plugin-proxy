@@ -4,13 +4,16 @@ import fs from 'fs'
 import Location from './location'
 import UrlHandler from '../../utils/urlHandler'
 import { getId } from '../../commonUtils/options'
+import getPort from 'get-port'
 
 export default class Server {
   constructor ({ config = {}, handler }) {
     this.id = config.id || getId('server')
-    this.handler = handler
-    this.setConfig(config)
-    this.initUrlHandler()
+    this.handler = handler;
+    (async () => {
+      await this.setConfig(config)
+      this.initUrlHandler()
+    })()
   }
   initUrlHandler () {
     this.urlHandler = new UrlHandler(
@@ -22,25 +25,27 @@ export default class Server {
       })
     )
   }
-  setConfig (config, silence = false) {
+  async setConfig (config, silence = false) {
     this.config = config
     if (this.config.close) {
-      this.close()
+      await this.close()
     } else {
       if (!silence) {
-        this.reload()
+        await this.reload()
       }
     }
   }
-  reload () {
-    this.close()
-    this.init()
+  async reload () {
+    await this.close()
+    await this.init()
   }
-  init () {
+  async init () {
     const options = this.config.server.ssl ? {
       key: fs.readFileSync(this.config.server.sslOptions.key, 'utf8'),
       cert: fs.readFileSync(this.config.server.sslOptions.cert, 'utf8')
     } : {}
+    const isPortAvailable = (await getPort({ port: +this.config.server.listen })) === +this.config.server.listen
+    console.log('isPortAvailable', isPortAvailable)
     // 新增端口监听，可通过this.httpServer.close()关闭监听
     this.httpServer = (this.config.server.ssl ? https : http).createServer(options, this.handler.callback()).listen(this.config.server.listen)
     this.reloadLocations()
@@ -75,14 +80,22 @@ export default class Server {
   }
   // 关闭Server
   close () {
-    this.httpServer && this.httpServer.close()
-    this.destroyResources()
+    return new Promise(resolve => {
+      if (this.httpServer) {
+        this.httpServer.close(() => {
+          resolve(this.httpServer)
+          this.destroyResources()
+        })
+      } else {
+        resolve(null)
+      }
+    })
   }
   destroyResources () {
     this.httpServer = null
     this.removeAllLocations()
   }
-  destroy () {
-    this.close()
+  async destroy () {
+    await this.close()
   }
 }

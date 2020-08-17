@@ -42,17 +42,18 @@ export default {
       if (isSave && type) {
         switch (type) {
           case 'server':
-            await dispatch('setServer', getters.getDraftList.find(item => item.id === id))
+            const serverDraft = getters.getDraftList.find(item => item.id === id)
+            console.log('serverDraft', serverDraft)
+            await dispatch('setServer', serverDraft)
             await saveConfig({
-              id: state.config.id,
+              id: serverDraft.id,
               name: type,
-              change: state.config
+              change: serverDraft
             })
             break
           case 'config':
             await dispatch('setConfig', state.config)
             await saveConfig({
-              id: state.config.id,
               name: type,
               change: state.config
             })
