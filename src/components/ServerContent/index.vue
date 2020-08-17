@@ -144,7 +144,10 @@ export default {
       this.content.server.sslOptions.cert = file.path
     },
     save () {
-      this.setServer(this.content)
+      this.saveConfig({
+        id: this.content.id,
+        type: 'server'
+      })
       // this.saveConfig({
       //   type: 'server',
       //   id: ''

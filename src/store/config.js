@@ -1,5 +1,7 @@
-import { getConfig, setConfig } from '@/api/config'
+import { getConfig, setConfig as saveConfig } from '@/api/config'
 import { reload } from '@/api/reload'
+import cloneDeep from 'lodash.clonedeep'
+// import merge from 'lodash.merge'
 // import md5 from 'md5'
 // let count = 0
 // const randomId = () => {
@@ -24,16 +26,40 @@ export default {
       state.config = config
     },
     SET_SERVER (state, server) {
-      const index = state.config.findIndex(item => item.id === server.id)
-      state.config[index] = server
+      const serverConfig = state.config.find(item => item.id === server.id)
+      if (serverConfig) {
+        const clonedServer = cloneDeep(server)
+        for (const serverKey in clonedServer) {
+          if (clonedServer.hasOwnProperty(serverKey)) {
+            serverConfig[serverKey] = clonedServer[serverKey]
+          }
+        }
+      }
     }
   },
   actions: {
-    async saveConfig ({ state, dispatch }, { type, id, isReload = true, isSave = true }) {
-      if (isSave) {
-        await setConfig(state.config)
+    async saveConfig ({ state, dispatch, commit, getters }, { type, id, isReload = true, isSave = true }) {
+      if (isSave && type) {
+        switch (type) {
+          case 'server':
+            await dispatch('setServer', getters.getDraftList.find(item => item.id === id))
+            await saveConfig({
+              id: state.config.id,
+              name: type,
+              change: state.config
+            })
+            break
+          case 'config':
+            await dispatch('setConfig', state.config)
+            await saveConfig({
+              id: state.config.id,
+              name: type,
+              change: state.config
+            })
+            break
+        }
       }
-      if (isReload) {
+      if (isReload && type && id) {
         await dispatch('reload', { type, id })
       }
     },
