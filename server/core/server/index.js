@@ -5,9 +5,11 @@ import Location from './location'
 import UrlHandler from '../../utils/urlHandler'
 import { getId } from '../../commonUtils/options'
 import getPort from 'get-port'
+import Emitter from '../../utils/eventEmitter'
 
-export default class Server {
+export default class Server extends Emitter {
   constructor ({ config = {}, handler }) {
+    super()
     this.id = config.id || getId('server')
     this.handler = handler;
     (async () => {
@@ -37,6 +39,7 @@ export default class Server {
   }
   async reload () {
     await this.close()
+    this.config.close = false
     await this.init()
   }
   async init () {
@@ -44,12 +47,24 @@ export default class Server {
       key: fs.readFileSync(this.config.server.sslOptions.key, 'utf8'),
       cert: fs.readFileSync(this.config.server.sslOptions.cert, 'utf8')
     } : {}
+    // 查看端口是否可用
     const isPortAvailable = (await getPort({ port: +this.config.server.listen })) === +this.config.server.listen
-    console.log('isPortAvailable', isPortAvailable)
-    // 新增端口监听，可通过this.httpServer.close()关闭监听
-    this.httpServer = (this.config.server.ssl ? https : http).createServer(options, this.handler.callback()).listen(this.config.server.listen)
-    this.reloadLocations()
-    console.log('Server is listening ' + this.config.server.listen)
+    if (!this.config.close) {
+      // 尝试启动
+      if (isPortAvailable) {
+        // 新增端口监听，可通过this.httpServer.close()关闭监听
+        this.httpServer = (this.config.server.ssl ? https : http).createServer(options, (...args) => {
+          // TODO: 调研这里要不要用bind
+          this.handler.callback()(...args)
+          this.$emit('ready')
+        }).listen(this.config.server.listen)
+        this.reloadLocations()
+        console.log('Server is listening ' + this.config.server.listen)
+      } else {
+        await this.close()
+        throw new Error(`Port is not available in Server ${this.config.name}`)
+      }
+    }
   }
   // 匹配路由
   match ({ urlObj, port }) {
@@ -83,6 +98,7 @@ export default class Server {
     return new Promise(resolve => {
       if (this.httpServer) {
         this.httpServer.close(() => {
+          this.config.close = true
           resolve(this.httpServer)
           this.destroyResources()
         })

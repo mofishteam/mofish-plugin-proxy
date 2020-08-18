@@ -11,6 +11,7 @@ export const defaultServerOption = (config) => merge({
   include: null,
   type: 'mitm', // Man-In-The-Middle
   name: '',
+  close: false,
   server: {
     name: ['0.0.0.0'],
     ssl: false,

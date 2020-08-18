@@ -140,18 +140,18 @@ export default class Core {
   // 重启Core
   async reload () {
     await this.destroyResources()
-    this.initServers()
+    await this.initServers()
   }
   // 初始化Servers
-  initServers () {
+  async initServers () {
     this.serverList = []
     this.initHandler()
-    this.serversConfig.map(serverConfig => {
-      this.initServerItem(serverConfig)
-    })
+    for (const serverConfig of this.serversConfig) {
+      await this.initServerItem(serverConfig)
+    }
   }
   // 初始化单个Server
-  initServerItem (serverConfig) {
+  async initServerItem (serverConfig) {
     console.log('serverConfig.id ', serverConfig.id)
     // if (!this.getServer(serverConfig.id)) return null
     // 合并默认配置
@@ -162,6 +162,13 @@ export default class Core {
       console.log(err)
     }
     const instance = new Server({ config: serverConfig, handler: this.handler })
+    await new Promise(resolve => {
+      instance.$on('ready', () => {
+        resolve()
+      })
+    }).catch(err => {
+      throw new Error(err)
+    })
     this.serverList.push(instance)
     return {
       config: serverConfig,

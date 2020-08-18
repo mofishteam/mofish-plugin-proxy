@@ -55,6 +55,12 @@
               <el-input type="number" v-model="content.server.listen"></el-input>
             </el-form-item>
           </template>
+          <el-form-item label="Close">
+            <el-radio-group v-model="content.close" size="small">
+              <el-radio-button :label="true" class="text-danger-important">YES</el-radio-button>
+              <el-radio-button :label="false">NO</el-radio-button>
+            </el-radio-group>
+          </el-form-item>
           <el-form-item label="SSL">
             <el-radio-group v-model="content.server.ssl" size="small">
               <el-radio-button :label="true">ON</el-radio-button>
