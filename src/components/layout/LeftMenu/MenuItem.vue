@@ -6,7 +6,7 @@
       <el-button circle icon="el-icon-more" class="menu-item-more-icon" type="text" v-if="menuInfo.canModify"></el-button>
     </div>
     <ul class="sub-menu-list" v-show="folderOpen">
-      <li :class="['sub-menu-item', {active: currentDraftId === child.id}]" v-for="child in menuInfo.children" :key="child.id" @click="onMenuItemClick(child.id)">
+      <li :class="['sub-menu-item', {active: currentDraftId === child.id}]" v-for="child in menuInfo.children.filter(item => item)" :key="child.id" @click="onMenuItemClick(child.id)">
         <span>{{serverIdList[child.id].name}}</span>
         <el-button @click.stop circle icon="el-icon-more" class="menu-item-more-icon" type="text"></el-button>
       </li>

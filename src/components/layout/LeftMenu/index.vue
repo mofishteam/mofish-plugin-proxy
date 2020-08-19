@@ -51,7 +51,7 @@ export default {
         if (defaultMenu) {
           // 从ServerList中找到没有被分配文件夹的Server
           const defaultServers = this.serverList.reduce((sum, cur) => {
-            if (!this.menuServers.includes(cur.id)) {
+            if (cur && !this.menuServers.includes(cur.id)) {
               sum.push({ id: cur.id })
             }
             return sum

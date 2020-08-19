@@ -32,7 +32,14 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="Server Name">
-            <el-select class="full-width" v-model="content.server.name" multiple placeholder="Select an option.">
+            <el-select
+              class="full-width"
+              v-model="content.server.name"
+              multiple
+              filterable
+              allow-create
+              placeholder="Select an option."
+            >
               <el-option
                 key="ServerNameLocalhost"
                 label="localhost"

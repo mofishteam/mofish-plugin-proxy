@@ -21,6 +21,12 @@ export default {
     // RELOAD_SERVER (state, { type, id }) {
     //
     // },
+    ADD_SERVER (state, { server }) {
+      const findServer = state.config.find(item => item && (item.id === server.id))
+      if (!findServer) {
+        state.config.push(cloneDeep(server))
+      }
+    },
     SET_CONFIG (state, config) {
       console.log(state)
       state.config = config
@@ -43,8 +49,13 @@ export default {
         switch (type) {
           case 'server':
             const serverDraft = getters.getDraftList.find(item => item.id === id)
+            const server = getters.getIdOrderedServerList[id]
+            if (!server) {
+              await dispatch('addServer', { server: serverDraft })
+            } else {
+              await dispatch('setServer', serverDraft)
+            }
             console.log('serverDraft', serverDraft)
-            await dispatch('setServer', serverDraft)
             await saveConfig({
               id: serverDraft.id,
               name: type,
@@ -76,6 +87,9 @@ export default {
     setServer ({ commit }, data) {
       commit('SET_SERVER', data)
     },
+    addServer ({ commit }, data) {
+      commit('ADD_SERVER', data)
+    },
     refreshConfig ({ commit }) {
       console.log('refreshConfig')
       getConfig().then(res => {
@@ -90,7 +104,9 @@ export default {
     },
     getIdOrderedServerList (state) {
       return state.config.reduce((sum, cur) => {
-        sum[cur.id] = cur
+        if (cur) {
+          sum[cur.id] = cur
+        }
         return sum
       }, {})
     }

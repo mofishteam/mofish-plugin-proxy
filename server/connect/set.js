@@ -20,6 +20,7 @@ export default async function ({ core, params, reply }) {
         break
     }
   } catch (err) {
+    console.error(err)
     reply({ type: 'error', message: err.toString() })
   }
 }
