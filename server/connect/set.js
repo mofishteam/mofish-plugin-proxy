@@ -5,7 +5,7 @@ export default async function ({ core, params, reply }) {
     const id = params.id || (params.change && params.change.id) || getId(`server-${params.change.type}`)
     // TODO: 这里try catch过长，core.mergeServerConfig报错，导致后面core.saveConfig没执行
     switch (params.name) {
-      case 'server': core.mergeServerConfig(id, params.change)
+      case 'server': await core.mergeServerConfig(id, params.change)
         await core.saveConfig()
         console.log(params, core.getServer(id), 'id: ', id)
         if (core.getServer(id)) {

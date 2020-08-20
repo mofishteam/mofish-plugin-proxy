@@ -11,7 +11,7 @@ export default class Core {
     this.config = {}
     this.configPath = configPath
     this.utils = utils
-    this.setConfig(config)
+    this.setConfig(config, false, true)
   }
   // 所有端口集合
   get portList () {
@@ -35,13 +35,14 @@ export default class Core {
   * 设置Config
   * @param config 配置JSON
   * @param silence 是否触发重载
+  * @param needDestroy 是否需要先destroy
   * */
-  setConfig (config, silence = false) {
+  async setConfig (config, silence = false, needDestroy = true) {
     // this.rawConfig = cloneDeep(this.config)
     this.config = merge(this.config, config)
     this.serversConfig = this.config.allProject
     if (!silence) {
-      this.reload()
+      await this.reload(needDestroy)
     }
   }
   // 将config保存到文件
@@ -57,7 +58,7 @@ export default class Core {
   //   return this.rawConfig
   // }
   // 合并某个server的配置
-  mergeServerConfig (id, data) {
+  async mergeServerConfig (id, data) {
     const serverResult = this.getServer(id)
     // 找到server则修改
     if (serverResult) {
@@ -80,7 +81,7 @@ export default class Core {
       // 找不到server则添加
       const serverConfigList = this.getServerConfigList()
       console.log('config: ', serverConfigList)
-      const newServer = this.initServerItem(data)
+      const newServer = await this.initServerItem(data)
       console.log(newServer)
       if (newServer) {
         const mergedConfig = newServer.config
@@ -138,8 +139,8 @@ export default class Core {
     } : null
   }
   // 重启Core
-  async reload () {
-    await this.destroyResources()
+  async reload (needDestroy = true) {
+    needDestroy && await this.destroyResources()
     await this.initServers()
   }
   // 初始化Servers
@@ -164,6 +165,7 @@ export default class Core {
     const instance = new Server({ config: serverConfig, handler: this.handler })
     await new Promise(resolve => {
       instance.$on('ready', () => {
+        console.log('ready')
         resolve()
       })
     }).catch(err => {
@@ -192,10 +194,10 @@ export default class Core {
       await next()
     })
   }
-  setServerConfig (id, config = {}) {
+  async setServerConfig (id, config = {}) {
     if (config.type && this.serverList) {
       const server = this.serverList.find(item => item.id === config.id)
-      server.setConfig(merge(defaultServerOption(), server.config, config))
+      await server.setConfig(merge(defaultServerOption(), server.config, config))
     }
   }
   // 销毁Servers

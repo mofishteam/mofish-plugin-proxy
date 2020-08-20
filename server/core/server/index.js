@@ -29,35 +29,37 @@ export default class Server extends Emitter {
   }
   async setConfig (config, silence = false) {
     this.config = config
-    if (this.config.close) {
-      await this.close()
-    } else {
-      if (!silence) {
-        await this.reload()
-      }
+    if (!silence) {
+      await this.reload()
     }
   }
   async reload () {
-    await this.close()
-    this.config.close = false
-    await this.init()
+    if (!this.config.close && await this.close()) {
+      this.config.close = false
+      await this.init()
+    } else {
+      throw new Error('Not closed completely.')
+    }
   }
   async init () {
+    console.log('init')
     const options = this.config.server.ssl ? {
       key: fs.readFileSync(this.config.server.sslOptions.key, 'utf8'),
       cert: fs.readFileSync(this.config.server.sslOptions.cert, 'utf8')
     } : {}
     // 查看端口是否可用
     const isPortAvailable = (await getPort({ port: +this.config.server.listen })) === +this.config.server.listen
+    console.log('isPortAvailable', isPortAvailable)
     if (!this.config.close) {
       // 尝试启动
       if (isPortAvailable) {
         // 新增端口监听，可通过this.httpServer.close()关闭监听
         this.httpServer = (this.config.server.ssl ? https : http).createServer(options, (...args) => {
-          // TODO: 调研这里要不要用bind
+          // TODO: 调研这里要不要用bind，这里需要想办法同步，创建完一个server再传出ready信号
           this.handler.callback()(...args)
-          this.$emit('ready')
         }).listen(this.config.server.listen)
+        this.$emit('ready')
+        console.log('2222', this.httpServer)
         this.reloadLocations()
         console.log('Server is listening ' + this.config.server.listen)
       } else {
@@ -96,6 +98,11 @@ export default class Server extends Emitter {
   // 关闭Server
   close () {
     return new Promise(resolve => {
+      console.log('this.httpServer', this.httpServer)
+      // undefined的话说明是刚初始化的，null是被关之后赋值的
+      if (this.httpServer === undefined) {
+        resolve(true)
+      }
       if (this.httpServer) {
         this.httpServer.close(() => {
           this.config.close = true
