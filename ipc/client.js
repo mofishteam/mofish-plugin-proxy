@@ -5,8 +5,9 @@ ipc.config.retry = 1500
 ipc.config.silent = true
 let count = 0
 
-export default () => new Promise(resolve => {
+export default (options = { exitWhenDisconnected: true }) => new Promise(resolve => {
   console.log(ipc)
+  const { exitWhenDisconnected = true } = options
   ipc.connectTo(
     'mofishPluginProxy',
     () => {
@@ -30,7 +31,9 @@ export default () => new Promise(resolve => {
         'disconnect',
         () => {
           console.error('disconnected from mofishPluginProxy')
-          process.exit()
+          if (exitWhenDisconnected) {
+            process.exit()
+          }
         }
       )
     }

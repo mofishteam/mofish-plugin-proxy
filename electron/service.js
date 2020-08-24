@@ -4,7 +4,7 @@ import ipcClientGenerator from '../ipc/client'
 let ipcClientSend = null
 
 const connectCore = async () => {
-  return ipcClientSend || (ipcClientSend = await ipcClientGenerator())
+  return ipcClientSend || (ipcClientSend = await ipcClientGenerator({ exitWhenDisconnected: false }))
 }
 
 register('raw', async (data) => {
