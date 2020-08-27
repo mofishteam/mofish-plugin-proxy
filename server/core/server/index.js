@@ -4,8 +4,14 @@ import fs from 'fs'
 import Location from './location'
 import UrlHandler from '../../utils/urlHandler'
 import { getId } from '../../commonUtils/options'
-import getPort from 'get-port'
+import tcpPortUsed from 'tcp-port-used'
 import Emitter from '../../utils/eventEmitter'
+// import { sleep } from '../../utils/common'
+
+// 端口不可用时重新尝试多少次
+const PORT_AVAILABLE_WAIT_TIMES = 10
+// 端口不可用时重新尝试间隔
+const PORT_AVAILABLE_WAIT_INTERVAL_TIME = 1000
 
 export default class Server extends Emitter {
   constructor ({ config = {}, handler }) {
@@ -48,11 +54,12 @@ export default class Server extends Emitter {
       cert: fs.readFileSync(this.config.server.sslOptions.cert, 'utf8')
     } : {}
     // 查看端口是否可用
-    const isPortAvailable = (await getPort({ port: +this.config.server.listen })) === +this.config.server.listen
-    console.log('isPortAvailable', isPortAvailable)
     if (!this.config.close) {
       // 尝试启动
-      if (isPortAvailable) {
+      await tcpPortUsed.waitUntilFree(
+        +this.config.server.listen, PORT_AVAILABLE_WAIT_INTERVAL_TIME,
+        PORT_AVAILABLE_WAIT_INTERVAL_TIME * PORT_AVAILABLE_WAIT_TIMES
+      ).then(async () => {
         // 新增端口监听，可通过this.httpServer.close()关闭监听
         this.httpServer = (this.config.server.ssl ? https : http).createServer(options, (...args) => {
           // TODO: 调研这里要不要用bind，这里需要想办法同步，创建完一个server再传出ready信号
@@ -62,10 +69,10 @@ export default class Server extends Emitter {
         console.log('2222', this.httpServer)
         this.reloadLocations()
         console.log('Server is listening ' + this.config.server.listen)
-      } else {
+      }, async (err) => {
         await this.close()
-        throw new Error(`Port is not available in Server ${this.config.name}`)
-      }
+        throw new Error(`Port is not available in Server ${this.config.name}: ${err}`)
+      })
     }
   }
   // 匹配路由
